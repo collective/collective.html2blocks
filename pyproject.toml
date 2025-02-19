@@ -1,0 +1,155 @@
+[project]
+name = "collective.html2blocks"
+description = "Convert html to blocks to be used by Volto"
+readme = "README.md"
+dynamic = ["version"]
+authors = [
+    { name = "Érico Andrei", email = "ericof@plone.org" }
+]
+keywords = ["Plone", "Python", "Volto",]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Environment :: Web Environment",
+  "Framework :: Plone",
+  "Intended Audience :: Developers",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Operating System :: OS Independent",
+  "License :: OSI Approved :: GNU General Public License v2 (GPLv2)",
+]
+requires-python = ">=3.12"
+dependencies = [
+    "beautifulsoup4>=4.13.3",
+]
+[project.scripts]
+html2blocks_debug = "collective.html2blocks.registry:_registry_report"
+
+[project.urls]
+Documentation = "https://github.com/collective/collective.html2blocks#readme"
+Issues = "https://github.com/collective/collective.html2blocks/issues"
+Source = "https://github.com/collective/collective.html2blocks"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.version]
+path = "src/collective/html2blocks/__init__.py"
+
+[tool.hatch.build]
+strict-naming = false
+packages = ["src/collective", "src/collective/html2blocks"]
+
+[tool.uv]
+default-groups = ["test"]
+
+[dependency-groups]
+test = [
+    "pytest>=8.3.4",
+    "pytest-cov>=6.0.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.coverage.run]
+source_pkgs = ["collective.html2blocks", "tests"]
+branch = true
+parallel = true
+
+
+[tool.towncrier]
+package = "collective.html2blocks"
+package_dir = "src"
+directory = "news/"
+filename = "CHANGELOG.md"
+start_string = "<!-- towncrier release notes start -->\n"
+title_format = "## {version} ({project_date})"
+template = "news/.changelog_template.jinja"
+issue_format = "[#{issue}](https://github.com/collective/collective.html2blocks/issues/{issue})"
+underlines = ["", "", ""]
+
+[[tool.towncrier.type]]
+directory = "breaking"
+name = "Breaking changes:"
+showcontent = true
+
+[[tool.towncrier.type]]
+directory = "feature"
+name = "Feature"
+showcontent = true
+
+[[tool.towncrier.type]]
+directory = "bugfix"
+name = "Bugfix"
+showcontent = true
+
+[[tool.towncrier.type]]
+directory = "internal"
+name = "Internal"
+showcontent = true
+
+[[tool.towncrier.type]]
+directory = "documentation"
+name = "Documentation"
+showcontent = true
+
+[[tool.towncrier.type]]
+directory = "tests"
+name = "Tests"
+showcontent = true
+
+[tool.ruff]
+target-version = "py311"
+line-length = 88
+fix = true
+lint.select = [
+    # flake8-2020
+    "YTT",
+    # flake8-bandit
+    "S",
+    # flake8-bugbear
+    "B",
+    # flake8-builtins
+    "A",
+    # flake8-comprehensions
+    "C4",
+    # flake8-debugger
+    "T10",
+    # flake8-simplify
+    "SIM",
+    # mccabe
+    "C90",
+    # pycodestyle
+    "E", "W",
+    # pyflakes
+    "F",
+    # pygrep-hooks
+    "PGH",
+    # pyupgrade
+    "UP",
+    # ruff
+    "RUF",
+]
+lint.ignore = [
+    # DoNotAssignLambda
+    "E731",
+]
+
+[tool.ruff.lint.isort]
+case-sensitive = false
+no-sections = true
+force-single-line = true
+from-first = true
+lines-after-imports = 2
+lines-between-types = 1
+
+[tool.ruff.format]
+preview = true
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["E501", "RUF001", "S101"]
+
+[tool.mypy]
+ignore_missing_imports = true

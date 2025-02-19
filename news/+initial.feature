@@ -1,0 +1,1 @@
+Initial implementation of collective.volto2blocks [@ericof]
