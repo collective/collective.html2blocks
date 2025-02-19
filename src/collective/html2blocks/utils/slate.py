@@ -45,6 +45,8 @@ def flatten_children(raw_block_children: list[dict | list]) -> list[dict]:
             block_children.extend(block)
         elif not block:
             continue
+        elif _just_children(block):
+            block_children.extend(block["children"])
         else:
             block_children.append(block)
     return block_children
@@ -116,7 +118,7 @@ def group_inline_nodes(block_children: list, tag_name: str = "span") -> list:
 
 def process_children(block: dict) -> dict:
     """Handle cases where children is an empty list."""
-    if "children" in block and block["children"] == []:
+    if block.get("children") == []:
         block["children"] = wrap_text("", True)
     return block
 

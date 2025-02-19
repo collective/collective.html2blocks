@@ -9,7 +9,7 @@ def _extract_blocks(raw_children: list[dict]) -> tuple[list[dict], list[dict]]:
     blocks = []
     for child in raw_children:
         if isinstance(child, dict) and child.get("@type", ""):
-            blocks.append(children)
+            blocks.append(child)
         else:
             children.append(child)
     return children, blocks
@@ -23,6 +23,8 @@ def slate_block(element: Element) -> list[dict]:
     additional_blocks = []
     if value is None:
         value = []
+    elif isinstance(value, list):
+        value, additional_blocks = _extract_blocks(value)
     elif isinstance(value, dict) and (children := value.get("children", [])):
         children, additional_blocks = _extract_blocks(children)
         value["children"] = children

@@ -9,9 +9,9 @@ params:
     default_blocks: [{"@type": "title"}, {"@type": "description"}]
     tests:
       - path: "len:blocks"
-        expected: 4
+        expected: 5
       - path: "len:blocks_layout/items"
-        expected: 4
+        expected: 5
 
   - name: News Item without default_blocks
     src: |
@@ -36,9 +36,9 @@ params:
     default_blocks: []
     tests:
       - path: "len:blocks"
-        expected: 12
+        expected: 11
       - path: "len:blocks_layout/items"
-        expected: 12
+        expected: 11
 
   - name: News Item with default_blocks
     src: |
@@ -63,6 +63,6 @@ params:
     default_blocks: [{"@type": "title"}, {"@type": "description"}]
     tests:
       - path: "len:blocks"
-        expected: 14
+        expected: 13
       - path: "len:blocks_layout/items"
-        expected: 14
+        expected: 13

@@ -31,7 +31,9 @@ def _filter_children(soup: BeautifulSoup) -> BeautifulSoup:
     """
     children = list(soup.children)
     for child in children:
-        if isinstance(child, Comment):
+        if isinstance(child, Comment) or (
+            isinstance(child, NavigableString) and child.text == "\n"
+        ):
             child.extract()
     children = list(soup.children)
     if len(children) == 1 and children[0].name == "div":
@@ -46,6 +48,8 @@ def _filter_children(soup: BeautifulSoup) -> BeautifulSoup:
 
 
 def parse_source(source: str, filter_: bool = True, group: bool = True) -> Element:
+    # Remove linebreaks from the end of the source
+    source = source.strip()
     soup = BeautifulSoup(source, features="html.parser")
     if filter_:
         soup = _filter_children(soup)

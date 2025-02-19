@@ -1,0 +1,133 @@
+---
+setup:
+  argnames: ["name", "src", "path", "expected"]
+  test_args: ["path", "expected"]
+params:
+
+  - name: Image without scale
+    src: '<img src="https://plone.org/news/item/@@images/44ae2493-53fb-4221-98dc-98fa38d6851a.jpeg" title="A Picture" alt="Picture of a person" class="image-right">'
+    tests:
+      - path: "0/@type"
+        expected: 'image'
+      - path: "0/url"
+        expected: https://plone.org/news/item
+      - path: "0/title"
+        expected: "A Picture"
+      - path: "0/alt"
+        expected: "Picture of a person"
+      - path: "0/size"
+        expected: "m"
+      - path: "0/align"
+        expected: "right"
+
+  - name: Image with scale
+    src: '<img src="https://plone.org/news/item/@@images/image/thumb" title="A Picture" alt="Picture of a person" class="image-right">'
+    tests:
+      - path: "0/@type"
+        expected: 'image'
+      - path: "0/url"
+        expected: https://plone.org/news/item
+      - path: "0/title"
+        expected: "A Picture"
+      - path: "0/alt"
+        expected: "Picture of a person"
+      - path: "0/size"
+        expected: "s"
+      - path: "0/align"
+        expected: "right"
+
+  - name: Image without view
+    src: '<img src="https://plone.org/news/item" title="A Picture" alt="Picture of a person" class="lazy-load">'
+    tests:
+      - path: "0/@type"
+        expected: 'image'
+      - path: "0/url"
+        expected: https://plone.org/news/item
+      - path: "0/title"
+        expected: "A Picture"
+      - path: "0/alt"
+        expected: "Picture of a person"
+      - path: "0/size"
+        expected: "l"
+      - path: "0/align"
+        expected: "center"
+
+  - name: Image with resolveuid
+    src: '<img src="../resolveuid/7c6a1b0a0d2f40ffb6a4c73fd67b185d" title="A Picture" alt="Picture of a person" class="lazy-load">'
+    tests:
+      - path: "0/@type"
+        expected: 'image'
+      - path: "0/url"
+        expected: "../resolveuid/7c6a1b0a0d2f40ffb6a4c73fd67b185d"
+      - path: "0/title"
+        expected: "A Picture"
+      - path: "0/alt"
+        expected: "Picture of a person"
+      - path: "0/size"
+        expected: "l"
+      - path: "0/align"
+        expected: "center"
+
+  - name: Image with data-attributes
+    src: '<img src="../resolveuid/7c6a1b0a0d2f40ffb6a4c73fd67b185d" title="A Picture" alt="Picture of a person" data-align="wide">'
+    tests:
+      - path: "0/@type"
+        expected: 'image'
+      - path: "0/url"
+        expected: "../resolveuid/7c6a1b0a0d2f40ffb6a4c73fd67b185d"
+      - path: "0/title"
+        expected: "A Picture"
+      - path: "0/alt"
+        expected: "Picture of a person"
+      - path: "0/size"
+        expected: "l"
+      - path: "0/align"
+        expected: "wide"
+
+  - name: Image scale large
+    src: '<img src="https://plone.org/news/item/image_large" />'
+    tests:
+      - path: "0/url"
+        expected: https://plone.org/news/item/image_large
+      - path: "0/size"
+        expected: "l"
+
+  - name: Image scale preview
+    src: '<img src="https://plone.org/news/item/image_preview" />'
+    tests:
+      - path: "0/url"
+        expected: https://plone.org/news/item/image_preview
+      - path: "0/size"
+        expected: "l"
+
+  - name: Image scale tile
+    src: '<img src="https://plone.org/news/item/image_tile" />'
+    tests:
+      - path: "0/url"
+        expected: https://plone.org/news/item/image_tile
+      - path: "0/size"
+        expected: "s"
+
+  - name: Image align center
+    src: '<img src="https://plone.org/news/item" class="image-center">'
+    tests:
+      - path: "0/align"
+        expected: "center"
+      - path: "0/size"
+        expected: "l"
+
+  - name: Image align left
+    src: '<img src="https://plone.org/news/item" class="image-left">'
+    tests:
+      - path: "0/align"
+        expected: "left"
+      - path: "0/size"
+        expected: "m"
+
+  - name: Image align right
+    src: '<img src="https://plone.org/news/item" class="image-right">'
+    tests:
+      - path: "0/align"
+        expected: "right"
+      - path: "0/size"
+        expected: "m"

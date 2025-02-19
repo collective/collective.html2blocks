@@ -113,10 +113,12 @@ def _div_(element: Element, tag_name: str) -> dict:
         for child in children:
             if isinstance(child, NavigableString):
                 value = child.text
-                block_children.append({
-                    "type": "p",
-                    "children": slate.wrap_text(value, True),
-                })
+                block_children.append(
+                    {
+                        "type": "p",
+                        "children": slate.wrap_text(value, True),
+                    }
+                )
             elif child.name == "div":
                 converter = registry.get_element_converter(child)
                 block_children.append(converter(child))
@@ -185,21 +187,36 @@ def _span_(element: Element, tag_name: str) -> dict:
             return slate.wrap_text(text)
 
 
-@registry.element_converter([
-    "blockquote",
-    "p",
-    "sub",
-    "sup",
-    "u",
-    "ol",
-    "ul",
-    "li",
-    "dl",
-    "dt",
-    "dd",
-])
+@registry.element_converter(
+    [
+        "blockquote",
+        "p",
+        "sub",
+        "sup",
+        "u",
+        "ol",
+        "ul",
+        "li",
+        "dl",
+        "dt",
+        "dd",
+    ]
+)
 def _block_(element: Element, tag_name: str) -> dict:
     return _handle_block_(element, tag_name)
+
+
+@registry.element_converter(["dl"], "dl")
+def _dl_(element: Element, tag_name: str) -> dict:
+    block = _handle_block_(element, tag_name)
+    children = []
+    # Remove empty text nodes
+    for child in block.get("children", []):
+        if slate.is_simple_text(child) and not child["text"].strip():
+            continue
+        children.append(child)
+    block["children"] = children
+    return block
 
 
 @registry.element_converter(["del", "s"], "s")
@@ -218,6 +235,23 @@ def deserialize_children(element: Element) -> list[dict]:
     return slate.group_text_blocks(block_children)
 
 
+def _deserialize(element: Element) -> dict | list | None:
+    if markup.is_inline(element) and not element.text.strip():
+        response = slate.wrap_text("")
+    elif converter := registry.get_block_converter(element):
+        # Hack: We 'believe' only slate would return a list of blocks
+        response = converter(element)[0]
+    elif element_converter := registry.get_element_converter(element):
+        response = element_converter(element)
+    else:
+        response = deserialize_children(element)
+    # Clean up response
+    if isinstance(response, dict) and slate._just_children(response):
+        children = response["children"]
+        response = slate.flatten_children(children)
+    return response
+
+
 def deserialize(element: Element) -> dict | None:
     """Return the JSON-like representation of an element."""
     tag_name = element.name
@@ -233,20 +267,4 @@ def deserialize(element: Element) -> dict | None:
         return slate.wrap_text(text)
     elif tag_name == "br":
         return slate.wrap_text("\n")
-    response = None
-    if markup.is_inline(element) and not text.strip():
-        response = slate.wrap_text("")
-    elif converter := registry.get_block_converter(element):
-        # Hack: We 'believe' only slate would return a list of blocks
-        response = converter(element)[0]
-    elif element_converter := registry.get_element_converter(element):
-        response = element_converter(element)
-    else:
-        response = deserialize_children(element)
-    if isinstance(response, dict) and slate._just_children(response):
-        children = response["children"]
-        if len(children) == 1 and slate.is_empty_paragraph(children[0]):
-            response = None
-        else:
-            response = response["children"]
-    return response
+    return _deserialize(element)

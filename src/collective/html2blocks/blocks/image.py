@@ -22,8 +22,6 @@ def _add_align_to_block(block: dict, css_classes: list[str]) -> None:
             size = "m"
         case "right":
             size = "m"
-        case "center":
-            size = "l"
     block["align"] = align
     block["size"] = size
 
@@ -31,9 +29,9 @@ def _add_align_to_block(block: dict, css_classes: list[str]) -> None:
 def _add_size_to_block(block: dict, src: str) -> None:
     size: str = block.get("size", "m")
     match _scale_from_src(src):
-        case "original":
-            size = "l"
         case "large":
+            size = "l"
+        case "preview":
             size = "l"
         case "thumb":
             size = "s"

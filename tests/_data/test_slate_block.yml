@@ -432,15 +432,17 @@ params:
     tests:
       - path: "0/@type"
         expected: 'slate'
+      - path: "len:"
+        expected: 2
       - path: "0/plaintext"
         expected: 'Chrissy Wainwright'
       - path: "len:0/value"
-        expected: 2
+        expected: 1
       - path: "0/value/0/type"
         expected: 'h2'
       - path: "0/value/0/children/0/text"
         expected: 'Chrissy Wainwright'
-      - path: "0/value/1/@type"
+      - path: "1/@type"
         expected: 'image'
 
   - name: Processing a b
@@ -664,3 +666,27 @@ params:
         expected: 1
       - path: "0/@type"
         expected: 'image'
+
+  - name: Simple paragraph with comment
+    src: "<p>Hello World!<!-- This is a comment --></p>"
+    tests:
+      - path: "0/@type"
+        expected: 'slate'
+      - path: "0/plaintext"
+        expected: 'Hello World!'
+      - path: "0/value/0/type"
+        expected: 'p'
+      - path: "0/value/0/children/0/text"
+        expected: 'Hello World!'
+
+  - name: Simple paragraph with time
+    src: "<p>Hello: <time>8:30 am</time> every morning.</p>"
+    tests:
+      - path: "0/@type"
+        expected: 'slate'
+      - path: "0/plaintext"
+        expected: 'Hello: 8:30 am every morning.'
+      - path: "0/value/0/type"
+        expected: 'p'
+      - path: "0/value/0/children/0/text"
+        expected: 'Hello: 8:30 am every morning.'

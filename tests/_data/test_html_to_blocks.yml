@@ -104,3 +104,127 @@ params:
         expected: 3
       - path: "0/@type"
         expected: image
+
+  - name: Parsing html with images nested in h2
+    src: >
+      <div>
+        <h2 id="chrissy"><img src="https://plone.org/foundation/meetings/membership/2019-membership-meeting/nominations/img4_08594.jpg/@@images/7a07f0e5-0fd7-4366-a32d-6b033c8dfce7.jpeg" title="Chrissy Wainwright 2019" alt="Chrissy Wainwright 2019" class="image-right">Chrissy Wainwright</h2>
+        <p><strong>President</strong>, (Springdale, Arkansas, USA)</p>
+        <p>Chrissy started at Six Feet Up as a front-end developer building Plone themes and has since moved to the back-end doing Python development and Plone migrations. She has given talks and training classes at many Plone Symposia and Conferences. This is her seventh term on the board, second as President.</p>
+        <hr>
+        <h2 id="erico"><img src="https://plone.org/foundation/board/github.jpg/@@images/1135c449-bf22-4011-b128-ab50c62e03b1.jpeg" title="ericof" alt="ericof" class="image-right">Érico Andrei</h2>
+        <p><strong>Vice President</strong>, (Berlin, DE)</p>
+        <p>Érico Andrei worked for more than 10 years with content management projects using Plone. During that period he co-founded Simples Consultoria, hosted 2 Plone Symposiums, co-organized a Plone Conference and in 2011 he was PythonBrasil (local Pycon) chair. Currently CTO for a German startup. He still uses Plone and Python every day. This is Érico's sixth term on the board.</p>
+        <hr>
+      </div>
+    tests:
+      - path: "len:"
+        expected: 10
+      - path: "0/plaintext"
+        expected: 'Chrissy Wainwright'
+      - path: "0/@type"
+        expected: slate
+      - path: "0/value/0/type"
+        expected: h2
+      - path: "0/value/0/children/0/text"
+        expected: Chrissy Wainwright
+      - path: "1/@type"
+        expected: image
+      - path: "1/align"
+        expected: right
+
+  - name: Parsing html with definition lists
+    src: >
+      <div>
+        <dl>
+        <dt>Problem A1: Injection</dt>
+        <dd>How Plone handles this: This is usually found in connections with databases as SQL Injection. As Plone does not use a SQL based database this is not possible. The database that Plone uses is not vulnerable to injection as it uses a binary format that cannot have user data inserted.</dd>
+        <dt>Problem A2: Broken Authentication and Session Management</dt>
+        <dd>How Plone handles this: Plone authenticates users in its own database using a SSHA hash of their password. Using its modular authentication system Plone can also authenticate users against common authentication systems such as LDAP and SQL as well as any other system for which a plugin is available (Gmail, OpenID, etc.). After authentication, Plone creates a session using a SHA-256 hash of a secret stored on the server, the userid and the current time. This is based on the Apache auth_tkt cookie format, but with a more secure hash function. Secrets can be refreshed on a regular basis to add extra security where needed.</dd>
+        <dt>Problem A3: Cross Site Scripting (XSS)</dt>
+        <dd>How Plone handles this: Plone has strong filtering in place to make sure that no potentially malicious code can ever be entered into the system. All content that is inserted is stripped of malicious tags like <code>&lt;script&gt;</code>, <code>&lt;embed&gt;</code> and <code>&lt;object&gt;</code>, as well as removing all <code>&lt;form&gt;</code> related tags, stopping users from impersonating any kind of HTTP POST requests. On an infrastructure level, the template language used to create pages in Plone quotes all HTML by default, effectively preventing cross site scripting.</dd>
+        </dl>
+      </div>
+    tests:
+      - path: "len:"
+        expected: 1
+      - path: "0/@type"
+        expected: slate
+      - path: "0/value/0/type"
+        expected: dl
+      - path: "len:0/value/0/children"
+        expected: 6
+
+  - name: Parsing html with nested divs
+    src: >
+      <div>
+        <p><strong>The Plone Conference 2021 will be held as an online event on October 23 - 31, 2021. <br></strong></p>
+        <p>The platform for this virtual event is <a href="https://loudswarm.com/" title="LoudSwarm">LoudSwarm</a>.</p>
+        <p>The conference website can be found at <a href="https://2021.ploneconf.org/" title="Ploneconf 2021">https://2021.ploneconf.org/</a></p>
+        <div class="intro-preliminary">
+        <div>
+          <p>Conference information (subject due to change):</p>
+          <ul>
+            <li>Training</li>
+            <li>4 days of talks + 1 of open spaces -</li>
+            <li>Sprint</li>
+          </ul>
+        </div>
+        </div>
+        <div class="cooked">
+          <h3><strong>Important dates</strong></h3>
+          <ul>
+            <li><strong>Call for papers: Now open - <a href="https://docs.google.com/forms/d/1PAZwkO7GDNnSJLr_V6hvTCy6zK4j4PgxnTZDwuOQI1E/viewform?edit_requested=true" title="Submit talks">submit your talk now</a>!</strong></li>
+            <li>Early bird registrations: <strong><a href="https://tickets.ploneconf.org/" title="Tickets">Get your tickets now</a></strong>!</li>
+            <li>Regular registrations:&nbsp;To be announced</li>
+          </ul>
+        </div>
+        <p><strong>&nbsp;</strong></p>
+        <p><strong>Follow Plone and Plone Conference on Twitter <a href="https://twitter.com/plone" title="Plone Twitter">@plone</a> and <a href="https://twitter.com/ploneconf" title="Twitter">@ploneconf</a> and hastag #ploneconf2021</strong></p>
+        <p><strong>Stay tuned for more information! </strong></p>
+      </div>
+    tests:
+      - path: "len:"
+        expected: 8
+      - path: "0/@type"
+        expected: slate
+      - path: "0/value/0/type"
+        expected: p
+      - path: "0/value/0/children/0/type"
+        expected: strong
+      - path: "0/value/0/children/0/children/0/text"
+        expected: "The Plone Conference 2021 will be held as an online event on October 23 - 31, 2021. \n"
+      - path: "len:3/value"
+        expected: 7
+      - path: "3/value/0/type"
+        expected: p
+      - path: "3/value/1/type"
+        expected: p
+      - path: "3/value/2/type"
+        expected: p
+      - path: "3/value/3/type"
+        expected: p
+      - path: "3/value/4/type"
+        expected: ul
+      - path: "3/value/5/type"
+        expected: p
+      - path: "3/value/6/type"
+        expected: p
+
+  - name: Parsing unwrapped text
+    src: 'text with an <b>inline element</b> and more text'
+    tests:
+      - path: "len:"
+        expected: 1
+      - path: "0/@type"
+        expected: slate
+      - path: "0/value/0/type"
+        expected: p
+      - path: "len:0/value/0/children"
+        expected: 3
+      - path: "0/value/0/children/0/text"
+        expected: 'text with an '
+      - path: "0/value/0/children/1/type"
+        expected: strong
+      - path: "0/value/0/children/2/text"
+        expected: " and more text"
