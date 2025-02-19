@@ -81,3 +81,28 @@ def test_html_to_blocks(traverse, name, src, path, expected):
     else:
         value = traverse(result, path)
         assert value == expected, f"{name}: {value} != {expected}"
+
+
+@pytest.mark.parametrize(
+    "src,default_blocks,total_blocks",
+    [
+        [
+            "<div><p>Hello</p> <p>World!</p></div>",
+            [{"@type": "title"}, {"@type": "description"}],
+            5,
+        ]
+    ],
+)
+def test_volto_blocks(src, default_blocks, total_blocks):
+    result = converter.volto_blocks(src, default_blocks)
+    assert isinstance(result, dict)
+    blocks = result["blocks"]
+    assert isinstance(blocks, dict)
+    assert len(blocks) == total_blocks
+    blocks_layout = result["blocks_layout"]
+    assert isinstance(blocks_layout, dict)
+    items = blocks_layout["items"]
+    assert isinstance(items, list)
+    assert set(items) == set(blocks.keys())
+    for idx, block in enumerate(default_blocks):
+        assert block == blocks[items[idx]]
