@@ -66,12 +66,13 @@ def _body_(element: Element, tag_name: str) -> dict:
 @registry.element_converter(["h1", "h2", "h3", "h4", "h5", "h6"])
 def _header_(element: Element, tag_name: str) -> dict:
     block = _handle_block_(element, tag_name)
+    if slate.invalid_subblock(block):
+        return block
     response = block
     valid_subblocks = []
     invalid_subblocks = []
     for child in block["children"]:
-        type_ = child.get("type", child.get("@type", ""))
-        if type_ in ("image", "video", "slateTable"):
+        if slate.invalid_subblock(child):
             invalid_subblocks.append(child)
         else:
             valid_subblocks.append(child)
@@ -112,10 +113,12 @@ def _div_(element: Element, tag_name: str) -> dict:
         for child in children:
             if isinstance(child, NavigableString):
                 value = child.text
-                block_children.append({
-                    "type": "p",
-                    "children": slate.wrap_text(value, True),
-                })
+                block_children.append(
+                    {
+                        "type": "p",
+                        "children": slate.wrap_text(value, True),
+                    }
+                )
             elif child.name == "div":
                 converter = registry.get_element_converter(child)
                 block_children.append(converter(child))
@@ -184,19 +187,21 @@ def _span_(element: Element, tag_name: str) -> dict:
             return slate.wrap_text(text)
 
 
-@registry.element_converter([
-    "blockquote",
-    "p",
-    "sub",
-    "sup",
-    "u",
-    "ol",
-    "ul",
-    "li",
-    "dl",
-    "dt",
-    "dd",
-])
+@registry.element_converter(
+    [
+        "blockquote",
+        "p",
+        "sub",
+        "sup",
+        "u",
+        "ol",
+        "ul",
+        "li",
+        "dl",
+        "dt",
+        "dd",
+    ]
+)
 def _block_(element: Element, tag_name: str) -> dict:
     return _handle_block_(element, tag_name)
 

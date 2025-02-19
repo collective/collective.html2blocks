@@ -163,3 +163,9 @@ def table_cell(cell_type: str, value: list[dict | str]) -> dict:
         "type": cell_type,
         "value": value,
     }
+
+
+def invalid_subblock(block: dict) -> bool:
+    """Check if block should not be a child of a slate block."""
+    type_ = block.get("@type", "")
+    return bool(type_)

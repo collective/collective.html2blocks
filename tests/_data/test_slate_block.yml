@@ -656,3 +656,11 @@ params:
     tests:
       - path: "0/@type"
         expected: 'image'
+
+  - name: Header with only image inside
+    src: <h2><img class="image-left" src="resolveuid/ae57038455c04d05b56aa2bebbb62844" /></h2>
+    tests:
+      - path: "len:"
+        expected: 1
+      - path: "0/@type"
+        expected: 'image'

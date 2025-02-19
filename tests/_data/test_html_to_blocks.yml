@@ -96,3 +96,11 @@ params:
         expected: 1
       - path: "0/value/0/children/0/text"
         expected: Olaa World!
+
+  - name: Header with image
+    src: <h2><img class="image-left" src="resolveuid/ae57038455c04d05b56aa2bebbb62844" /></h2><p> </p><p>Das BMF hat die Rundschreiben (sog. Verfahrenshinweise) für die Haushaltsaufstellung 2022 (2. Regierungsentwurf) sowie für 2023 bekanntgegeben. Die Rundschreiben sowie synoptische Gegenüberstellungen der Aufstellungsschreiben für die Haushalte 2022 und 2023 finden Sie in den Fachinformationen des PG I 2 (<a class="internal-link" href="resolveuid/2315012e3b114dfeb093bfed26a90e61" target="_self" title="mehr Informationen">Bundeshaushalt 2022</a> und <a class="internal-link" href="resolveuid/971e3d2c598f4ab58ecd6bbc2cc64a05" target="_self" title="mehr Informationen">Bundeshaushalt 2023</a>).</p>
+    tests:
+      - path: "len:"
+        expected: 3
+      - path: "0/@type"
+        expected: image
