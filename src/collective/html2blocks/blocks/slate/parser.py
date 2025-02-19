@@ -113,12 +113,10 @@ def _div_(element: Element, tag_name: str) -> dict:
         for child in children:
             if isinstance(child, NavigableString):
                 value = child.text
-                block_children.append(
-                    {
-                        "type": "p",
-                        "children": slate.wrap_text(value, True),
-                    }
-                )
+                block_children.append({
+                    "type": "p",
+                    "children": slate.wrap_text(value, True),
+                })
             elif child.name == "div":
                 converter = registry.get_element_converter(child)
                 block_children.append(converter(child))
@@ -187,21 +185,19 @@ def _span_(element: Element, tag_name: str) -> dict:
             return slate.wrap_text(text)
 
 
-@registry.element_converter(
-    [
-        "blockquote",
-        "p",
-        "sub",
-        "sup",
-        "u",
-        "ol",
-        "ul",
-        "li",
-        "dl",
-        "dt",
-        "dd",
-    ]
-)
+@registry.element_converter([
+    "blockquote",
+    "p",
+    "sub",
+    "sup",
+    "u",
+    "ol",
+    "ul",
+    "li",
+    "dl",
+    "dt",
+    "dd",
+])
 def _block_(element: Element, tag_name: str) -> dict:
     return _handle_block_(element, tag_name)
 
