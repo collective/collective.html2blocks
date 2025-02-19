@@ -27,13 +27,23 @@ def _just_children(data: dict) -> bool:
     return keys == {"children"}
 
 
+def flatten_children(raw_block_children: list[dict | list]) -> list[dict]:
+    block_children = []
+    for block in raw_block_children:
+        if isinstance(block, list):
+            block_children.extend(block)
+        elif not block:
+            continue
+        else:
+            block_children.append(block)
+    return block_children
+
+
 def group_text_blocks(block_children: list[dict]) -> list[dict]:
     """Group text objects."""
     blocks = []
     text_block = False
-    for block in block_children:
-        if not block:
-            continue
+    for block in flatten_children(block_children):
         text = block.get("text", "")
         is_text_block = is_simple_text(block)
         if not text_block and is_text_block:
