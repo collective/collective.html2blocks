@@ -243,5 +243,9 @@ def deserialize(element: Element) -> dict | None:
     else:
         response = deserialize_children(element)
     if isinstance(response, dict) and slate._just_children(response):
-        response = response["children"]
+        children = response["children"]
+        if len(children) == 1 and slate.is_empty_paragraph(children[0]):
+            response = None
+        else:
+            response = response["children"]
     return response

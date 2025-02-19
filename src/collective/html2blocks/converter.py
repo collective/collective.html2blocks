@@ -21,7 +21,7 @@ def volto_blocks(
     source: str, default_blocks: list[dict] | None = None
 ) -> VoltoBlockInfo:
     """Return volto blocks information."""
-    blocks_ = default_blocks if default_blocks else []
+    blocks_ = default_blocks.copy() if default_blocks else []
     for block in html_to_blocks(source):
         blocks_.append(block)
     return blocks.info_from_blocks(blocks_)

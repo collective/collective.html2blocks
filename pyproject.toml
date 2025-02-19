@@ -48,6 +48,7 @@ default-groups = ["test"]
 test = [
     "pytest>=8.3.4",
     "pytest-cov>=6.0.0",
+    "PyYAML>=6.0.2",
 ]
 
 [tool.pytest.ini_options]

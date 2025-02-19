@@ -27,6 +27,17 @@ def _just_children(data: dict) -> bool:
     return keys == {"children"}
 
 
+def is_empty_paragraph(data: dict) -> bool:
+    status = False
+    if data.get("type", "") != "p":
+        return status
+    children = data.get("children", [])
+    first_child = children[0] if children else None
+    if len(children) == 1 and is_simple_text(first_child):
+        status = not first_child["text"].strip()
+    return status
+
+
 def flatten_children(raw_block_children: list[dict | list]) -> list[dict]:
     block_children = []
     for block in raw_block_children:

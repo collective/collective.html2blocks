@@ -1,8 +1,10 @@
 from bs4 import BeautifulSoup
 from bs4 import Tag
+from pathlib import Path
 from typing import Any
 
 import pytest
+import yaml
 
 
 @pytest.fixture
@@ -43,7 +45,43 @@ def traverse():
             case "len":
                 value = len(value)
             case "type":
-                value = type(value)
+                # This makes it easier to compare
+                value = type(value).__name__
+            case "is_uuid4":
+                value = len(value) == 32 and value[15] == "4"
+            case "keys":
+                value = list(value.keys())
+            case "keys":
+                value = list(value.keys())
         return value
 
     return func
+
+
+def load_yaml_test_data():
+    data_path = (Path(__file__).parent / "_data").resolve()
+    data = {}
+    for filepath in data_path.glob("*.yml"):
+        key = filepath.name[:-4]
+        data[key] = yaml.safe_load(filepath.read_text())
+    return data
+
+
+TEST_DATA = load_yaml_test_data()
+
+
+def pytest_generate_tests(metafunc):
+    func_name = metafunc.function.__name__
+    if func_name in TEST_DATA:
+        data = TEST_DATA[func_name]
+        setup = data["setup"]
+        argnames = setup["argnames"]
+        test_args = setup["test_args"]
+        const_args = [name for name in argnames if name not in test_args]
+        args = []
+        for entry in data["params"]:
+            base = [entry[name] for name in const_args]
+            for test in entry["tests"]:
+                item = base + [test[name] for name in test_args]
+                args.append(item)
+        metafunc.parametrize(argnames, args)

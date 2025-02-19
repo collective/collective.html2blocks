@@ -1,0 +1,406 @@
+---
+setup:
+  argnames: ["name", "src", "path", "expected"]
+  test_args: ["path", "expected"]
+params:
+  - name: Table with br
+    src: '<table class="plain"><tbody><tr><td><br/>Text</td></tr></tbody></table>'
+    tests:
+      - path: "0/@type"
+        expected: "slateTable"
+      - path: "0/table/basic"
+        expected: False
+      - path: "0/table/celled"
+        expected: True
+      - path: "0/table/compact"
+        expected: False
+      - path: "0/table/fixed"
+        expected: True
+      - path: "0/table/hideHeaders"
+        expected: True
+      - path: "0/table/inverted"
+        expected: False
+      - path: "len:0/table/rows"
+        expected: 2
+      - path: "0/table/rows/0/cells/0/type"
+        expected: "header"
+      - path: "0/table/rows/0/cells/0/value"
+        expected: ['']
+      - path: "0/table/rows/1/cells/0/type"
+        expected: "data"
+      - path: "0/table/rows/1/cells/0/value"
+        expected: [{'text': "\nText"}]
+
+  - name: Table with div
+    src: '<table><tr><td><div><strong>text</strong></div></td></tr></table>'
+    tests:
+      - path: "0/@type"
+        expected: "slateTable"
+      - path: "0/table/basic"
+        expected: False
+      - path: "0/table/celled"
+        expected: True
+      - path: "0/table/compact"
+        expected: False
+      - path: "0/table/fixed"
+        expected: True
+      - path: "0/table/inverted"
+        expected: False
+      - path: "0/table/striped"
+        expected: False
+      - path: "0/table/hideHeaders"
+        expected: True
+      - path: "len:0/table/rows"
+        expected: 2
+      - path: "0/table/rows/0/cells/0/type"
+        expected: "header"
+      - path: "0/table/rows/0/cells/0/value"
+        expected: ['']
+      - path: "0/table/rows/1/cells/0/type"
+        expected: "data"
+      - path: "0/table/rows/1/cells/0/value"
+        expected: [{'children': [{'text': 'text'}], 'type': 'strong'}]
+
+  - name: Table with link
+    src: '<table><tr><td><a href="https://plone.org">Plone</a></td></tr></table>'
+    tests:
+      - path: "0/@type"
+        expected: "slateTable"
+      - path: "0/table/basic"
+        expected: False
+      - path: "0/table/celled"
+        expected: True
+      - path: "0/table/compact"
+        expected: False
+      - path: "0/table/fixed"
+        expected: True
+      - path: "0/table/inverted"
+        expected: False
+      - path: "0/table/striped"
+        expected: False
+      - path: "0/table/hideHeaders"
+        expected: True
+      - path: "len:0/table/rows"
+        expected: 2
+      - path: "0/table/rows/0/cells/0/type"
+        expected: "header"
+      - path: "0/table/rows/0/cells/0/value"
+        expected: ['']
+      - path: "0/table/rows/1/cells/0/type"
+        expected: "data"
+      - path: "0/table/rows/1/cells/0/value"
+        expected: [{'children': [{'text': 'Plone'}], 'data': {'target': , 'title': , 'url': 'https://plone.org'}, 'type': 'link'}]
+
+  - name: Table settings, no ui
+    src: '<table class="celled fixed striped very basic compact"><tbody class=""><tr class=""><th class=""><p>Vorname</p></th><th class=""><p>Nachname</p></th></tr><tr class=""><td class=""><p>Jerry</p></td><td class=""><p>Smith</p></td></tr><tr class=""><td class=""><p>Morty</p></td><td class=""><p>Smith</p></td></tr><tr class=""><td class=""><p>Rick</p></td><td class=""><p>Sanchez</p></td></tr></tbody></table>'
+    tests:
+      - path: "0/@type"
+        expected: "slateTable"
+      - path: "0/table/basic"
+        expected: False
+      - path: "0/table/celled"
+        expected: True
+      - path: "0/table/compact"
+        expected: False
+      - path: "0/table/fixed"
+        expected: True
+      - path: "0/table/inverted"
+        expected: False
+      - path: "0/table/striped"
+        expected: False
+      - path: "0/table/hideHeaders"
+        expected: False
+      - path: "len:0/table/rows"
+        expected: 4
+      - path: "0/table/rows/0/cells/0/type"
+        expected: "header"
+      - path: "0/table/rows/0/cells/0/value"
+        expected: [{'children': [{'text': 'Vorname'}], 'type': 'p'}]
+      - path: "0/table/rows/0/cells/1/type"
+        expected: "header"
+      - path: "0/table/rows/0/cells/1/value"
+        expected: [{'children': [{'text': 'Nachname'}], 'type': 'p'}]
+      - path: "0/table/rows/1/cells/0/type"
+        expected: "data"
+      - path: "0/table/rows/1/cells/0/value"
+        expected: [{'children': [{'text': 'Jerry'}], 'type': 'p'}]
+      - path: "0/table/rows/1/cells/1/type"
+        expected: "data"
+      - path: "0/table/rows/1/cells/1/value"
+        expected: [{'children': [{'text': 'Smith'}], 'type': 'p'}]
+      - path: "0/table/rows/2/cells/0/type"
+        expected: "data"
+      - path: "0/table/rows/2/cells/0/value"
+        expected: [{'children': [{'text': 'Morty'}], 'type': 'p'}]
+      - path: "0/table/rows/2/cells/1/type"
+        expected: "data"
+      - path: "0/table/rows/2/cells/1/value"
+        expected: [{'children': [{'text': 'Smith'}], 'type': 'p'}]
+      - path: "0/table/rows/3/cells/0/type"
+        expected: "data"
+      - path: "0/table/rows/3/cells/0/value"
+        expected: [{'children': [{'text': 'Rick'}], 'type': 'p'}]
+      - path: "0/table/rows/3/cells/1/type"
+        expected: "data"
+      - path: "0/table/rows/3/cells/1/value"
+        expected: [{'children': [{'text': 'Sanchez'}], 'type': 'p'}]
+
+  - name: Table settings ui class
+    src: '<table class="ui table celled fixed striped very basic compact"><tbody class=""><tr class=""><th class=""><p>Vorname</p></th><th class=""><p>Nachname</p></th></tr><tr class=""><td class=""><p>Jerry</p></td><td class=""><p>Smith</p></td></tr><tr class=""><td class=""><p>Morty</p></td><td class=""><p>Smith</p></td></tr><tr class=""><td class=""><p>Rick</p></td><td class=""><p>Sanchez</p></td></tr></tbody></table>'
+    tests:
+      - path: "0/@type"
+        expected: "slateTable"
+      - path: "0/table/basic"
+        expected: True
+      - path: "0/table/celled"
+        expected: True
+      - path: "0/table/compact"
+        expected: True
+      - path: "0/table/fixed"
+        expected: True
+      - path: "0/table/inverted"
+        expected: False
+      - path: "0/table/striped"
+        expected: True
+      - path: "0/table/hideHeaders"
+        expected: False
+      - path: "len:0/table/rows"
+        expected: 4
+      - path: "0/table/rows/0/cells/0/type"
+        expected: "header"
+      - path: "0/table/rows/0/cells/0/value"
+        expected: [{'children': [{'text': 'Vorname'}], 'type': 'p'}]
+      - path: "0/table/rows/0/cells/1/type"
+        expected: "header"
+      - path: "0/table/rows/0/cells/1/value"
+        expected: [{'children': [{'text': 'Nachname'}], 'type': 'p'}]
+      - path: "0/table/rows/1/cells/0/type"
+        expected: "data"
+      - path: "0/table/rows/1/cells/0/value"
+        expected: [{'children': [{'text': 'Jerry'}], 'type': 'p'}]
+      - path: "0/table/rows/1/cells/1/type"
+        expected: "data"
+      - path: "0/table/rows/1/cells/1/value"
+        expected: [{'children': [{'text': 'Smith'}], 'type': 'p'}]
+      - path: "0/table/rows/2/cells/0/type"
+        expected: "data"
+      - path: "0/table/rows/2/cells/0/value"
+        expected: [{'children': [{'text': 'Morty'}], 'type': 'p'}]
+      - path: "0/table/rows/2/cells/1/type"
+        expected: "data"
+      - path: "0/table/rows/2/cells/1/value"
+        expected: [{'children': [{'text': 'Smith'}], 'type': 'p'}]
+      - path: "0/table/rows/3/cells/0/type"
+        expected: "data"
+      - path: "0/table/rows/3/cells/0/value"
+        expected: [{'children': [{'text': 'Rick'}], 'type': 'p'}]
+      - path: "0/table/rows/3/cells/1/type"
+        expected: "data"
+      - path: "0/table/rows/3/cells/1/value"
+        expected: [{'children': [{'text': 'Sanchez'}], 'type': 'p'}]
+
+  - name: Table simple
+    src: '<table><tr><td>A value</td></tr></table>'
+    tests:
+      - path: "0/@type"
+        expected: "slateTable"
+      - path: "0/table/basic"
+        expected: False
+      - path: "0/table/celled"
+        expected: True
+      - path: "0/table/compact"
+        expected: False
+      - path: "0/table/fixed"
+        expected: True
+      - path: "0/table/inverted"
+        expected: False
+      - path: "0/table/striped"
+        expected: False
+      - path: "0/table/hideHeaders"
+        expected: True
+      - path: "len:0/table/rows"
+        expected: 2
+      - path: "0/table/rows/0/cells/0/type"
+        expected: "header"
+      - path: "0/table/rows/0/cells/0/value"
+        expected: ['']
+      - path: "0/table/rows/1/cells/0/type"
+        expected: "data"
+      - path: "0/table/rows/1/cells/0/value"
+        expected: [{'text': 'A value'}]
+
+  - name: Table tbody
+    src: '<table class="plain"><tbody><tr><td><b>Text1</b></td></tr></tbody></table>'
+    tests:
+      - path: "0/@type"
+        expected: "slateTable"
+      - path: "0/table/basic"
+        expected: False
+      - path: "0/table/celled"
+        expected: True
+      - path: "0/table/compact"
+        expected: False
+      - path: "0/table/fixed"
+        expected: True
+      - path: "0/table/inverted"
+        expected: False
+      - path: "0/table/striped"
+        expected: False
+      - path: "0/table/hideHeaders"
+        expected: True
+      - path: "len:0/table/rows"
+        expected: 2
+      - path: "0/table/rows/0/cells/0/type"
+        expected: "header"
+      - path: "0/table/rows/0/cells/0/value"
+        expected: ['']
+      - path: "0/table/rows/1/cells/0/type"
+        expected: "data"
+      - path: "0/table/rows/1/cells/0/value"
+        expected: [{'children': [{'text': 'Text1'}], 'type': 'strong'}]
+
+  - name: Table text with link
+    src: '<table><tr><td>Plone <a href="https://plone.org">site</a></td></tr></table>'
+    tests:
+      - path: "0/@type"
+        expected: "slateTable"
+      - path: "0/table/basic"
+        expected: False
+      - path: "0/table/celled"
+        expected: True
+      - path: "0/table/compact"
+        expected: False
+      - path: "0/table/fixed"
+        expected: True
+      - path: "0/table/inverted"
+        expected: False
+      - path: "0/table/striped"
+        expected: False
+      - path: "0/table/hideHeaders"
+        expected: True
+      - path: "len:0/table/rows"
+        expected: 2
+      - path: "0/table/rows/0/cells/0/type"
+        expected: "header"
+      - path: "0/table/rows/0/cells/0/value"
+        expected: ['']
+      - path: "0/table/rows/1/cells/0/type"
+        expected: "data"
+      - path: "0/table/rows/1/cells/0/value"
+        expected: [{'text': 'Plone '}, {'children': [{'text': 'site'}], 'data': {'target': , 'title': , 'url': 'https://plone.org'}, 'type': 'link'}]
+
+  - name: Table text with sup
+    src: '<table><tr><td>10<sup>2</sup></td></tr></table>'
+    tests:
+      - path: "0/@type"
+        expected: "slateTable"
+      - path: "0/table/basic"
+        expected: False
+      - path: "0/table/celled"
+        expected: True
+      - path: "0/table/compact"
+        expected: False
+      - path: "0/table/fixed"
+        expected: True
+      - path: "0/table/inverted"
+        expected: False
+      - path: "0/table/striped"
+        expected: False
+      - path: "0/table/hideHeaders"
+        expected: True
+      - path: "len:0/table/rows"
+        expected: 2
+      - path: "0/table/rows/0/cells/0/type"
+        expected: "header"
+      - path: "0/table/rows/0/cells/0/value"
+        expected: ['']
+      - path: "0/table/rows/1/cells/0/type"
+        expected: "data"
+      - path: "0/table/rows/1/cells/0/value"
+        expected: [{'text': '10'}, {'children': [{'text': '2'}], 'type': 'sup'}]
+
+  - name: Table text with thead
+    src: '<table class="plain"><thead><tr><td><b>Heading</b></td></tr></thead></table>'
+    tests:
+      - path: "0/@type"
+        expected: "slateTable"
+      - path: "0/table/basic"
+        expected: False
+      - path: "0/table/celled"
+        expected: True
+      - path: "0/table/compact"
+        expected: False
+      - path: "0/table/fixed"
+        expected: True
+      - path: "0/table/inverted"
+        expected: False
+      - path: "0/table/striped"
+        expected: False
+      - path: "0/table/hideHeaders"
+        expected: False
+      - path: "len:0/table/rows"
+        expected: 1
+      - path: "0/table/rows/0/cells/0/type"
+        expected: "header"
+      - path: "0/table/rows/0/cells/0/value"
+        expected: [{'children': [{'text': 'Heading'}], 'type': 'strong'}]
+
+  - name: Table with whitespaces
+    src: '<table><tr><td>A value<br>&nbsp;</td></tr></table>'
+    tests:
+      - path: "0/@type"
+        expected: "slateTable"
+      - path: "0/table/basic"
+        expected: False
+      - path: "0/table/celled"
+        expected: True
+      - path: "0/table/compact"
+        expected: False
+      - path: "0/table/fixed"
+        expected: True
+      - path: "0/table/inverted"
+        expected: False
+      - path: "0/table/striped"
+        expected: False
+      - path: "0/table/hideHeaders"
+        expected: True
+      - path: "len:0/table/rows"
+        expected: 2
+      - path: "0/table/rows/0/cells/0/type"
+        expected: "header"
+      - path: "0/table/rows/0/cells/0/value"
+        expected: ['']
+      - path: "0/table/rows/1/cells/0/type"
+        expected: "data"
+      - path: "0/table/rows/1/cells/0/value"
+        expected: [{'text': "A value\n "}]
+
+  - name: Table with header
+    src: '<table><tr><th>Heading</th></tr><tr><td>A value</td></tr></table>'
+    tests:
+      - path: "0/@type"
+        expected: "slateTable"
+      - path: "0/table/basic"
+        expected: False
+      - path: "0/table/celled"
+        expected: True
+      - path: "0/table/compact"
+        expected: False
+      - path: "0/table/fixed"
+        expected: True
+      - path: "0/table/inverted"
+        expected: False
+      - path: "0/table/striped"
+        expected: False
+      - path: "0/table/hideHeaders"
+        expected: False
+      - path: "len:0/table/rows"
+        expected: 2
+      - path: "0/table/rows/0/cells/0/type"
+        expected: "header"
+      - path: "0/table/rows/0/cells/0/value"
+        expected: [{'text': 'Heading'}]
+      - path: "0/table/rows/1/cells/0/type"
+        expected: "data"
+      - path: "0/table/rows/1/cells/0/value"
+        expected: [{'text': 'A value'}]

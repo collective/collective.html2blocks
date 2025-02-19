@@ -18,6 +18,8 @@ def _group_inline_elements(soup: BeautifulSoup) -> Element:
         elif inline_element:
             wrapper.append(element.extract())
         elif not inline_element and wrapper:
+            if wrapper.text == "\n":
+                wrapper.extract()
             wrapper = None
     return soup
 

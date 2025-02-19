@@ -1,0 +1,98 @@
+---
+setup:
+  argnames: ["name", "src", "path", "expected"]
+  test_args: ["path", "expected"]
+params:
+  - name: div with one paragraph
+    src: <div><p>Hello World!</p></div>
+    tests:
+      - path: "len:"
+        expected: 1
+      - path: "0/@type"
+        expected: slate
+      - path: "0/plaintext"
+        expected: Hello World!
+      - path: "len:0/value"
+        expected: 1
+      - path: "0/value/0/type"
+        expected: p
+      - path: "0/value/0/children/0/text"
+        expected: Hello World!
+
+  - name: div with two paragraphs
+    src: <div><p>Hello</p> <p>World!</p></div>
+    tests:
+      - path: "len:"
+        expected: 3
+      - path: "0/@type"
+        expected: slate
+      - path: "0/plaintext"
+        expected: Hello
+      - path: "0/value/0/type"
+        expected: p
+      - path: "0/value/0/children/0/text"
+        expected: Hello
+      - path: "1/@type"
+        expected: slate
+      - path: "1/plaintext"
+        expected: ""
+      - path: "1/value/0/type"
+        expected: p
+      - path: "1/value/0/children/0/text"
+        expected: " "
+      - path: "2/@type"
+        expected: slate
+      - path: "2/plaintext"
+        expected: World!
+      - path: "2/value/0/type"
+        expected: p
+      - path: "2/value/0/children/0/text"
+        expected: World!
+
+  - name: div with two spans
+    src: <div><span>Olaa</span> <span>World!</span></div>
+    tests:
+      - path: "len:"
+        expected: 1
+      - path: "0/@type"
+        expected: slate
+      - path: "0/plaintext"
+        expected: Olaa World!
+      - path: "0/value/0/type"
+        expected: p
+      - path: "len:0/value/0/children"
+        expected: 1
+      - path: "0/value/0/children/0/text"
+        expected: Olaa World!
+
+  - name: Paragraph with two spans
+    src: <p><span>Olaa</span> <span>World!</span></p>
+    tests:
+      - path: "len:"
+        expected: 1
+      - path: "0/@type"
+        expected: slate
+      - path: "0/plaintext"
+        expected: Olaa World!
+      - path: "0/value/0/type"
+        expected: p
+      - path: "len:0/value/0/children"
+        expected: 1
+      - path: "0/value/0/children/0/text"
+        expected: Olaa World!
+
+  - name: Paragraph with image
+    src: <p><span>Olaa</span> <span>World!</span><img src="https://plone.org/news/item" title="A Picture" alt="Picture of a person" class="lazy-load"></p>
+    tests:
+      - path: "len:"
+        expected: 2
+      - path: "0/@type"
+        expected: slate
+      - path: "0/plaintext"
+        expected: Olaa World!
+      - path: "0/value/0/type"
+        expected: p
+      - path: "len:0/value/0/children"
+        expected: 1
+      - path: "0/value/0/children/0/text"
+        expected: Olaa World!

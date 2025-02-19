@@ -1,0 +1,658 @@
+---
+setup:
+  argnames: ["name", "src", "path", "expected"]
+  test_args: ["path", "expected"]
+params:
+  - name: Simple paragraph
+    src: <p>Hello World!</p>
+    tests:
+      - path: "0/@type"
+        expected: 'slate'
+      - path: "0/plaintext"
+        expected: 'Hello World!'
+      - path: "0/value/0/type"
+        expected: 'p'
+      - path: "0/value/0/children/0/text"
+        expected: 'Hello World!'
+
+  - name: Strong block
+    src: <b>Hello World!</b>
+    tests:
+      - path: "0/@type"
+        expected: 'slate'
+      - path: "0/plaintext"
+        expected: 'Hello World!'
+      - path: "0/value/0/type"
+        expected: 'strong'
+      - path: "0/value/0/children/0/text"
+        expected: 'Hello World!'
+
+  - name: Plaintext trims string
+    src: <b> Hello World! </b>
+    tests:
+      - path: "0/@type"
+        expected: 'slate'
+      - path: "0/plaintext"
+        expected: 'Hello World!'
+      - path: "0/value/0/type"
+        expected: 'strong'
+      - path: "0/value/0/children/0/text"
+        expected: ' Hello World! '
+
+  - name: Paragraph with nested strong
+    src: <p><b> Hello World! </b><br></p>
+    tests:
+      - path: "0/@type"
+        expected: 'slate'
+      - path: "0/plaintext"
+        expected: 'Hello World!'
+      - path: "0/value/0/type"
+        expected: 'p'
+      - path: "0/value/0/children/0/type"
+        expected: 'strong'
+      - path: "0/value/0/children/0/children/0/text"
+        expected: ' Hello World! '
+
+  - name: Nested structure of elements
+    src: <p><strong>Arrival by car:</strong> A 1 Autobahn network (East and West) easily accessible from all directions (toll sticker - compulsory „Vignette“ - required on all motorways!) to St. Pölten then take the  <span class="renderable-component">L5122 till Neidling </span></p>
+    tests:
+      - path: "0/@type"
+        expected: 'slate'
+      - path: "0/plaintext"
+        expected: 'Arrival by car: A 1 Autobahn network (East and West) easily accessible from all directions (toll sticker - compulsory „Vignette“ - required on all motorways!) to St. Pölten then take the  L5122 till Neidling'
+      - path: "0/value/0/type"
+        expected: 'p'
+      - path: "0/value/0/children/0/type"
+        expected: 'strong'
+      - path: "0/value/0/children/0/children/0/text"
+        expected: 'Arrival by car:'
+      - path: "0/value/0/children/1/text"
+        expected: ' A 1 Autobahn network (East and West) easily accessible from all directions (toll sticker - compulsory „Vignette“ - required on all motorways!) to St. Pölten then take the  L5122 till Neidling '
+
+  - name: Nested structure of elements including link
+    src: '<p><strong>Follow Plone and Plone Conference on Twitter <a href="https://twitter.com/plone" title="Plone Twitter">@plone</a> and <a href="https://twitter.com/ploneconf" title="Twitter">@ploneconf</a> and hastag #ploneconf2021</strong></p>'
+    tests:
+      - path: "0/@type"
+        expected: 'slate'
+      - path: "0/plaintext"
+        expected: 'Follow Plone and Plone Conference on Twitter @plone and @ploneconf and hastag #ploneconf2021'
+      - path: "0/value/0/type"
+        expected: 'p'
+      - path: "0/value/0/children/0/type"
+        expected: 'strong'
+      - path: "0/value/0/children/0/children/0/text"
+        expected: 'Follow Plone and Plone Conference on Twitter '
+      - path: "0/value/0/children/0/children/1/type"
+        expected: 'link'
+      - path: "0/value/0/children/0/children/1/children/0/text"
+        expected: '@plone'
+      - path: "0/value/0/children/0/children/1/data/target"
+        expected:
+      - path: "0/value/0/children/0/children/1/data/title"
+        expected: 'Plone Twitter'
+      - path: "0/value/0/children/0/children/1/data/url"
+        expected: 'https://twitter.com/plone'
+      - path: "0/value/0/children/0/children/2/text"
+        expected: ' and '
+      - path: "0/value/0/children/0/children/3/type"
+        expected: 'link'
+      - path: "0/value/0/children/0/children/3/children/0/text"
+        expected: '@ploneconf'
+      - path: "0/value/0/children/0/children/3/data/target"
+        expected:
+      - path: "0/value/0/children/0/children/3/data/title"
+        expected: 'Twitter'
+      - path: "0/value/0/children/0/children/3/data/url"
+        expected: 'https://twitter.com/ploneconf'
+      - path: "0/value/0/children/0/children/4/text"
+        expected: ' and hastag #ploneconf2021'
+
+  - name: With whitespace between inline elements
+    src: <p><em>em</em> <strong>strong</strong></p>
+    tests:
+      - path: "0/@type"
+        expected: 'slate'
+      - path: "0/plaintext"
+        expected: 'em strong'
+      - path: "0/value/0/type"
+        expected: 'p'
+      - path: "0/value/0/children/0/type"
+        expected: 'em'
+      - path: "0/value/0/children/0/children/0/text"
+        expected: 'em'
+      - path: "0/value/0/children/1/text"
+        expected: ' '
+      - path: "0/value/0/children/2/type"
+        expected: 'strong'
+      - path: "0/value/0/children/2/children/0/text"
+        expected: 'strong'
+
+  - name: With old TinyMCE settings for bold
+    src: '<p>Normal Text <span style="font-weight: bold;">Bold Text</span> more normal text</p>'
+    tests:
+      - path: "0/@type"
+        expected: 'slate'
+      - path: "0/plaintext"
+        expected: 'Normal Text Bold Text more normal text'
+      - path: "0/value/0/type"
+        expected: 'p'
+      - path: "0/value/0/children/0/text"
+        expected: 'Normal Text '
+      - path: "0/value/0/children/1/type"
+        expected: 'strong'
+      - path: "0/value/0/children/1/children/0/text"
+        expected: 'Bold Text'
+      - path: "0/value/0/children/2/text"
+        expected: ' more normal text'
+
+  - name: With old TinyMCE settings for italic
+    src: '<p>Normal Text <span style="font-style: italic;">Italic Text</span> more normal text</p>'
+    tests:
+      - path: "0/@type"
+        expected: 'slate'
+      - path: "0/plaintext"
+        expected: 'Normal Text Italic Text more normal text'
+      - path: "0/value/0/type"
+        expected: 'p'
+      - path: "0/value/0/children/0/text"
+        expected: 'Normal Text '
+      - path: "0/value/0/children/1/type"
+        expected: 'em'
+      - path: "0/value/0/children/1/children/0/text"
+        expected: 'Italic Text'
+      - path: "0/value/0/children/2/text"
+        expected: ' more normal text'
+
+  - name: With an empty bold element in the text
+    src: <p>Hello world!<b></b></p>
+    tests:
+      - path: "0/@type"
+        expected: 'slate'
+      - path: "0/plaintext"
+        expected: 'Hello world!'
+      - path: "0/value/0/type"
+        expected: 'p'
+      - path: "len:0/value/0/children"
+        expected: 1
+      - path: "0/value/0/children/0/text"
+        expected: 'Hello world!'
+
+  - name: Processing a simple pre block
+    src: '<pre>Plone Foundation: https://plone.org/</pre>'
+    tests:
+      - path: "0/@type"
+        expected: 'slate'
+      - path: "0/plaintext"
+        expected: 'Plone Foundation: https://plone.org/'
+      - path: "0/value/0/type"
+        expected: 'pre'
+      - path: "len:0/value/0/children"
+        expected: 1
+      - path: "0/value/0/children/0/text"
+        expected: 'Plone Foundation: https://plone.org/'
+
+  - name: Processing a pre block with nested code element
+    src: <pre><code>import this</code></pre>
+    tests:
+      - path: "0/@type"
+        expected: 'slate'
+      - path: "0/plaintext"
+        expected: 'import this'
+      - path: "0/value/0/type"
+        expected: 'code'
+      - path: "0/value/0/text"
+        expected: 'import this'
+
+  - name: Processing a br
+    src: <br>
+    tests:
+      - path: "0/@type"
+        expected: 'slate'
+      - path: "0/plaintext"
+        expected: ''
+      - path: "len:0/value"
+        expected: 1
+      - path: "0/value/0/text"
+        expected: "\n"
+
+  - name: Processing a code element
+    src: <code>import this</code>
+    tests:
+      - path: "0/@type"
+        expected: 'slate'
+      - path: "0/plaintext"
+        expected: 'import this'
+      - path: "0/value/0/type"
+        expected: 'code'
+      - path: "0/value/0/text"
+        expected: 'import this'
+
+  - name: Processing a blockquote block
+    src: <blockquote cite="https://www.huxley.net/bnw/four.html"><p>Words can be like X-rays, if you use them properly—they’ll go through anything. You read and you’re pierced.</p></blockquote>
+    tests:
+      - path: "0/@type"
+        expected: 'slate'
+      - path: "0/plaintext"
+        expected: 'Words can be like X-rays, if you use them properly—they’ll go through anything. You read and you’re pierced.'
+      - path: "0/value/0/type"
+        expected: 'blockquote'
+      - path: "len:0/value/0/children"
+        expected: 1
+      - path: "0/value/0/children/0/text"
+        expected: 'Words can be like X-rays, if you use them properly—they’ll go through anything. You read and you’re pierced.'
+
+  - name: Processing a span
+    src: <span>Hello world!</span>
+    tests:
+      - path: "0/@type"
+        expected: 'slate'
+      - path: "0/plaintext"
+        expected: 'Hello world!'
+      - path: "0/value/0/text"
+        expected: 'Hello world!'
+
+  - name: Processing a span with a line break
+    src: "<span>\n</span>"
+    tests:
+      - path: "0/@type"
+        expected: 'slate'
+      - path: "0/plaintext"
+        expected: ''
+      - path: "0/value/0/text"
+        expected: " "
+
+  - name: Processing a span without children nodes
+    src: <span></span>
+    tests:
+      - path: ""
+        expected: []
+
+  - name: Processing a span with other inline elements
+    src: <span>Hola <strong>world</strong>!</span>
+    tests:
+      - path: "0/@type"
+        expected: 'slate'
+      - path: "0/plaintext"
+        expected: 'Hola world!'
+      - path: "len:0/value"
+        expected: 3
+      - path: "0/value/0/text"
+        expected: 'Hola '
+      - path: "0/value/1/type"
+        expected: 'strong'
+      - path: "0/value/1/children/0/text"
+        expected: 'world'
+      - path: "0/value/2/text"
+        expected: '!'
+
+  - name: Processing a span with google docs style for sup
+    src: <span style="vertical-align:sup">Hallo world!</span>
+    tests:
+      - path: "0/@type"
+        expected: 'slate'
+      - path: "0/plaintext"
+        expected: 'Hallo world!'
+      - path: "len:0/value"
+        expected: 1
+      - path: "0/value/0/type"
+        expected: 'sup'
+      - path: "0/value/0/children/0/text"
+        expected: 'Hallo world!'
+
+  - name: Processing a span inside another element with an empty value will drop empty span
+    src: <p><span>Foo</span><span></span></p>
+    tests:
+      - path: "0/@type"
+        expected: 'slate'
+      - path: "0/plaintext"
+        expected: 'Foo'
+      - path: "0/value/0/type"
+        expected: 'p'
+      - path: "len:0/value/0/children"
+        expected: 1
+      - path: "0/value/0/children/0/text"
+        expected: 'Foo'
+
+  - name: Processing a div
+    src: <div>Ciao world!</div>
+    tests:
+      - path: "0/@type"
+        expected: 'slate'
+      - path: "0/plaintext"
+        expected: 'Ciao world!'
+      - path: "0/value/0/type"
+        expected: 'p'
+      - path: "len:0/value/0/children"
+        expected: 1
+      - path: "0/value/0/children/0/text"
+        expected: 'Ciao world!'
+
+  - name: Processing a div with a nested paragraph value
+    src: <div><p>Ciao world!</p></div>
+    tests:
+      - path: "0/@type"
+        expected: 'slate'
+      - path: "0/plaintext"
+        expected: 'Ciao world!'
+      - path: "0/value/0/type"
+        expected: 'p'
+      - path: "len:0/value/0/children"
+        expected: 1
+      - path: "0/value/0/children/0/text"
+        expected: 'Ciao world!'
+
+  - name: Processing a div with nested paragraphs
+    src: <div><p>Hello</p> <p>world!</p></div>
+    tests:
+      - path: "0/@type"
+        expected: 'slate'
+      - path: "0/plaintext"
+        expected: 'Hello world!'
+      - path: "len:0/value"
+        expected: 3
+      - path: "0/value/0/type"
+        expected: 'p'
+      - path: "0/value/0/children/0/text"
+        expected: 'Hello'
+      - path: "0/value/1/type"
+        expected: 'p'
+      - path: "0/value/1/children/0/text"
+        expected: ' '
+      - path: "0/value/2/type"
+        expected: 'p'
+      - path: "0/value/2/children/0/text"
+        expected: 'world!'
+
+  - name: Processing a div with a nested div
+    src: <div><div>Ciao world!</p></div>
+    tests:
+      - path: "0/@type"
+        expected: 'slate'
+      - path: "0/plaintext"
+        expected: 'Ciao world!'
+      - path: "0/value/0/type"
+        expected: 'p'
+      - path: "len:0/value/0/children"
+        expected: 1
+      - path: "0/value/0/children/0/text"
+        expected: 'Ciao world!'
+
+  - name: Processing a div with a nested div and nested paragraphs
+    src: <div><div><p>Hello</p> <p>world!</p></div></div>
+    tests:
+      - path: "0/@type"
+        expected: 'slate'
+      - path: "0/plaintext"
+        expected: 'Hello world!'
+      - path: "len:0/value"
+        expected: 3
+      - path: "0/value/0/type"
+        expected: 'p'
+      - path: "0/value/0/children/0/text"
+        expected: 'Hello'
+      - path: "0/value/1/type"
+        expected: 'p'
+      - path: "0/value/1/children/0/text"
+        expected: ' '
+      - path: "0/value/2/type"
+        expected: 'p'
+      - path: "0/value/2/children/0/text"
+        expected: 'world!'
+
+  - name: Processing a h1
+    src: <h1>Hello world!</h1>
+    tests:
+      - path: "0/@type"
+        expected: 'slate'
+      - path: "0/plaintext"
+        expected: 'Hello world!'
+      - path: "0/value/0/type"
+        expected: 'h1'
+      - path: "len:0/value/0/children"
+        expected: 1
+      - path: "0/value/0/children/0/text"
+        expected: 'Hello world!'
+
+  - name: Processing a h2
+    src: <h2>Hello world!</h2>
+    tests:
+      - path: "0/@type"
+        expected: 'slate'
+      - path: "0/plaintext"
+        expected: 'Hello world!'
+      - path: "0/value/0/type"
+        expected: 'h2'
+      - path: "len:0/value/0/children"
+        expected: 1
+      - path: "0/value/0/children/0/text"
+        expected: 'Hello world!'
+
+  - name: Processing a h2 will ignore img element in the structure
+    src: <h2 id="chrissy"><img src="https://plone.org/foundation/meetings/membership/2019-membership-meeting/nominations/img4_08594.jpg/@@images/7a07f0e5-0fd7-4366-a32d-6b033c8dfce7.jpeg" title="Chrissy Wainwright 2019" alt="Chrissy Wainwright 2019" class="image-right">Chrissy Wainwright</h2>
+    tests:
+      - path: "0/@type"
+        expected: 'slate'
+      - path: "0/plaintext"
+        expected: 'Chrissy Wainwright'
+      - path: "len:0/value"
+        expected: 2
+      - path: "0/value/0/type"
+        expected: 'h2'
+      - path: "0/value/0/children/0/text"
+        expected: 'Chrissy Wainwright'
+      - path: "0/value/1/@type"
+        expected: 'image'
+
+  - name: Processing a b
+    src: <b>Hello world!</b>
+    tests:
+      - path: "0/@type"
+        expected: 'slate'
+      - path: "0/plaintext"
+        expected: 'Hello world!'
+      - path: "0/value/0/type"
+        expected: 'strong'
+      - path: "len:0/value/0/children"
+        expected: 1
+      - path: "0/value/0/children/0/text"
+        expected: 'Hello world!'
+
+  - name: Processing a strong
+    src: <strong>Hello world!</strong>
+    tests:
+      - path: "0/@type"
+        expected: 'slate'
+      - path: "0/plaintext"
+        expected: 'Hello world!'
+      - path: "0/value/0/type"
+        expected: 'strong'
+      - path: "len:0/value/0/children"
+        expected: 1
+      - path: "0/value/0/children/0/text"
+        expected: 'Hello world!'
+
+  - name: Processing a strong with empty content
+    src: <strong></strong>
+    tests:
+      - path: "0/@type"
+        expected: 'slate'
+      - path: "0/plaintext"
+        expected: ''
+      - path: "0/value/0/text"
+        expected: ''
+
+  - name: Processing a strike
+    src: <s>Hello world!</s>
+    tests:
+      - path: "0/@type"
+        expected: 'slate'
+      - path: "0/plaintext"
+        expected: 'Hello world!'
+      - path: "0/value/0/type"
+        expected: 's'
+      - path: "len:0/value/0/children"
+        expected: 1
+      - path: "0/value/0/children/0/text"
+        expected: 'Hello world!'
+
+  - name: Processing an italic with i tag
+    src: <i>Hello world!</i>
+    tests:
+      - path: "0/@type"
+        expected: 'slate'
+      - path: "0/plaintext"
+        expected: 'Hello world!'
+      - path: "0/value/0/type"
+        expected: 'em'
+      - path: "len:0/value/0/children"
+        expected: 1
+      - path: "0/value/0/children/0/text"
+        expected: 'Hello world!'
+
+  - name: Processing an italic with em tag
+    src: <em>Hello world!</em>
+    tests:
+      - path: "0/@type"
+        expected: 'slate'
+      - path: "0/plaintext"
+        expected: 'Hello world!'
+      - path: "0/value/0/type"
+        expected: 'em'
+      - path: "len:0/value/0/children"
+        expected: 1
+      - path: "0/value/0/children/0/text"
+        expected: 'Hello world!'
+
+  - name: Processing an ordered list
+    src: <ol><li>Item 1</li><li>Item 2</li></ol>
+    tests:
+      - path: "0/@type"
+        expected: 'slate'
+      - path: "0/plaintext"
+        expected: 'Item 1 Item 2'
+      - path: "0/value/0/type"
+        expected: 'ol'
+      - path: "len:0/value/0/children"
+        expected: 2
+      - path: "0/value/0/children/0/type"
+        expected: 'li'
+      - path: "0/value/0/children/0/children/0/text"
+        expected: 'Item 1'
+      - path: "0/value/0/children/1/type"
+        expected: 'li'
+      - path: "0/value/0/children/1/children/0/text"
+        expected: 'Item 2'
+
+  - name: Processing an unordered list
+    src: <ul><li>Item 1</li><li>Item 2</li></ul>
+    tests:
+      - path: "0/@type"
+        expected: 'slate'
+      - path: "0/plaintext"
+        expected: 'Item 1 Item 2'
+      - path: "0/value/0/type"
+        expected: 'ul'
+      - path: "len:0/value/0/children"
+        expected: 2
+      - path: "0/value/0/children/0/type"
+        expected: 'li'
+      - path: "0/value/0/children/0/children/0/text"
+        expected: 'Item 1'
+      - path: "0/value/0/children/1/type"
+        expected: 'li'
+      - path: "0/value/0/children/1/children/0/text"
+        expected: 'Item 2'
+
+  - name: Processing a sub
+    src: <sub>Hello world!</sub>
+    tests:
+      - path: "0/@type"
+        expected: 'slate'
+      - path: "0/plaintext"
+        expected: 'Hello world!'
+      - path: "0/value/0/type"
+        expected: 'sub'
+      - path: "len:0/value/0/children"
+        expected: 1
+      - path: "0/value/0/children/0/text"
+        expected: 'Hello world!'
+
+  - name: Processing a sup
+    src: <sup>Hello world!</sup>
+    tests:
+      - path: "0/@type"
+        expected: 'slate'
+      - path: "0/plaintext"
+        expected: 'Hello world!'
+      - path: "0/value/0/type"
+        expected: 'sup'
+      - path: "len:0/value/0/children"
+        expected: 1
+      - path: "0/value/0/children/0/text"
+        expected: 'Hello world!'
+
+  - name: Processing a hr
+    src: <hr>
+    tests:
+      - path: "0/@type"
+        expected: 'slate'
+      - path: "0/plaintext"
+        expected: ''
+      - path: "0/value/0/type"
+        expected: 'p'
+      - path: "len:0/value/0/children"
+        expected: 1
+      - path: "0/value/0/children/0/text"
+        expected: ''
+
+  - name: Processing a link
+    src: <a href="https://plone.org/" title="Plone website" target="_blank">Welcome to Plone!</a>
+    tests:
+      - path: "0/@type"
+        expected: 'slate'
+      - path: "0/plaintext"
+        expected: 'Welcome to Plone!'
+      - path: "0/value/0/type"
+        expected: 'link'
+      - path: "0/value/0/data/url"
+        expected: 'https://plone.org/'
+      - path: "0/value/0/data/title"
+        expected: 'Plone website'
+      - path: "0/value/0/data/target"
+        expected: '_blank'
+      - path: "0/value/0/children/0/text"
+        expected: 'Welcome to Plone!'
+
+  - name: Processing a paragraph with additional css class
+    src: <p class="anyotherclass">Paragraph with any other class name</p>
+    tests:
+      - path: "0/@type"
+        expected: 'slate'
+      - path: "0/plaintext"
+        expected: 'Paragraph with any other class name'
+      - path: "0/value/0/type"
+        expected: 'p'
+      - path: "len:0/value/0/children"
+        expected: 1
+      - path: "0/value/0/children/0/text"
+        expected: 'Paragraph with any other class name'
+
+  - name: Paragraph with two spans
+    src: <p><span>Olaa</span> <span>World!</span></p>
+    tests:
+      - path: "0/@type"
+        expected: 'slate'
+      - path: "0/plaintext"
+        expected: 'Olaa World!'
+      - path: "0/value/0/type"
+        expected: 'p'
+      - path: "len:0/value/0/children"
+        expected: 1
+      - path: "0/value/0/children/0/text"
+        expected: 'Olaa World!'
+
+  - name: Defer to other converter
+    src: '<img src="https://plone.org/news/item" title="A Picture" alt="Picture of a person" class="lazy-load">'
+    tests:
+      - path: "0/@type"
+        expected: 'image'
