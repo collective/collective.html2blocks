@@ -3,6 +3,9 @@ from ._types import Registry
 from collections.abc import Callable
 
 
+_REGISTRY: Registry | None
+
+
 class block_converter:
     """Register a block converter."""
 
@@ -67,8 +70,6 @@ def get_element_converter(
 
 
 def _registry_report():
-    from collective.html2blocks import blocks  # noQA: F401
-
     block_converters = _REGISTRY.block_converters
     element_converters = _REGISTRY.element_converters
     print("Block Converters")
@@ -80,10 +81,12 @@ def _registry_report():
 
 
 def _initialize_registry() -> Registry:
-    return Registry({}, {})
+    global _REGISTRY
+    _REGISTRY = Registry({}, {})
+    from collective.html2blocks import blocks  # noQA: F401
 
 
-_REGISTRY: Registry = _initialize_registry()
+_initialize_registry()
 
 __all__ = [
     "block_converter",
