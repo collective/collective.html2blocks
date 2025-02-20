@@ -36,7 +36,7 @@ def _handle_block_(element: Element, tag_name: str) -> dict:
         "type": tag_name,
     }
     if tag_name in ("td", "th") and block_children and isinstance(first_child, str):
-        block_children = [{"type": "p", "chidren": slate.wrap_text(first_child, True)}]
+        block_children = [slate.wrap_paragraph(slate.wrap_text(first_child, True))]
     if slate.has_internal_block(block_children):
         internal_children = slate.normalize_block_nodes(block_children, tag_name)
         if (
@@ -105,18 +105,13 @@ def _div_(element: Element, tag_name: str) -> dict:
     if len(children) == 1:
         child = children[0]
         block = _handle_only_child(child, styles)
-        block = (
-            {"type": "p", "children": [block]} if slate.is_simple_text(block) else block
-        )
+        block = slate.wrap_paragraph([block]) if slate.is_simple_text(block) else block
     else:
         block_children = []
         for child in children:
             if isinstance(child, NavigableString):
-                value = child.text
-                block_children.append({
-                    "type": "p",
-                    "children": slate.wrap_text(value, True),
-                })
+                value = slate.wrap_text(child.text, True)
+                block_children.append(slate.wrap_paragraph(value))
             elif child.name == "div":
                 converter = registry.get_element_converter(child)
                 block_children.append(converter(child))
@@ -185,7 +180,7 @@ def _span_(element: Element, tag_name: str) -> dict:
             return slate.wrap_text(text)
 
 
-@registry.element_converter([
+_BLOCK_ELEMENTS_ = [
     "blockquote",
     "p",
     "sub",
@@ -197,7 +192,10 @@ def _span_(element: Element, tag_name: str) -> dict:
     "dl",
     "dt",
     "dd",
-])
+]
+
+
+@registry.element_converter(_BLOCK_ELEMENTS_)
 def _block_(element: Element, tag_name: str) -> dict:
     return _handle_block_(element, tag_name)
 

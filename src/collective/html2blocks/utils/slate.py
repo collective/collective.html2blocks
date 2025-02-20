@@ -15,6 +15,14 @@ def wrap_text(value: str, as_list: bool = False) -> dict | list[dict]:
     return [response] if as_list else response
 
 
+def wrap_paragraph(value: list) -> dict:
+    """Wrap a value in to paragraph sub object."""
+    return {
+        "type": "p",
+        "children": value,
+    }
+
+
 def is_simple_text(data: dict) -> bool:
     keys = set(data.keys())
     return keys == {"text"}
