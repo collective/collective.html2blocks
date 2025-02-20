@@ -6,9 +6,7 @@ import math
 
 def is_inline(value: dict | str) -> bool:
     """Validate if block or string could be considered inline."""
-    if isinstance(value, str):
-        return True
-    return value.get("type") in INLINE_ELEMENTS
+    return isinstance(value, str) or value.get("type") in INLINE_ELEMENTS
 
 
 def wrap_text(value: str, as_list: bool = False) -> dict | list[dict]:
@@ -25,17 +23,6 @@ def is_simple_text(data: dict) -> bool:
 def _just_children(data: dict) -> bool:
     keys = set(data.keys())
     return keys == {"children"}
-
-
-def is_empty_paragraph(data: dict) -> bool:
-    status = False
-    if data.get("type", "") != "p":
-        return status
-    children = data.get("children", [])
-    first_child = children[0] if children else None
-    if len(children) == 1 and is_simple_text(first_child):
-        status = not first_child["text"].strip()
-    return status
 
 
 def flatten_children(raw_block_children: list[dict | list]) -> list[dict]:
@@ -79,10 +66,7 @@ def group_text_blocks(block_children: list[dict]) -> list[dict]:
 def has_internal_block(block_children: list[dict]) -> bool:
     status = False
     for child in block_children:
-        if isinstance(child, str):
-            continue
-        if is_inline(child):
-            return True
+        status = status or is_inline(child)
     return status
 
 

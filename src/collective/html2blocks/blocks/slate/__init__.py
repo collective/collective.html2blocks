@@ -1,14 +1,16 @@
 from . import parser
 from collective.html2blocks import registry
 from collective.html2blocks._types import Element
+from collective.html2blocks._types import VoltoBlock
+from collective.html2blocks.utils import blocks as butils
 from collective.html2blocks.utils import markup
 
 
-def _extract_blocks(raw_children: list[dict]) -> tuple[list[dict], list[dict]]:
+def _extract_blocks(raw_children: list[dict]) -> tuple[list[dict], list[VoltoBlock]]:
     children = []
     blocks = []
     for child in raw_children:
-        if isinstance(child, dict) and child.get("@type", ""):
+        if isinstance(child, dict) and butils.is_volto_block(child):
             blocks.append(child)
         else:
             children.append(child)
@@ -16,7 +18,7 @@ def _extract_blocks(raw_children: list[dict]) -> tuple[list[dict], list[dict]]:
 
 
 @registry.default_converter
-def slate_block(element: Element) -> list[dict]:
+def slate_block(element: Element) -> list[VoltoBlock]:
     plaintext = markup.extract_plaintext(element)
     value = parser.deserialize(element)
     blocks = []
@@ -28,7 +30,7 @@ def slate_block(element: Element) -> list[dict]:
     elif isinstance(value, dict) and (children := value.get("children", [])):
         children, additional_blocks = _extract_blocks(children)
         value["children"] = children
-    elif isinstance(value, dict) and value.get("@type", ""):
+    elif isinstance(value, dict) and butils.is_volto_block(value):
         # Return block information if it was processed somewhere else
         # in the codebase
         blocks = [value]

@@ -2,6 +2,7 @@ from bs4 import Comment
 from bs4.element import NavigableString
 from collective.html2blocks import registry
 from collective.html2blocks._types import Element
+from collective.html2blocks.utils import blocks as butils
 from collective.html2blocks.utils import markup
 from collective.html2blocks.utils import slate
 
@@ -23,18 +24,17 @@ def _handle_block_(element: Element, tag_name: str) -> dict:
     total_children = len(block_children)
     first_child = block_children[0] if total_children else None
     if total_children == 1:
-        if first_child.get("@type"):
+        if butils.is_volto_block(first_child):
             # Check if we already have a block information
             return first_child
         child_type = first_child.get("type")
         if tag_name in ("p", "blockquote") and child_type == "p":
             block_children = first_child["children"]
-    if len(block_children) == 1 and first_child.get("@type"):
+    if len(block_children) == 1 and butils.is_volto_block(first_child):
         return first_child
     response = {
         "type": tag_name,
     }
-
     if tag_name in ("td", "th") and block_children and isinstance(first_child, str):
         block_children = [{"type": "p", "chidren": slate.wrap_text(first_child, True)}]
     if slate.has_internal_block(block_children):
@@ -113,10 +113,12 @@ def _div_(element: Element, tag_name: str) -> dict:
         for child in children:
             if isinstance(child, NavigableString):
                 value = child.text
-                block_children.append({
-                    "type": "p",
-                    "children": slate.wrap_text(value, True),
-                })
+                block_children.append(
+                    {
+                        "type": "p",
+                        "children": slate.wrap_text(value, True),
+                    }
+                )
             elif child.name == "div":
                 converter = registry.get_element_converter(child)
                 block_children.append(converter(child))
@@ -185,19 +187,21 @@ def _span_(element: Element, tag_name: str) -> dict:
             return slate.wrap_text(text)
 
 
-@registry.element_converter([
-    "blockquote",
-    "p",
-    "sub",
-    "sup",
-    "u",
-    "ol",
-    "ul",
-    "li",
-    "dl",
-    "dt",
-    "dd",
-])
+@registry.element_converter(
+    [
+        "blockquote",
+        "p",
+        "sub",
+        "sup",
+        "u",
+        "ol",
+        "ul",
+        "li",
+        "dl",
+        "dt",
+        "dd",
+    ]
+)
 def _block_(element: Element, tag_name: str) -> dict:
     return _handle_block_(element, tag_name)
 

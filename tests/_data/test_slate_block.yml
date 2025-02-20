@@ -625,6 +625,46 @@ params:
       - path: "0/value/0/children/0/text"
         expected: 'Welcome to Plone!'
 
+  - name: Processing a paragraph with a link
+    src: <p><a href="https://plone.org/" title="Plone website" target="_blank">Welcome to Plone!</a></p>
+    tests:
+      - path: "0/@type"
+        expected: 'slate'
+      - path: "0/plaintext"
+        expected: 'Welcome to Plone!'
+      - path: "0/value/0/type"
+        expected: 'p'
+      - path: "0/value/0/children/0/type"
+        expected: 'link'
+      - path: "0/value/0/children/0/data/url"
+        expected: 'https://plone.org/'
+      - path: "0/value/0/children/0/data/title"
+        expected: 'Plone website'
+      - path: "0/value/0/children/0/data/target"
+        expected: '_blank'
+      - path: "0/value/0/children/0/children/0/text"
+        expected: 'Welcome to Plone!'
+
+  - name: Processing a nested paragraph with a link
+    src: <p><p><a href="https://plone.org/" title="Plone website" target="_blank">Welcome to Plone!</a></p></p>
+    tests:
+      - path: "0/@type"
+        expected: 'slate'
+      - path: "0/plaintext"
+        expected: 'Welcome to Plone!'
+      - path: "0/value/0/type"
+        expected: 'p'
+      - path: "0/value/0/children/0/type"
+        expected: 'link'
+      - path: "0/value/0/children/0/data/url"
+        expected: 'https://plone.org/'
+      - path: "0/value/0/children/0/data/title"
+        expected: 'Plone website'
+      - path: "0/value/0/children/0/data/target"
+        expected: '_blank'
+      - path: "0/value/0/children/0/children/0/text"
+        expected: 'Welcome to Plone!'
+
   - name: Processing a paragraph with additional css class
     src: <p class="anyotherclass">Paragraph with any other class name</p>
     tests:

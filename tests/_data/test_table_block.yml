@@ -404,3 +404,77 @@ params:
         expected: "data"
       - path: "0/table/rows/1/cells/0/value"
         expected: [{'text': 'A value'}]
+
+  - name: Table with whitespaces
+    src: '<table><tr><td>A value<br>&nbsp;</td></tr></table>'
+    tests:
+      - path: "0/@type"
+        expected: "slateTable"
+      - path: "0/table/basic"
+        expected: False
+      - path: "0/table/celled"
+        expected: True
+      - path: "0/table/compact"
+        expected: False
+      - path: "0/table/fixed"
+        expected: True
+      - path: "0/table/inverted"
+        expected: False
+      - path: "0/table/striped"
+        expected: False
+      - path: "0/table/hideHeaders"
+        expected: True
+      - path: "len:0/table/rows"
+        expected: 2
+      - path: "0/table/rows/0/cells/0/type"
+        expected: "header"
+      - path: "0/table/rows/0/cells/0/value"
+        expected: ['']
+      - path: "0/table/rows/1/cells/0/type"
+        expected: "data"
+      - path: "0/table/rows/1/cells/0/value"
+        expected: [{'text': "A value\n "}]
+
+  - name: Table with empty first row would add an empty header row
+    src: '<table><tr></tr><tr><td>A value</td></tr></table>'
+    tests:
+      - path: "0/@type"
+        expected: "slateTable"
+      - path: "len:0/table/rows"
+        expected: 2
+      - path: "0/table/rows/0/cells/0/type"
+        expected: "header"
+      - path: "0/table/rows/0/cells/0/value"
+        expected: ['']
+      - path: "0/table/rows/1/cells/0/type"
+        expected: "data"
+      - path: "0/table/rows/1/cells/0/value"
+        expected: [{'text': 'A value'}]
+
+  - name: Table with empty row data row would skip it
+    src: '<table><tr><th>A value</th></tr><tr></tr></table>'
+    tests:
+      - path: "0/@type"
+        expected: "slateTable"
+      - path: "len:0/table/rows"
+        expected: 1
+      - path: "0/table/rows/0/cells/0/type"
+        expected: "header"
+      - path: "0/table/rows/0/cells/0/value"
+        expected: [{'text': 'A value'}]
+
+  - name: Table with empty cell
+    src: '<table><tr><th>A header</th></tr><tr><td></td></tr></table>'
+    tests:
+      - path: "0/@type"
+        expected: "slateTable"
+      - path: "len:0/table/rows"
+        expected: 2
+      - path: "0/table/rows/0/cells/0/type"
+        expected: "header"
+      - path: "0/table/rows/0/cells/0/value"
+        expected: [{'text': 'A header'}]
+      - path: "0/table/rows/1/cells/0/type"
+        expected: "data"
+      - path: "0/table/rows/1/cells/0/value"
+        expected: [{'text': ''}]

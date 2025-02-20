@@ -1,12 +1,13 @@
 from collective.html2blocks import registry
 from collective.html2blocks._types import Element
+from collective.html2blocks._types import VoltoBlock
 from collective.html2blocks.blocks.slate import parser
 from collective.html2blocks.utils import markup
 from collective.html2blocks.utils import slate
 
 
 @registry.block_converter("table")
-def table_block(element: Element) -> list[dict]:
+def table_block(element: Element) -> list[VoltoBlock]:
     """Return a table block."""
     block = {"@type": "slateTable"}
     rows = []
@@ -14,21 +15,23 @@ def table_block(element: Element) -> list[dict]:
     hide_headers = False
     is_first_row = True
     table_rows = markup.extract_table_rows(element)
-    for child, is_header in table_rows:
-        children = markup.all_children(child)
-        first_child_name = children[0].name if children else None
-        if first_child_name == "th" or is_header:
+    for row, is_header in table_rows:
+        row_cells = markup.all_children(row)
+        if not row_cells:
+            continue
+        first_cell = row_cells[0].name if row_cells else None
+        if first_cell == "th" or is_header:
             is_first_row = False
-        elif is_first_row and first_child_name != "th":
+        elif is_first_row and first_cell != "th":
             is_first_row = False
             # if first cell is not a TH, we assume we have a table without header.
             # so we add an empty header row and hide it via `hideHeaders`.
             # (otherwise the first row would appear as header what might no be expected)
-            empty_header_cells = [slate.table_cell("header", [""]) for _ in children]
+            empty_header_cells = [slate.table_cell("header", [""]) for _ in row_cells]
             hide_headers = True
             rows.append(slate.table_row(empty_header_cells))
         cells = []
-        for cell in children:
+        for cell in row_cells:
             cell_type = markup.table_cell_type(cell, is_header)
             raw_cell_value = parser.deserialize_children(cell)
             if len(raw_cell_value) == 0:

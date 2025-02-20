@@ -11,11 +11,14 @@ class Registry:
     default: Callable | None = None
 
 
-class VoltoBlockInfo(TypedDict):
-    """Volto Block information."""
+VoltoBlock = TypedDict("VoltoBlock", {"@type": str})
+
+
+class VoltoBlocksInfo(TypedDict):
+    """Volto Blocks information."""
 
     blocks: dict[str, dict]
     blocks_layout: dict[str, list]
 
 
-__all__ = ["Element", "Registry"]
+__all__ = ["Element", "Registry", "VoltoBlock", "VoltoBlocksInfo"]

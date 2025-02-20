@@ -1,5 +1,5 @@
 from collective.html2blocks import registry
-from collective.html2blocks._types import VoltoBlockInfo
+from collective.html2blocks._types import VoltoBlocksInfo
 from collective.html2blocks.utils import blocks
 from collective.html2blocks.utils import markup
 
@@ -19,7 +19,7 @@ def html_to_blocks(source: str) -> list[dict]:
 
 def volto_blocks(
     source: str, default_blocks: list[dict] | None = None
-) -> VoltoBlockInfo:
+) -> VoltoBlocksInfo:
     """Return volto blocks information."""
     blocks_ = default_blocks.copy() if default_blocks else []
     for block in html_to_blocks(source):

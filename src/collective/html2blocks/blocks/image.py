@@ -1,5 +1,6 @@
 from collective.html2blocks import registry
 from collective.html2blocks._types import Element
+from collective.html2blocks._types import VoltoBlock
 
 import re
 
@@ -59,7 +60,7 @@ def _scale_from_src(src: str) -> str:
 
 
 @registry.block_converter("img")
-def image_block(element: Element) -> list[dict]:
+def image_block(element: Element) -> list[VoltoBlock]:
     """Given an image, return an image block."""
     src: str = element.get("src")
     if src is None:

@@ -1,5 +1,6 @@
 from collective.html2blocks import registry
 from collective.html2blocks._types import Element
+from collective.html2blocks._types import VoltoBlock
 
 import re
 
@@ -13,7 +14,7 @@ def _get_youtube_video_id(url: str) -> str:
 
 
 @registry.block_converter("video")
-def video_block(element: Element) -> list[dict]:
+def video_block(element: Element) -> list[VoltoBlock]:
     """Video block."""
     if not (src := element.get("src", "")):
         source: Element | None = element.source
