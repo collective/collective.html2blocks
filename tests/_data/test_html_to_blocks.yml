@@ -228,3 +228,16 @@ params:
         expected: strong
       - path: "0/value/0/children/2/text"
         expected: " and more text"
+
+
+  - name: Paragraph with image without src
+    src: '<p><b>inline element</b><img class="image-right"></p>'
+    tests:
+      - path: "type:"
+        expected: list
+      - path: "len:"
+        expected: 1
+      - path: "0/@type"
+        expected: slate
+      - path: "0/value/0/type"
+        expected: p

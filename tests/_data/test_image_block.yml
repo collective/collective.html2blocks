@@ -131,3 +131,11 @@ params:
         expected: "right"
       - path: "0/size"
         expected: "m"
+
+  - name: Image without src
+    src: '<img class="image-right">'
+    tests:
+      - path: "type:"
+        expected: list
+      - path: "len:"
+        expected: 0

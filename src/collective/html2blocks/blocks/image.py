@@ -61,7 +61,9 @@ def _scale_from_src(src: str) -> str:
 @registry.block_converter("img")
 def image_block(element: Element) -> list[dict]:
     """Given an image, return an image block."""
-    src: str = element["src"]
+    src: str = element.get("src")
+    if src is None:
+        return []
     url: str = src.split("/@@images")[0]
     css_classes: list[str] = element.get("class", [])
     alt: str = element.get("alt", "")

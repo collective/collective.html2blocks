@@ -236,7 +236,8 @@ def _deserialize(element: Element) -> dict | list | None:
         response = slate.wrap_text("")
     elif converter := registry.get_block_converter(element):
         # Hack: We 'believe' only slate would return a list of blocks
-        response = converter(element)[0]
+        blocks = converter(element)
+        response = blocks[0] if blocks else None
     elif element_converter := registry.get_element_converter(element):
         response = element_converter(element)
     else:
