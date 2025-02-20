@@ -2,6 +2,7 @@ from bs4 import Comment
 from bs4.element import NavigableString
 from collective.html2blocks import registry
 from collective.html2blocks._types import Element
+from collective.html2blocks.logger import logger
 from collective.html2blocks.utils import blocks as butils
 from collective.html2blocks.utils import markup
 from collective.html2blocks.utils import slate
@@ -244,6 +245,9 @@ def _deserialize(element: Element) -> dict | list | None:
     if isinstance(response, dict) and slate._just_children(response):
         children = response["children"]
         response = slate.flatten_children(children)
+
+    if not response:
+        logger.debug(f"Dropping element {element}")
     return response
 
 
@@ -252,6 +256,7 @@ def deserialize(element: Element) -> dict | None:
     tag_name = element.name
     text = element.text
     if isinstance(element, Comment):
+        logger.debug(f"Dropping element {element}")
         return None
     elif isinstance(element, NavigableString):
         # instead of === '\n' we use isWhitespace for when deserializing tables

@@ -1,6 +1,7 @@
 from collective.html2blocks import registry
 from collective.html2blocks._types import Element
 from collective.html2blocks._types import VoltoBlock
+from collective.html2blocks.logger import logger
 
 import re
 
@@ -64,6 +65,7 @@ def image_block(element: Element) -> list[VoltoBlock]:
     """Given an image, return an image block."""
     src: str = element.get("src")
     if src is None:
+        logger.debug(f"Dropping element {element}")
         return []
     url: str = src.split("/@@images")[0]
     css_classes: list[str] = element.get("class", [])

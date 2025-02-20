@@ -23,7 +23,7 @@ dependencies = [
     "beautifulsoup4>=4.13.3",
 ]
 [project.scripts]
-html2blocks_debug = "collective.html2blocks.registry:_registry_report"
+html2blocks = "collective.html2blocks.cli:tool_information"
 
 [project.urls]
 Documentation = "https://github.com/collective/collective.html2blocks#readme"
