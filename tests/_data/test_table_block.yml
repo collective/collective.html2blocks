@@ -478,3 +478,15 @@ params:
         expected: "data"
       - path: "0/table/rows/1/cells/0/value"
         expected: [{'text': ''}]
+
+  - name: Table cell with image
+    src: '<table class="plain"><tbody><tr><td><img class="image-inline" src="resolveuid/6438515b8fb845a192e4e693ab2cabb1/@@images/image/pass" /></td><td><img class="image-inline" src="resolveuid/ce0b4c98d80546ea929f11aecce23f7a" /></td></tr><tr><td>Katharina Witte<br /><p>0151 74213761</p><p> </p></td><td>Dirk Niehues<br />0170 412 628 4</td></tr></tbody></table>'
+    tests:
+      - path: "len:"
+        expected: 3
+      - path: "0/@type"
+        expected: "slateTable"
+      - path: "1/@type"
+        expected: "image"
+      - path: "2/@type"
+        expected: "image"

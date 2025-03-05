@@ -1,4 +1,5 @@
 version = 1
+revision = 1
 requires-python = ">=3.12"
 
 [[package]]
@@ -16,7 +17,6 @@ wheels = [
 
 [[package]]
 name = "collective-html2blocks"
-version = "1.0.0a0"
 source = { editable = "." }
 dependencies = [
     { name = "beautifulsoup4" },

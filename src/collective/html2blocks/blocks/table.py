@@ -9,6 +9,7 @@ from collective.html2blocks.utils import slate
 @registry.block_converter("table")
 def table_block(element: Element) -> list[VoltoBlock]:
     """Return a table block."""
+    blocks: list[VoltoBlock] = []
     block = {"@type": "slateTable"}
     rows = []
     css_classes: list[str] = element.get("class", [])
@@ -42,10 +43,16 @@ def table_block(element: Element) -> list[VoltoBlock]:
             for value in raw_cell_value:
                 if isinstance(value, str):
                     value = {"text": value}
+                elif slate.invalid_subblock(value):
+                    # Add the subblock to the list of blocks
+                    blocks.append(value)
+                    # But we add an empty value into the cell
+                    value = {"text": ""}
                 cell_value.append(value)
             cells.append(slate.table_cell(cell_type, cell_value))
         rows.append(slate.table_row(cells))
     block["table"] = slate.table(
         rows=rows, hide_headers=hide_headers, css_classes=css_classes
     )
-    return [block]
+    blocks.insert(0, block)
+    return blocks
