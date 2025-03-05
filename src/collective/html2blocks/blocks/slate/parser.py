@@ -2,10 +2,50 @@ from bs4 import Comment
 from bs4.element import NavigableString
 from collective.html2blocks import registry
 from collective.html2blocks._types import Element
+from collective.html2blocks._types import VoltoBlock
 from collective.html2blocks.logger import logger
 from collective.html2blocks.utils import blocks as butils
 from collective.html2blocks.utils import markup
 from collective.html2blocks.utils import slate
+
+
+def extract_blocks(raw_children: list[dict]) -> tuple[list[dict], list[VoltoBlock]]:
+    raw_children = raw_children if raw_children else []
+    children = []
+    blocks = []
+    for child in raw_children:
+        if isinstance(child, dict) and butils.is_volto_block(child):
+            blocks.append(child)
+        else:
+            children.append(child)
+    return children, blocks
+
+
+def _instropect_children(child: dict) -> tuple[list[dict], list[VoltoBlock]]:
+    blocks = []
+    children = []
+    if "children" in child:
+        children, sub_blocks = extract_blocks(child["children"])
+        blocks.extend(sub_blocks)
+        child["children"] = children
+    return child, blocks
+
+
+def finalize_slate(block: VoltoBlock) -> list[VoltoBlock]:
+    """Check if slate has invalid children blocks."""
+    blocks = []
+    value = []
+    for item in block["value"]:
+        child, sub_blocks = _instropect_children(item)
+        value.append(child)
+        if sub_blocks:
+            blocks.extend(sub_blocks)
+    block["value"] = value
+    if blocks:
+        blocks.insert(0, block)
+    else:
+        blocks = [block]
+    return blocks
 
 
 def _handle_only_child(child: Element, styles: dict | None = None) -> dict:

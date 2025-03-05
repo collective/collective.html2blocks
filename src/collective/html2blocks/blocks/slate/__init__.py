@@ -6,17 +6,6 @@ from collective.html2blocks.utils import blocks as butils
 from collective.html2blocks.utils import markup
 
 
-def _extract_blocks(raw_children: list[dict]) -> tuple[list[dict], list[VoltoBlock]]:
-    children = []
-    blocks = []
-    for child in raw_children:
-        if isinstance(child, dict) and butils.is_volto_block(child):
-            blocks.append(child)
-        else:
-            children.append(child)
-    return children, blocks
-
-
 @registry.default_converter
 def slate_block(element: Element) -> list[VoltoBlock]:
     plaintext = markup.extract_plaintext(element)
@@ -26,9 +15,9 @@ def slate_block(element: Element) -> list[VoltoBlock]:
     if value is None:
         value = []
     elif isinstance(value, list):
-        value, additional_blocks = _extract_blocks(value)
+        value, additional_blocks = parser.extract_blocks(value)
     elif isinstance(value, dict) and (children := value.get("children", [])):
-        children, additional_blocks = _extract_blocks(children)
+        children, additional_blocks = parser.extract_blocks(children)
         value["children"] = children
     elif isinstance(value, dict) and butils.is_volto_block(value):
         # Return block information if it was processed somewhere else
@@ -37,6 +26,7 @@ def slate_block(element: Element) -> list[VoltoBlock]:
     if value and not isinstance(value, list):
         value = [value]
     if value and not blocks:
-        blocks = [{"@type": "slate", "plaintext": plaintext, "value": value}]
+        block = {"@type": "slate", "plaintext": plaintext, "value": value}
+        blocks = parser.finalize_slate(block)
     blocks.extend(additional_blocks)
     return blocks

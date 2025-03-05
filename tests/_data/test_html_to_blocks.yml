@@ -241,3 +241,76 @@ params:
         expected: slate
       - path: "0/value/0/type"
         expected: p
+
+  - name: Complex html with nested image inside a paragraph
+    src: |
+      <h2>Apresentação</h2>
+      <hr />
+      <p><span><br /></span></p>
+      <p>O Instituto Federal de Educação, Ciência e Tecnologia da Paraíba (IFPB) é uma autarquia federal vinculada à Secretaria de Educação Profissional e Tecnológica (SETEC) do Ministério da Educação e Cultura (MEC). Referência em ensino profissional na Paraíba, o IFPB conta com 24 unidades distribuídas em todo o Estado, entre Campus e Campus Avançado. Os Campi Avançados são vinculados à Reitoria, que tem sede na capital paraibana.</p>
+      <div><iframe src="https://www.youtube.com/embed/Rehh4KAw6F8" width="300" height="240" allowfullscreen="" frameborder="0" style=""></iframe></div>
+      <div></div>
+      <div>
+      <p>As unidades em funcionamento com denominação de Campus são: Cabedelo, Cajazeiras, Campina Grande, Catolé do Rocha, Esperança, Guarabira, Itabaiana, Itaporanga, João Pessoa, Mamanguape, Monteiro, Patos, Picuí, Princesa Isabel, Queimadas, Santa Luzia, Santa Rita, Sapé e Sousa. Os Campi Avançados são: Cabedelo Centro, João Pessoa Mangabeira, Soledade, Areia e Pedras de Fogo.<br /> <br /> O IFPB conta, ainda, com um Polo de Inovação credenciado à Empresa Brasileira de Pesquisa e Inovação Industrial (EMBRAPII). Sua sede está localizada em João Pessoa e atua na área de Sistemas para Automação em Manufatura.<br /> <br /> O IFPB oferece diversos cursos presenciais e a distância, nas modalidades integrado ao ensino médio, subsequente, superior e pós-graduação (stricto sensu e lato sensu), além de cursos de Formação Inicial e Continuada. Todos gratuitos. A instituição conta ainda com diversos programas de Pesquisa, Extensão e Inovação, envolvendo estudantes, servidores e colaboradores.</p>
+      <br />
+      <p> <span>Nossa Missão</span></p>
+      <hr />
+      <p> </p>
+      <p>Ofertar a educação profissional, tecnológica e humanística em todos os seus níveis e modalidades por meio do Ensino, da Pesquisa e da Extensão, na perspectiva de contribuir na formação de cidadãos para atuarem no mundo do trabalho e na construção de uma sociedade inclusiva, justa, sustentável e democrática.</p>
+      <p><span><br /></span></p>
+      <h2><span>Visão</span></h2>
+      <hr />
+      <p> </p>
+      <p class=" "><span>Ser uma instituição de excelência na promoção do desenvolvimento profissional, tecnológico e humanístico de forma ética e sustentável beneficiando a sociedade, alinhado às regionalidades em que está inserido.</span></p>
+      <h2></h2>
+      <h2>Valores</h2>
+      <hr />
+      <p> </p>
+      <h3><span>Ética</span></h3>
+      <p>Requisito básico orientador das ações institucionais;</p>
+      <h3>Desenvolvimento Humano</h3>
+      <p>Fomentar o desenvolvimento humano, buscando sua integração à sociedade por meio do exercício da cidadania, promovendo o seu bem-estar social;</p>
+      <h3>Inovação</h3>
+      <p>Buscar soluções para as demandas apresentadas;</p>
+      <h3>Qualidade e Excelência</h3>
+      <p>Promover a melhoria contínua dos serviços prestados</p>
+      <h3>Transparência</h3>
+      <p>Disponibilizar mecanismos de acompanhamento e de publicização das ações da gestão, aproximando a administração da comunidade;</p>
+      <h3>Respeito</h3>
+      <p>Ter atenção com alunos, servidores e público em geral;</p>
+      <h3>Compromisso Social e Ambiental</h3>
+      <p>Participa efetivamente das ações sociais e ambientais, cumprindo seu papel social de agente transformador da sociedade e promotor da sustentabilidade.<span> </span></p>
+      <h3>Documentos Institucionais</h3>
+      <ul>
+      <li><span><a class="internal-link" href="resolveuid/b615160fda994b2a9d1ccc8da402d391" target="_self" title="">Acesse os principais documentos institucionais</a></span></li>
+      </ul>
+      <div><span><br /></span></div>
+      <h3><span>Vídeo Institucional</span></h3>
+      <p> </p>
+      <iframe src="https://www.youtube.com/embed/1v-huvt1_-I" title="YouTube video player" width="560" height="315" allowfullscreen="" frameborder="0" style=""></iframe>
+      <h2>Sobre a Reitora</h2>
+      <hr />
+      <p><span> </span></p>
+      <h3>Mary Roberta Meira Marinho</h3>
+      <p> <img class="image-left" src="resolveuid/fa6db4f888e945818c521a0d37aeba29/@@images/image/preview" /></p>
+      <p>A Reitora do IFPB é doutora em Engenharia de Processos pela Universidade Federal de Campina Grande (UFCG), mestre em Engenharia de Produção e Especialista em Agente de Inovação Tecnológica na Universidade Federal da Paraíba (UFPB), Graduada em Engenharia Mecânica (UFPB) e Técnica em Mecânica na Escola Técnica Federal da Paraíba (ETFPB).</p>
+      <p>Ela ingressou no IFPB, no ano de 1994 como professora substituta e, posteriormente, foi efetivada como concursada em 1995, em João Pessoa.</p>
+      <p>Mary Roberta possui quase três décadas de experiência em gestão acadêmica e administrativa e já ocupou diversas funções públicas, entre as quais Coordenadora de Curso, Diretora de Desenvolvimento do Ensino do campus Campina Grande do IFPB e Pró-Reitora de Ensino do Instituto Federal da Paraíba.</p>
+      </div>
+    tests:
+      - path: "len:"
+        expected: 7
+      - path: "0/@type"
+        expected: "slate"
+      - path: "1/@type"
+        expected: "slate"
+      - path: "2/@type"
+        expected: "slate"
+      - path: "3/@type"
+        expected: "slate"
+      - path: "4/@type"
+        expected: "slate"
+      - path: "5/@type"
+        expected: "slate"
+      - path: "6/@type"
+        expected: "image"

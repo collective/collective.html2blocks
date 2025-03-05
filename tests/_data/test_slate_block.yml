@@ -730,3 +730,14 @@ params:
         expected: 'p'
       - path: "0/value/0/children/0/text"
         expected: 'Hello: 8:30 am every morning.'
+
+
+  - name: Simple paragraph with image inside
+    src: '<p> <img class="image-left" src="resolveuid/fa6db4f888e945818c521a0d37aeba29/@@images/image/preview" /></p>'
+    tests:
+      - path: "len:"
+        expected: 2
+      - path: "0/@type"
+        expected: 'slate'
+      - path: "1/@type"
+        expected: 'image'

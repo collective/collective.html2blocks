@@ -6,6 +6,25 @@ from collective.html2blocks.utils import markup
 from collective.html2blocks.utils import slate
 
 
+def _process_cell_value(raw_cell_value: list | dict) -> tuple[dict, list[VoltoBlock]]:
+    blocks: list[VoltoBlock] = []
+    if len(raw_cell_value) == 0:
+        raw_cell_value = [""]
+    elif {slate.is_simple_text(v) for v in raw_cell_value} == {True}:
+        raw_cell_value = ["".join([v["text"] for v in raw_cell_value])]
+    cell_value = []
+    for value in raw_cell_value:
+        if isinstance(value, str):
+            value = {"text": value}
+        elif slate.invalid_subblock(value):
+            # Add the subblock to the list of blocks
+            blocks.append(value)
+            # But we add an empty value into the cell
+            value = {"text": ""}
+        cell_value.append(value)
+    return cell_value, blocks
+
+
 @registry.block_converter("table")
 def table_block(element: Element) -> list[VoltoBlock]:
     """Return a table block."""
@@ -35,21 +54,10 @@ def table_block(element: Element) -> list[VoltoBlock]:
         for cell in row_cells:
             cell_type = markup.table_cell_type(cell, is_header)
             raw_cell_value = parser.deserialize_children(cell)
-            if len(raw_cell_value) == 0:
-                raw_cell_value = [""]
-            elif {slate.is_simple_text(v) for v in raw_cell_value} == {True}:
-                raw_cell_value = ["".join([v["text"] for v in raw_cell_value])]
-            cell_value = []
-            for value in raw_cell_value:
-                if isinstance(value, str):
-                    value = {"text": value}
-                elif slate.invalid_subblock(value):
-                    # Add the subblock to the list of blocks
-                    blocks.append(value)
-                    # But we add an empty value into the cell
-                    value = {"text": ""}
-                cell_value.append(value)
+            cell_value, additional_blocks = _process_cell_value(raw_cell_value)
             cells.append(slate.table_cell(cell_type, cell_value))
+            if additional_blocks:
+                blocks.extend(additional_blocks)
         rows.append(slate.table_row(cells))
     block["table"] = slate.table(
         rows=rows, hide_headers=hide_headers, css_classes=css_classes
