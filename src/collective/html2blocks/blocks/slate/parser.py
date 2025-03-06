@@ -24,7 +24,7 @@ def extract_blocks(raw_children: list[dict]) -> tuple[list[dict], list[VoltoBloc
 def _instropect_children(child: dict) -> tuple[list[dict], list[VoltoBlock]]:
     blocks = []
     children = []
-    if "children" in child:
+    if child and "children" in child:
         children, sub_blocks = extract_blocks(child["children"])
         blocks.extend(sub_blocks)
         child["children"] = children
@@ -36,6 +36,8 @@ def finalize_slate(block: VoltoBlock) -> list[VoltoBlock]:
     blocks = []
     value = []
     for item in block["value"]:
+        if not item:
+            continue
         child, sub_blocks = _instropect_children(item)
         value.append(child)
         if sub_blocks:
