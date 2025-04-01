@@ -1,4 +1,5 @@
 from bs4 import PageElement as Element
+from bs4 import Tag
 from collections.abc import Callable
 from dataclasses import dataclass
 from typing import TypedDict
@@ -21,4 +22,4 @@ class VoltoBlocksInfo(TypedDict):
     blocks_layout: dict[str, list]
 
 
-__all__ = ["Element", "Registry", "VoltoBlock", "VoltoBlocksInfo"]
+__all__ = ["Element", "Registry", "Tag", "VoltoBlock", "VoltoBlocksInfo"]

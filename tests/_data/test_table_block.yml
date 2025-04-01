@@ -490,3 +490,16 @@ params:
         expected: "image"
       - path: "2/@type"
         expected: "image"
+
+
+  - name: Table should not create additional columns
+    src: '<table class="plain">\r\n<tbody>\r\n<tr>\r\n<td>\r\n<p class="TabelleLabelfrSpalte" style="text-align: center; ">Allgemeine Dienstreisegenehmigung f\u00fcr:</p>\r\n</td>\r\n<td>\r\n<p class="TabelleLabelfrSpalte" style="text-align: center; ">Erteilt:</p>\r\n</td>\r\n</tr>\r\n<tr>\r\n<td>\r\n<p class="TabelleLabelfrZeile">Referatsleitung</p>\r\n</td>\r\n<td>\r\n<p align="left" class="TabelleText">Abteilungsleitung</p>\r\n</td>\r\n</tr>\r\n<tr>\r\n<td>\r\n<p class="TabelleLabelfrZeile">Pr\u00fcferinnen und Pr\u00fcfer (f\u00fcr Dienstreisen au\u00dferhalb der j\u00e4hrlichen Arbeitsplanung)</p>\r\n</td>\r\n<td>\r\n<p align="left" class="TabelleText">Pr\u00fcfungsgebietsleitung</p>\r\n</td>\r\n</tr>\r\n<tr>\r\n<td>\r\n<p class="TabelleLabelfrZeile">Besch\u00e4ftigte der Pr\u00e4sidialabteilung</p>\r\n</td>\r\n<td>\r\n<p align="left" class="TabelleText">Referatsleitung</p>\r\n</td>\r\n</tr>\r\n<tr>\r\n<td>\r\n<p class="TabelleLabelfrZeile">Besch\u00e4ftigte im Pr\u00e4sidialb\u00fcro/Stabsstelle Au\u00dfenkommunikation</p>\r\n</td>\r\n<td>\r\n<p align="left" class="TabelleText">Leitung Pr\u00e4sidialb\u00fcro/Stabsstelle Au\u00dfenkommunikation</p>\r\n</td>\r\n</tr>\r\n<tr>\r\n<td>\r\n<p class="TabelleLabelfrZeile">Besch\u00e4ftigte</p>\r\n<ul>\r\n<li>der Innenrevision</li>\r\n<li>zur Unterst\u00fctzung nach \u00a7 6 Abs. 2 BDSG</li>\r\n<li>zur Unterst\u00fctzung nach \u00a7 29 BGleiG</li>\r\n<li>zur Unterst\u00fctzung nach \u00a7 47 BPersVG</li>\r\n<li>zur Unterst\u00fctzung nach \u00a7 179 Abs. 8 SGB IX</li>\r\n</ul>\r\n</td>\r\n<td>\r\n<p align="left" class="TabelleText">Referatsleitung P</p>\r\n</td>\r\n</tr>\r\n</tbody>\r\n</table>'
+    tests:
+      - path: "len:"
+        expected: 1
+      - path: "0/@type"
+        expected: "slateTable"
+      - path: "len:0/table/rows"
+        expected: 7
+      - path: "len:0/table/rows/0/cells"
+        expected: 2

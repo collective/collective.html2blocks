@@ -6,6 +6,13 @@ from collective.html2blocks.utils import markup
 from collective.html2blocks.utils import slate
 
 
+VALID_TABLE_CELL_TAGS = (
+    "td",
+    "th",
+    "tr",
+)
+
+
 def _process_cell_value(raw_cell_value: list | dict) -> tuple[dict, list[VoltoBlock]]:
     blocks: list[VoltoBlock] = []
     if len(raw_cell_value) == 0:
@@ -36,7 +43,7 @@ def table_block(element: Element) -> list[VoltoBlock]:
     is_first_row = True
     table_rows = markup.extract_table_rows(element)
     for row, is_header in table_rows:
-        row_cells = markup.all_children(row)
+        row_cells = markup.all_children(row, allow_tags=VALID_TABLE_CELL_TAGS)
         if not row_cells:
             continue
         first_cell = row_cells[0].name if row_cells else None

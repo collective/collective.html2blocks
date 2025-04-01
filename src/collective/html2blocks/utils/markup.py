@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 from bs4.element import Comment
 from bs4.element import NavigableString
 from collective.html2blocks._types import Element
+from collective.html2blocks._types import Tag
 
 
 def _group_inline_elements(soup: BeautifulSoup) -> Element:
@@ -58,9 +59,20 @@ def parse_source(source: str, filter_: bool = True, group: bool = True) -> Eleme
     return soup
 
 
-def all_children(element: Element) -> list[Element]:
+def all_children(
+    element: Element | Tag, allow_tags: list[str] | None = None
+) -> list[Element | Tag]:
     """Return a list of all children of an element."""
-    return list(getattr(element, "children", []))
+    raw_children: list[Element | Tag] = list(getattr(element, "children", []))
+    if allow_tags:
+        chilren = [
+            child
+            for child in raw_children
+            if getattr(child, "name", None) in allow_tags
+        ]
+    else:
+        chilren = raw_children
+    return chilren
 
 
 def styles(element: Element) -> dict:
