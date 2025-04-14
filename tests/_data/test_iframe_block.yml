@@ -1,0 +1,13 @@
+---
+setup:
+  argnames: ["name", "src", "path", "expected"]
+  test_args: ["path", "expected"]
+params:
+
+  - name: YouTube Iframe
+    src: '<iframe width="480" height="270" src="https://www.youtube.com/embed/nAybBXMWPz8?feature=oembed" allowfullscreen></iframe>'
+    tests:
+      - path: "0/@type"
+        expected: 'video'
+      - path: "0/url"
+        expected: https://youtu.be/nAybBXMWPz8

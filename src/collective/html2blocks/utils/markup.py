@@ -122,3 +122,11 @@ def extract_plaintext(element: Element) -> str:
     if tag_name in ("ol", "ul"):
         plaintext = " ".join([c.text.strip() for c in element.children])
     return plaintext
+
+
+def url_from_iframe(element: Element) -> str:
+    """Parse an iframe element and return the cleansed url."""
+    src = ""
+    if element.name == "iframe":
+        src = element.get("src", "")
+    return src

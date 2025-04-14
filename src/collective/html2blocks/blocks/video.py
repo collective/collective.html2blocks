@@ -1,15 +1,15 @@
 from collective.html2blocks import registry
 from collective.html2blocks._types import Element
 from collective.html2blocks._types import VoltoBlock
+from collective.html2blocks.utils.embed import YOUTUBE_REGEX
 
 import re
 
 
 def _get_youtube_video_id(url: str) -> str:
     video_id = ""
-    pattern = r"^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube(?:-nocookie)?\.com|youtu.be))(\/(?:[\w\-]+\?v=|embed\/|live\/|v\/)?)(?P<video_id>[\w\-]+)(\S+)?$"  # noQA: E501
-    if match := re.match(pattern, url):
-        video_id = match.group("video_id")
+    if match := re.match(YOUTUBE_REGEX, url):
+        video_id = match.group("provider_id")
     return video_id
 
 

@@ -299,7 +299,7 @@ params:
       </div>
     tests:
       - path: "len:"
-        expected: 7
+        expected: 8
       - path: "0/@type"
         expected: "slate"
       - path: "1/@type"
@@ -314,3 +314,5 @@ params:
         expected: "slate"
       - path: "6/@type"
         expected: "image"
+      - path: "7/@type"
+        expected: "video"

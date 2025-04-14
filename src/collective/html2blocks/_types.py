@@ -22,4 +22,11 @@ class VoltoBlocksInfo(TypedDict):
     blocks_layout: dict[str, list]
 
 
-__all__ = ["Element", "Registry", "Tag", "VoltoBlock", "VoltoBlocksInfo"]
+@dataclass
+class EmbedInfo:
+    url: str
+    provider_id: str
+    provider: str
+
+
+__all__ = ["Element", "EmbedInfo", "Registry", "Tag", "VoltoBlock", "VoltoBlocksInfo"]
