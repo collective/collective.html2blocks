@@ -5,6 +5,9 @@ from contextlib import nullcontext as does_not_raise
 import pytest
 
 
+IFRAME_SRC = """<iframe width="480" height="270" src="https://youtube.com/embed/nAybBXMWPz8" />"""
+
+
 @pytest.mark.parametrize(
     "src,tag_name,strict,expectation,type_",
     [
@@ -17,6 +20,8 @@ import pytest
         ["", "video", True, does_not_raise(), Callable],
         ["<p>Hello</p>", "", True, does_not_raise(), None],
         ["<p>Hello</p>", "", False, does_not_raise(), Callable],
+        [IFRAME_SRC, "", True, does_not_raise(), Callable],
+        [IFRAME_SRC, "", False, does_not_raise(), Callable],
     ],
 )
 def test_get_block_converter(
@@ -59,3 +64,4 @@ def test_report_registrations():
     assert "block" in result
     assert "*" in result["block"]
     assert "element" in result
+    assert "iframe" in result

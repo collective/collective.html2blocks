@@ -4,11 +4,21 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from typing import TypedDict
 
+import re
+
+
+@dataclass
+class IFrameConverter:
+    url_pattern: str
+    provider: str
+    converter: Callable
+
 
 @dataclass
 class Registry:
-    block_converters: dict[str, callable]
-    element_converters: dict[str, dict[callable, str]]
+    block_converters: dict[str, Callable]
+    element_converters: dict[str, dict[Callable, str]]
+    iframe_converters: dict[re.Pattern, IFrameConverter]
     default: Callable | None = None
 
 
@@ -26,7 +36,7 @@ class VoltoBlocksInfo(TypedDict):
 class EmbedInfo:
     url: str
     provider_id: str
-    provider: str
+    converter: Callable
 
 
 __all__ = ["Element", "EmbedInfo", "Registry", "Tag", "VoltoBlock", "VoltoBlocksInfo"]

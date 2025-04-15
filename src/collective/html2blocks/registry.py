@@ -1,10 +1,12 @@
-from ._types import Element
-from ._types import Registry
+from . import _types as t
 from .logger import logger
+from .utils.markup import cleanse_url
 from collections.abc import Callable
 
+import re
 
-_REGISTRY: Registry | None
+
+_REGISTRY: t.Registry | None
 
 
 class block_converter:
@@ -29,7 +31,7 @@ class element_converter:
         self.type_name = type_name
 
     def __call__(self, func: Callable):
-        def inner(element: Element):
+        def inner(element: t.Element):
             type_name = self.type_name
             if type_name == "":
                 type_name = element.name
@@ -44,6 +46,30 @@ class element_converter:
         return inner
 
 
+class iframe_converter:
+    """Register an iframe converter."""
+
+    def __init__(
+        self, provider: str, src_pattern: re.Pattern | None = "", url_pattern: str = ""
+    ):
+        self.provider = provider
+        self.src_pattern = src_pattern
+        self.url_pattern = url_pattern
+
+    def __call__(self, func: Callable):
+        friendly_name = f"{func.__module__}.{func.__name__}"
+        pattern = self.src_pattern if self.src_pattern else "default"
+        provider = self.provider
+        logger.debug(f"Registering iframe converter {friendly_name} to {provider}")
+        converter = t.IFrameConverter(
+            url_pattern=self.url_pattern,
+            provider=provider,
+            converter=func,
+        )
+        _REGISTRY.iframe_converters[pattern] = converter
+        return func
+
+
 def default_converter(func: Callable):
     """Register the default converter."""
     _REGISTRY.default = func
@@ -51,7 +77,7 @@ def default_converter(func: Callable):
 
 
 def get_block_converter(
-    element: Element | None = None, tag_name: str = "", strict: bool = True
+    element: t.Element | None = None, tag_name: str = "", strict: bool = True
 ) -> Callable | None:
     """Return a registered converter for a given element or tag_name."""
     if not (element or tag_name):
@@ -64,7 +90,7 @@ def get_block_converter(
 
 
 def get_element_converter(
-    element: Element | None = None, tag_name: str = ""
+    element: t.Element | None = None, tag_name: str = ""
 ) -> Callable | None:
     """Return a registered converter for a given element or tag_name."""
     if not (element or tag_name):
@@ -74,9 +100,24 @@ def get_element_converter(
     return converter
 
 
+def get_iframe_converter(src: str) -> t.EmbedInfo:
+    """Return a registered converter for a given element src."""
+    converters = _REGISTRY.iframe_converters
+    for pattern, provider in converters.items():
+        if pattern == "default":
+            continue
+        if match := re.match(pattern, src):
+            repl = provider.url_pattern
+            src = cleanse_url(re.sub(pattern, repl, src))
+            provider_id = match.groupdict()["provider_id"]
+            return t.EmbedInfo(src, provider_id, provider.converter)
+    default = converters.get("default")
+    return t.EmbedInfo(src, "", default.converter)
+
+
 def report_registrations() -> dict[str, dict]:
     """Return information about current registrations."""
-    report = {"block": {}, "element": {}}
+    report = {"block": {}, "element": {}, "iframe": {}}
     for tag_name, converter in _REGISTRY.block_converters.items():
         friendly_name = f"{converter.__module__}.{converter.__name__}"
         report["block"][tag_name] = friendly_name
@@ -85,12 +126,16 @@ def report_registrations() -> dict[str, dict]:
     for tag_name, converter in _REGISTRY.element_converters.items():
         friendly_name = f"{converter.__orig_mod__}.{converter.__name__}"
         report["element"][tag_name] = friendly_name
+    for provider in _REGISTRY.iframe_converters.values():
+        converter = provider.converter
+        friendly_name = f"{converter.__module__}.{converter.__name__}"
+        report["iframe"][provider.provider] = friendly_name
     return report
 
 
-def _initialize_registry() -> Registry:
+def _initialize_registry() -> t.Registry:
     global _REGISTRY
-    _REGISTRY = Registry({}, {})
+    _REGISTRY = t.Registry({}, {}, {})
     from collective.html2blocks import blocks  # noQA: F401
 
 
@@ -102,4 +147,6 @@ __all__ = [
     "element_converter",
     "get_block_converter",
     "get_element_converter",
+    "get_iframe_converter",
+    "iframe_converter",
 ]

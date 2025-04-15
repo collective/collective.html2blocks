@@ -4,6 +4,7 @@ from bs4.element import Comment
 from bs4.element import NavigableString
 from collective.html2blocks._types import Element
 from collective.html2blocks._types import Tag
+from urllib import parse
 
 
 def _group_inline_elements(soup: BeautifulSoup) -> Element:
@@ -130,3 +131,10 @@ def url_from_iframe(element: Element) -> str:
     if element.name == "iframe":
         src = element.get("src", "")
     return src
+
+
+def cleanse_url(url: str) -> str:
+    """Clean up url."""
+    raw_url = url.replace("&amp;", "&")
+    parsed = parse.urlparse(raw_url)
+    return parsed.geturl()

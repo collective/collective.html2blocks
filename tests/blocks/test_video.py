@@ -3,18 +3,6 @@ from collective.html2blocks.blocks import video
 import pytest
 
 
-@pytest.mark.parametrize(
-    "source,expected",
-    [
-        ["https://youtu.be/jn4zGVJq9m0", "jn4zGVJq9m0"],
-        ["https://www.youtube.com/embed/jn4zGVJq9m0", "jn4zGVJq9m0"],
-    ],
-)
-def test__get_youtube_video_id(source: str, expected: str):
-    func = video._get_youtube_video_id
-    assert func(source) == expected
-
-
 VIDEO_INTERNAL = '<video src="/video/pass-countdown.ogg" width="170" height="85" controls><p>If you are reading this, it is because your browser does not support the HTML5 video element.</p></video>'
 VIDEO_EXTERNAL = '<video src="https://plone.org/video.mp4" width="170" height="85" />'
 VIDEO_YOUTUBE = '<video src="https://youtu.be/jn4zGVJq9m0" width="170" height="85" />'

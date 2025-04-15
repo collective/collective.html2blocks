@@ -4,10 +4,84 @@ setup:
   test_args: ["path", "expected"]
 params:
 
-  - name: YouTube Iframe
-    src: '<iframe width="480" height="270" src="https://www.youtube.com/embed/nAybBXMWPz8?feature=oembed" allowfullscreen></iframe>'
+  - name: soundcloud
+    src: '<iframe width="480" height="270" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/1275507478&amp;color=%23ff5500&amp;auto_play=false&amp;hide_related=false&amp;show_comments=true&amp;show_user=true&amp;show_reposts=false&amp;show_teaser=true&amp;visual=true" allowfullscreen></iframe>'
+    tests:
+      - path: "0/@type"
+        expected: 'soundcloudBlock'
+      - path: "0/soundcloudId"
+        expected: '1275507478'
+
+  - name: YouTube 01
+    src: '<iframe width="480" height="270" src="https://www.youtube.com/embed/44CE2XOFS98" allowfullscreen></iframe>'
     tests:
       - path: "0/@type"
         expected: 'video'
       - path: "0/url"
-        expected: https://youtu.be/nAybBXMWPz8
+        expected: https://youtu.be/44CE2XOFS98
+
+  - name: YouTube 02
+    src: '<iframe width="480" height="270" src="https://www.youtube.com/embed/45r8eU5McWY?feature=oembed" allowfullscreen></iframe>'
+    tests:
+      - path: "0/@type"
+        expected: 'video'
+      - path: "0/url"
+        expected: https://youtu.be/45r8eU5McWY
+
+  - name: YouTube 03
+    src: '<iframe width="480" height="270" src="https://www.youtube.com/embed/47kARG37pUs?feature=oembed" allowfullscreen></iframe>'
+    tests:
+      - path: "0/@type"
+        expected: 'video'
+      - path: "0/url"
+        expected: https://youtu.be/47kARG37pUs
+
+  - name: YouTube 04
+    src: '<iframe width="480" height="270" src="https://www.youtube.com/embed/49wYuZR1RpI?feature=oembed" allowfullscreen></iframe>'
+    tests:
+      - path: "0/@type"
+        expected: 'video'
+      - path: "0/url"
+        expected: https://youtu.be/49wYuZR1RpI
+
+  - name: YouTube 05
+    src: '<iframe width="480" height="270" src="https://www.youtube.com/embed/4OUAlDfN2p0?feature=oembed" allowfullscreen></iframe>'
+    tests:
+      - path: "0/@type"
+        expected: 'video'
+      - path: "0/url"
+        expected: https://youtu.be/4OUAlDfN2p0
+
+  - name: YouTube 06
+    src: '<iframe width="480" height="270" src="https://www.youtube.com/embed/4SIY72714lw?feature=oembed" allowfullscreen></iframe>'
+    tests:
+      - path: "0/@type"
+        expected: 'video'
+      - path: "0/url"
+        expected: https://youtu.be/4SIY72714lw
+
+  - name: YouTube 07
+    src: '<iframe width="480" height="270" src="https://www.youtube.com/embed/4hJAxcKbv6Y?feature=oembed" allowfullscreen></iframe>'
+    tests:
+      - path: "0/@type"
+        expected: 'video'
+      - path: "0/url"
+        expected: https://youtu.be/4hJAxcKbv6Y
+
+  - name: YouTube 08
+    src: '<iframe width="480" height="270" src="https://www.youtube.com/embed/4ifeX38vKGU?feature=oembed" allowfullscreen></iframe>'
+    tests:
+      - path: "0/@type"
+        expected: 'video'
+      - path: "0/url"
+        expected: https://youtu.be/4ifeX38vKGU
+
+  - name: Anchor.fm
+    src: '<iframe width="480" height="270" src="https://anchor.fm/oassuntoe/embed/episodes/O-Assunto----Agrotxicos-enm3en" allowfullscreen></iframe>'
+    tests:
+      - path: "0/@type"
+        expected: 'iframe'
+      - path: "0/src"
+        expected: https://anchor.fm/oassuntoe/embed/episodes/O-Assunto----Agrotxicos-enm3en
+      - path: "0/height"
+        expected: '270'
