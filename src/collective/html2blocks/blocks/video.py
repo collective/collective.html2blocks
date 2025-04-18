@@ -4,7 +4,6 @@ from collective.html2blocks._types import VoltoBlock
 from collective.html2blocks.blocks.iframe import youtube
 
 
-
 @registry.block_converter("video")
 def video_block(element: Element) -> list[VoltoBlock]:
     """Video block."""
