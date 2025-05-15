@@ -545,6 +545,40 @@ params:
       - path: "0/value/0/children/1/children/0/text"
         expected: 'Item 2'
 
+  - name: Processing an ordered list with links
+    src: |
+      <ol class="listTypeSquare">
+      <li><a title="mehr Informationen" href="https://site.foo.bar/barfoo/bezuege-1/besoldung" class="internal-link" target="_self"></a><a title="mehr Informationen" href="https://site.foo.bar/barfoo/bezuege-1/besoldung" class="internal-link" target="_self">Besoldung</a></li>
+      <li><a title="mehr Informationen" href="https://site.foo.bar/barfoo/bezuege-1/entgelt" class="internal-link" target="_self">Entgelt</a></li>
+      <li><a title="mehr Informationen" href="https://site.foo.bar/leistungspraemien" class="internal-link" target="_self">Leistungsprämien</a></li>
+      <li><a title="mehr Informationen" href="https://site.foo.bar/barfoo/altersteilzeit-1" class="internal-link" target="_self">Versorgung/Altersgeld</a></li>
+      <li><a title="öffnet Datei im neuen Fenster (pdf)" href="https://site.foo.bar/barfoo/steuerhinweise-bezuege" class="internal-link" target="_blank">Steuerhinweise für Empfängerinnen und Empfänger von Amts-, Besoldungs- und Tarifbezügen</a></li>
+      <li><a title="öffnet Datei im neuen Fenster (pdf)" href="https://site.foo.bar/barfoo/information-zum-zustaendigkeitswechsel-in-der-kindergeldbearbeitung" class="internal-link" target="_blank">Information zum Zuständigkeitswechsel in der Kindergeldbearbeitung</a></li>
+      <li><span><a title="öffnet Datei im neuen Fenster (pdf)" href="https://site.foo.bar/barfoo/kundeninformation-zum-jahreswechsel-informationen-fuer-beschaeftigte-und-arbeitgeber" class="internal-link" target="_blank">Kundeninformation zum Jahreswechsel – Informationen des Fachbereichs Personalkostenbetreuung des Bundesverwaltungsamts für Beschäftigte und Arbeitgeber</a></span></li>
+      <li><span><span><a title="öffnet Datei im neuen Fenster (pdf)" href="https://site.foo.bar/barfoo/kundeninformation-berechnung-der-beitraege-zur-sozialen-pflegeversicherung-im-rahmen-der-mitgliedschaft-in-einer-gesetzlichen-krankenkasse-fuer-zeiten-ab-dem-01-07-2023-hinweise-zur-beruecksichtigung-von-kindern" class="internal-link" target="_blank">Kundeninformation - Berechnung der Beiträge zur sozialen Pflegeversicherung im Rahmen der Mitgliedschaft in einer gesetzlichen Krankenkasse für Zeiten ab dem 01.07.2023</a></span></span></li>
+      </ol>
+    tests:
+      - path: "0/@type"
+        expected: 'slate'
+      - path: "0/value/0/type"
+        expected: 'ol'
+      - path: "len:0/value/0/children"
+        expected: 8
+      - path: "0/value/0/children/0/type"
+        expected: 'li'
+      - path: "0/value/0/children/1/type"
+        expected: 'li'
+      - path: "0/value/0/children/2/type"
+        expected: 'li'
+      - path: "0/value/0/children/3/type"
+        expected: 'li'
+      - path: "0/value/0/children/4/type"
+        expected: 'li'
+      - path: "0/value/0/children/6/type"
+        expected: 'li'
+      - path: "0/value/0/children/7/type"
+        expected: 'li'
+
   - name: Processing an unordered list
     src: <ul><li>Item 1</li><li>Item 2</li></ul>
     tests:
@@ -564,6 +598,40 @@ params:
         expected: 'li'
       - path: "0/value/0/children/1/children/0/text"
         expected: 'Item 2'
+
+  - name: Processing an unordered list with links
+    src: |
+      <ul class="listTypeSquare">
+      <li><a title="mehr Informationen" href="https://site.foo.bar/barfoo/bezuege-1/besoldung" class="internal-link" target="_self"></a><a title="mehr Informationen" href="https://site.foo.bar/barfoo/bezuege-1/besoldung" class="internal-link" target="_self">Besoldung</a></li>
+      <li><a title="mehr Informationen" href="https://site.foo.bar/barfoo/bezuege-1/entgelt" class="internal-link" target="_self">Entgelt</a></li>
+      <li><a title="mehr Informationen" href="https://site.foo.bar/leistungspraemien" class="internal-link" target="_self">Leistungsprämien</a></li>
+      <li><a title="mehr Informationen" href="https://site.foo.bar/barfoo/altersteilzeit-1" class="internal-link" target="_self">Versorgung/Altersgeld</a></li>
+      <li><a title="öffnet Datei im neuen Fenster (pdf)" href="https://site.foo.bar/barfoo/steuerhinweise-bezuege" class="internal-link" target="_blank">Steuerhinweise für Empfängerinnen und Empfänger von Amts-, Besoldungs- und Tarifbezügen</a></li>
+      <li><a title="öffnet Datei im neuen Fenster (pdf)" href="https://site.foo.bar/barfoo/information-zum-zustaendigkeitswechsel-in-der-kindergeldbearbeitung" class="internal-link" target="_blank">Information zum Zuständigkeitswechsel in der Kindergeldbearbeitung</a></li>
+      <li><span><a title="öffnet Datei im neuen Fenster (pdf)" href="https://site.foo.bar/barfoo/kundeninformation-zum-jahreswechsel-informationen-fuer-beschaeftigte-und-arbeitgeber" class="internal-link" target="_blank">Kundeninformation zum Jahreswechsel – Informationen des Fachbereichs Personalkostenbetreuung des Bundesverwaltungsamts für Beschäftigte und Arbeitgeber</a></span></li>
+      <li><span><span><a title="öffnet Datei im neuen Fenster (pdf)" href="https://site.foo.bar/barfoo/kundeninformation-berechnung-der-beitraege-zur-sozialen-pflegeversicherung-im-rahmen-der-mitgliedschaft-in-einer-gesetzlichen-krankenkasse-fuer-zeiten-ab-dem-01-07-2023-hinweise-zur-beruecksichtigung-von-kindern" class="internal-link" target="_blank">Kundeninformation - Berechnung der Beiträge zur sozialen Pflegeversicherung im Rahmen der Mitgliedschaft in einer gesetzlichen Krankenkasse für Zeiten ab dem 01.07.2023</a></span></span></li>
+      </ul>
+    tests:
+      - path: "0/@type"
+        expected: 'slate'
+      - path: "0/value/0/type"
+        expected: 'ul'
+      - path: "len:0/value/0/children"
+        expected: 8
+      - path: "0/value/0/children/0/type"
+        expected: 'li'
+      - path: "0/value/0/children/1/type"
+        expected: 'li'
+      - path: "0/value/0/children/2/type"
+        expected: 'li'
+      - path: "0/value/0/children/3/type"
+        expected: 'li'
+      - path: "0/value/0/children/4/type"
+        expected: 'li'
+      - path: "0/value/0/children/6/type"
+        expected: 'li'
+      - path: "0/value/0/children/7/type"
+        expected: 'li'
 
   - name: Processing a sub
     src: <sub>Hello world!</sub>

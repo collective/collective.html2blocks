@@ -230,9 +230,7 @@ _BLOCK_ELEMENTS_ = [
     "sup",
     "u",
     "ol",
-    "ul",
     "li",
-    "dl",
     "dt",
     "dd",
 ]
@@ -241,6 +239,28 @@ _BLOCK_ELEMENTS_ = [
 @registry.element_converter(_BLOCK_ELEMENTS_)
 def _block_(element: Element, tag_name: str) -> dict:
     return _handle_block_(element, tag_name)
+
+
+def _handle_list_(element: Element, tag_name: str) -> dict:
+    block = _handle_block_(element, tag_name)
+    children = []
+    # Remove not valid child
+    for child in block.get("children", []):
+        if not (isinstance(child, dict) and child.get("type", "") == "li"):
+            continue
+        children.append(child)
+    block["children"] = children
+    return block
+
+
+@registry.element_converter(["ul"], "ul")
+def _ul_(element: Element, tag_name: str) -> dict:
+    return _handle_list_(element, tag_name)
+
+
+@registry.element_converter(["ol"], "ol")
+def _ol_(element: Element, tag_name: str) -> dict:
+    return _handle_list_(element, tag_name)
 
 
 @registry.element_converter(["dl"], "dl")
