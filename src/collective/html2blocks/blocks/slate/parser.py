@@ -183,7 +183,7 @@ def _link_(element: Element, tag_name: str) -> dict:
     """Deserializer."""
     children = deserialize_children(element)
     if not children:
-        children = [""]
+        children = [{"text": ""}]
     block = {
         "type": tag_name,
         "data": {
