@@ -1,6 +1,7 @@
 from bs4 import BeautifulSoup
 from bs4 import Tag
 from pathlib import Path
+from slugify import slugify
 from typing import Any
 
 import pytest
@@ -80,7 +81,13 @@ def pytest_generate_tests(metafunc):
         const_args = [name for name in argnames if name not in test_args]
         args = []
         for entry in data["params"]:
-            base = [entry[name] for name in const_args]
+            base = []
+            for name in const_args:
+                value = entry[name]
+                if name == "name":
+                    # Slugify
+                    value = f"{value} ({slugify(value)})"
+                base.append(value)
             for test in entry["tests"]:
                 item = base + [test[name] for name in test_args]
                 args.append(item)
