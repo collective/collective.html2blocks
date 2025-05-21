@@ -1,21 +1,24 @@
-from .logger import console_logging
-from .logger import logger
+from collective.html2blocks.commands.convert import app as app_convert
+from collective.html2blocks.commands.info import app as app_info
+
+import typer
 
 
-def tool_information():
-    """Return information about the tool."""
-    from collective.html2blocks import PACKAGE_NAME
-    from collective.html2blocks import __version__
-    from collective.html2blocks.registry import report_registrations
+app = typer.Typer(no_args_is_help=True)
 
-    registrations = report_registrations()
-    with console_logging(logger) as log:
-        log.info(f"# {PACKAGE_NAME} - {__version__}")
-        log.info("")
-        log.info("## Block Converters")
-        for tag_name, converter in registrations["block"].items():
-            log.info(f" - {tag_name}: {converter}")
-        log.info("")
-        log.info("## Element Converters")
-        for tag_name, converter in registrations["element"].items():
-            log.info(f" - {tag_name}: {converter}")
+
+@app.callback(invoke_without_command=True)
+def main(ctx: typer.Context):
+    """Welcome to collective.html2blocks."""
+    pass
+
+
+app.add_typer(app_convert)
+app.add_typer(app_info)
+
+
+def cli():
+    app()
+
+
+__all__ = ["cli"]

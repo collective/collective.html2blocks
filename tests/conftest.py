@@ -8,6 +8,11 @@ import pytest
 import yaml
 
 
+@pytest.fixture(scope="session")
+def test_resources_dir() -> Path:
+    return (Path(__file__).parent / "_data").resolve()
+
+
 @pytest.fixture
 def soup_from_str():
     def func(source: str) -> BeautifulSoup:
@@ -92,3 +97,19 @@ def pytest_generate_tests(metafunc):
                 item = base + [test[name] for name in test_args]
                 args.append(item)
         metafunc.parametrize(argnames, args)
+
+
+@pytest.fixture
+def test_dir(monkeypatch, tmp_path) -> Path:
+    monkeypatch.chdir(tmp_path)
+    return tmp_path
+
+
+@pytest.fixture
+def html_dir(test_resources_dir, test_dir):
+    for filepath in test_resources_dir.glob("*.html"):
+        name = filepath.name
+        src_data = filepath.read_text()
+        dst = test_dir / name
+        dst.write_text(src_data)
+    return test_dir
