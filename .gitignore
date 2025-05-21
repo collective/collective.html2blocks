@@ -10,5 +10,9 @@ wheels/
 .ruff_cache
 .coverage
 
+# Test files
+tmp.json
+tmp.html
+
 # Virtual environments
 .venv

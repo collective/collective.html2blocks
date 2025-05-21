@@ -50,11 +50,12 @@ def finalize_slate(block: VoltoBlock) -> list[VoltoBlock]:
     return blocks
 
 
-def _handle_only_child(child: Element, styles: dict | None = None) -> dict:
+def _handle_only_child(child: Element, styles: dict | None = None) -> dict | list:
     text = child.text
     styles = styles if styles else {}
+    block_children: list = deserialize_children(child)
     if not text.strip():
-        return slate.wrap_text(" ")
+        return block_children if block_children else slate.wrap_text(" ")
     elif block_converter := registry.get_block_converter(child):
         return block_converter(child)
     elif element_converter := registry.get_element_converter(child):
@@ -147,8 +148,15 @@ def _div_(element: Element, tag_name: str) -> dict:
     block = {}
     if len(children) == 1:
         child = children[0]
-        block = _handle_only_child(child, styles)
-        block = slate.wrap_paragraph([block]) if slate.is_simple_text(block) else block
+        blocks = _handle_only_child(child, styles)
+        if isinstance(blocks, list):
+            block = slate.wrap_paragraph([blocks])
+        else:
+            block = (
+                slate.wrap_paragraph([blocks])
+                if slate.is_simple_text(blocks)
+                else blocks
+            )
     else:
         block_children = []
         for child in children:
@@ -181,9 +189,13 @@ def _pre_(element: Element, tag_name: str) -> dict:
 @registry.element_converter(["a"], "link")
 def _link_(element: Element, tag_name: str) -> dict:
     """Deserializer."""
-    children = deserialize_children(element)
+    children = slate.remove_empty_text(deserialize_children(element))
     if not children:
-        children = [{"text": ""}]
+        return slate.wrap_text("")
+
+    total_children = len(children)
+    if total_children == 1 and slate.invalid_subblock(children[0]):
+        return children[0]
     block = {
         "type": tag_name,
         "data": {

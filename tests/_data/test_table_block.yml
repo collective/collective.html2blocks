@@ -503,3 +503,100 @@ params:
         expected: 7
       - path: "len:0/table/rows/0/cells"
         expected: 2
+
+  - name: Table with images and links inside
+    src: |
+      <table class="invisible">
+      <tbody>
+      <tr>
+      <td scope="col">
+      <p><span><span><img class="image-inline" src="resolveuid/c43e983e249fea5e7b12f2269b3cbe21" /></span></span></p>
+      </td>
+      <td scope="col">
+      <p><span><span><span><span>Beauftragter f\u00fcr Informationssicherheit<br /></span></span><br /></span></span></p>
+      <p><span><span><b><a class="email-link" href="mailto:helpdesk@example.com" target="_self" title="">John Doe</a></b></span></span></p>
+      <p><span><span><b>Tel.: +49 160 2626 781</b></span></span></p>
+      </td>
+      <td scope="col">
+      <p><span><span><img class="image-inline" src="resolveuid/4b3b1bda1e3c4a8e913c367527401fce" /></span></span></p>
+      <span><span></span></span></td>
+      <td scope="col">
+      <p><span><span>IT-Sicherheitsmanagement<br />Stellvertr. Beauftragter f\u00fcr Informationssicherheit<a class="email-link" href="mailto:helpdesk@example.com" target="_self" title=""><b><span></span></b></a></span></span></p>
+      <p><span><span><a class="email-link" href="mailto:helpdesk@example.com" target="_self" title=""><b><span>Jane Doe</span></b></a></span></span></p>
+      <span><span><b>Tel.: +99 701 431 458 70<br /></b></span></span></td>
+      </tr>
+      </tbody>
+      </table>
+      <p>\u00a0</p>
+      <h2><b>Meldung von IT-Sicherheitsvorf\u00e4llen </b></h2>
+      <p>Bitte melden Sie diese (u. a. Warnungen des Virenscanners, verd\u00e4chtige E\u2011Mails/Phishing-Verdacht) grunds\u00e4tzlich direkt dem <b>User-Helpdesk:</b> <br /> Telefon (Mo - Fr.\u00a0\u00a0 07:00 - 18.00 Uhr): +99 271 99 721 2777<br /> E-Mail:<a class="email-link" href="mailto:helpdesk@example.com" target="_self" title=""> helpdesk@example.com</a></p>
+      <p>\u00a0</p>
+      <table class="invisible">
+      <tbody>
+      <tr>
+      <td>
+      <p style="text-align: justify; "><a class="internal-link" href="resolveuid/cf64d9e6518e4b5e87d7ff2131054d29" target="_blank" title=""><img class="image-inline" src="resolveuid/cf64d9e6518e4b5e87d7ff2131054d29/@@images/image/teaser1" /></a></p>
+      </td>
+      <td>
+      <p><strong>\u00a0</strong></p>
+      <ul class="listTypeSquare">
+      <li><a class="internal-link" href="resolveuid/c6af77f33a66019769dbdcc59a82a8f9" target="_blank" title="\u00f6ffnet Link in neuem Fenster"><span>Informationssicherheitsleitlinie des Bundesrechnungshofes</span></a></li>
+      <li><a class="internal-link" href="resolveuid/e06414872bdb4417a46f8b4034dadfb8" target="_blank" title="\u00f6ffnet Link in neuem Fenster">Weitere Regelungen des Informationssicherheit</a></li>
+      </ul>
+      </td>
+      </tr>
+      <tr>
+      <td>
+      <p><a class="internal-link" href="resolveuid/400e65c48cd940b0bb4ebb476708d7b2" target="_blank" title=""><span class="internal-link"><span class="external-link"><img class="image-left" src="resolveuid/360fa569c4db4f65b237fd4f36dfe1f0/@@images/image/teaser1" /></span></span></a></p>
+      </td>
+      <td>
+      <p><br /><br /><br /></p>
+      <ul class="listTypeSquare">
+      <li>
+      <p><a class="external-link" href="https://example.com/foo" target="_blank" title="Phishing-E-Mails-BSI">Wie erkenne ich\u00a0Phishing-E-Mails und -Webseiten?</a></p>
+      </li>
+      </ul>
+      </td>
+      </tr>
+      <tr style="text-align: left; vertical-align: middle; ">
+      <td>
+      <p><a class="internal-link" href="resolveuid/59b7f6a1f49e4ed6afb96f45c705b722" target="_self" title=""><img class="image-inline" src="resolveuid/91d937f0c19149eab592a0e3ddd83751" /></a></p>
+      </td>
+      <td>
+      <p><a class="internal-link" href="resolveuid/59b7f6a1f49e4ed6afb96f45c705b722" target="_self" title=""><br /><br /></a></p>
+      <ul>
+      <li><a class="internal-link" href="resolveuid/59b7f6a1f49e4ed6afb96f45c705b722" target="_self" title=""><span class="external-link">Reisen ins Ausland</span></a></li>
+      </ul>
+      </td>
+      </tr>
+      <tr>
+      <td><img class="image-inline" src="resolveuid/f701e5f9ffbe4e5e89244acc3cee61e7/@@images/image/teaser1" /></td>
+      <td>
+      <p>\u00a0</p>
+      <p>\u00a0</p>
+      <ul class="listTypeSquare">
+      <li>
+      <p><a class="external-link" href="resolveuid/f701e5f9ffbe4e5e89244acc3cee61e7" target="_blank" title="Homeoffice-Checkliste-BSI">IT-Sicherheit im Home Office</a></p>
+      </li>
+      </ul>
+      </td>
+      </tr>
+      </tbody>
+      </table>
+    tests:
+      - path: "len:"
+        expected: 3
+      - path: "0/@type"
+        expected: "slateTable"
+      - path: "len:0/table/rows"
+        expected: 2
+      - path: "len:0/table/rows/0/cells"
+        expected: 4
+      - path: "0/table/rows/0/cells/0/type"
+        expected: "header"
+      - path: "0/table/rows/0/cells/0/value/0"
+        expected: ""
+      - path: "1/@type"
+        expected: "image"
+      - path: "2/@type"
+        expected: "image"

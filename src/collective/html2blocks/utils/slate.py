@@ -28,6 +28,15 @@ def is_simple_text(data: dict) -> bool:
     return keys == {"text"}
 
 
+def remove_empty_text(value: list[dict]) -> list[dict]:
+    new_value = []
+    for item in value:
+        if is_simple_text(item) and not item["text"].strip:
+            continue
+        new_value.append(item)
+    return new_value
+
+
 def _just_children(data: dict) -> bool:
     keys = set(data.keys())
     return keys == {"children"}
