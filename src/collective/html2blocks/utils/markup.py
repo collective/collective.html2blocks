@@ -49,10 +49,48 @@ def _filter_children(soup: BeautifulSoup) -> BeautifulSoup:
     return soup
 
 
-def parse_source(source: str, filter_: bool = True, group: bool = True) -> Element:
+def _normalize_html(soup: BeautifulSoup):
+    def recursively_simplify(tag: Tag):
+        # Work bottom-up
+        for child in list(tag.children):
+            if isinstance(child, Tag):
+                recursively_simplify(child)
+
+        # Unwrap if this tag has exactly one child that's the same tag with same attrs
+        if (
+            isinstance(tag, Tag)
+            and len(tag.contents) == 1
+            and isinstance(tag.contents[0], Tag)
+        ):
+            child = tag.contents[0]
+            if tag.name == child.name and tag.attrs == child.attrs:
+                tag.replace_with(child)
+                recursively_simplify(child)
+
+    def remove_empty_tags(tag: Tag):
+        # Remove empty tags with no content, no children, and no attributes
+        for child in list(tag.descendants):
+            if (
+                isinstance(child, Tag)
+                and not child.contents
+                and not child.string
+                and not child.attrs
+            ):
+                child.decompose()
+
+    recursively_simplify(soup)
+    remove_empty_tags(soup)
+    return soup
+
+
+def parse_source(
+    source: str, filter_: bool = True, group: bool = True, normalize: bool = True
+) -> Element:
     # Remove linebreaks from the end of the source
     source = source.strip()
     soup = BeautifulSoup(source, features="html.parser")
+    if normalize:
+        soup = _normalize_html(soup)
     if filter_:
         soup = _filter_children(soup)
     if group:

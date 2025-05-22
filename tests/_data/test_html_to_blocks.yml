@@ -119,7 +119,7 @@ params:
       </div>
     tests:
       - path: "len:"
-        expected: 10
+        expected: 8
       - path: "0/plaintext"
         expected: 'Chrissy Wainwright'
       - path: "0/@type"
@@ -193,7 +193,7 @@ params:
       - path: "0/value/0/children/0/type"
         expected: strong
       - path: "0/value/0/children/0/children/0/text"
-        expected: "The Plone Conference 2021 will be held as an online event on October 23 - 31, 2021. \n"
+        expected: "The Plone Conference 2021 will be held as an online event on October 23 - 31, 2021. "
       - path: "len:3/value"
         expected: 7
       - path: "3/value/0/type"
@@ -299,7 +299,7 @@ params:
       </div>
     tests:
       - path: "len:"
-        expected: 8
+        expected: 7
       - path: "0/@type"
         expected: "slate"
       - path: "1/@type"
@@ -311,10 +311,8 @@ params:
       - path: "4/@type"
         expected: "slate"
       - path: "5/@type"
-        expected: "slate"
-      - path: "6/@type"
         expected: "image"
-      - path: "7/@type"
+      - path: "6/@type"
         expected: "video"
 
   - name: List of link items
