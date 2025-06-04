@@ -141,12 +141,21 @@ def is_inline(element: Element, include_span: bool = False) -> bool:
     return element.name in INLINE_ELEMENTS
 
 
-def extract_table_rows(element: Element) -> list[tuple[Element, bool]]:
+def extract_rows_and_possible_blocks(
+    table_element: Tag, tags_to_extract: list[str]
+) -> tuple[list[tuple[Element, bool]], list[Element]]:
+    """Clean up table and return rows and possible blocks."""
+    unbound_elements = []
+
+    for tag_name in tags_to_extract:
+        for match in table_element.find_all(tag_name):
+            unbound_elements.append(match.extract())
+
     rows = []
-    for el in element.find_all("tr"):
+    for el in table_element.find_all("tr"):
         parent = el.parent
         rows.append((el, parent.name == "thead"))
-    return rows
+    return rows, unbound_elements
 
 
 def table_cell_type(cell: Element, is_header: bool = False) -> str:

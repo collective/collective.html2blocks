@@ -6,6 +6,13 @@ from collective.html2blocks.utils import markup
 from collective.html2blocks.utils import slate
 
 
+INVALID_TABLE_CELL_TAGS = (
+    "iframe",
+    "img",
+    "table",
+    "video",
+)
+
 VALID_TABLE_CELL_TAGS = (
     "td",
     "th",
@@ -13,7 +20,9 @@ VALID_TABLE_CELL_TAGS = (
 )
 
 
-def _process_cell_value(raw_cell_value: list | dict) -> tuple[dict, list[VoltoBlock]]:
+def _process_cell_value(
+    raw_cell_value: list | dict,
+) -> tuple[list[dict], list[VoltoBlock]]:
     blocks: list[VoltoBlock] = []
     if len(raw_cell_value) == 0:
         raw_cell_value = [""]
@@ -41,7 +50,9 @@ def table_block(element: Element) -> list[VoltoBlock]:
     css_classes: list[str] = element.get("class", [])
     hide_headers = False
     is_first_row = True
-    table_rows = markup.extract_table_rows(element)
+    table_rows, possible_blocks = markup.extract_rows_and_possible_blocks(
+        element, INVALID_TABLE_CELL_TAGS
+    )
     for row, is_header in table_rows:
         row_cells = markup.all_children(row, allow_tags=VALID_TABLE_CELL_TAGS)
         if not row_cells:
@@ -70,4 +81,9 @@ def table_block(element: Element) -> list[VoltoBlock]:
         rows=rows, hide_headers=hide_headers, css_classes=css_classes
     )
     blocks.insert(0, block)
+    for element in possible_blocks:
+        block_converter = registry.get_block_converter(element, strict=False)
+        el_blocks = block_converter(element) if block_converter else []
+        if el_blocks:
+            blocks.extend(el_blocks)
     return blocks

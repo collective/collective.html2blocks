@@ -600,3 +600,84 @@ params:
         expected: "image"
       - path: "2/@type"
         expected: "image"
+
+
+  - name: Table with images and links inside 2
+    src: |
+      <table align="center" class="invisible">
+      <tbody>
+      <tr>
+      <td style="text-align: center; "><img class="image-inline" src="resolveuid/37173797e6e544e8a717bc7c8be0c3be" /></td>
+      <td>
+      <p align="center"><a class="internal-link" href="resolveuid/16b1f289f84f4a2fa1ed7a129d776d05" target="_self" title=""><img class="image-inline" src="resolveuid/d101b3dada154e04a80e52fa8764d733" /> </a></p>
+      </td>
+      <td style="text-align: center; "></td>
+      <td style="text-align: center; "></td>
+      <td style="text-align: center; "></td>
+      </tr>
+      <tr>
+      <td style="text-align: center; ">Abteilungsleitung<br /><a class="email-link" href="mailto:foo@example.com" target="_self" title="">Sabine Schneider</a><br />Mobil: 0151 44622707</td>
+      <td>
+      <p align="center"> </p>
+      </td>
+      <td style="text-align: center; "></td>
+      <td style="text-align: center; "></td>
+      <td style="text-align: center; "></td>
+      </tr>
+      <tr>
+      <td>
+      <p align="center"><img class="image-inline" src="resolveuid/09b35d3184ae8335809e84fd7cc8d805" /></p>
+      </td>
+      <td style="text-align: center; "><img class="image-inline" src="resolveuid/f980dc01d3dcbf9c1ced7435f7181dcd" /></td>
+      <td>
+      <p align="center"><img class="image-inline" src="resolveuid/0cd7d800fbd14a8cb7f8419cf458d28e" /></p>
+      </td>
+      <td style="text-align: center; "><img class="image-inline" src="resolveuid/ed57a7fc5cab47998e3fb7bd77b41d9a" /></td>
+      <td style="text-align: center; "><img class="image-inline" src="resolveuid/218cefa532126d6d1834482265cc6e41" /></td>
+      </tr>
+      <tr>
+      <td>
+      <p align="center">PG II 1<br /><a class="email-link" href="mailto:foo@example.com" target="_self" title="">Klaudia Peters</a><br />Tel.: 1210<br />Mobil: 0151 43145858<br /><a class="internal-link" href="resolveuid/27468710683348c7910afdc01f530b78" target="_self" title=""><span class="internal-link"><span class="internal-link"><span class="internal-link"><span class="internal-link">Team</span></span></span></span></a></p>
+      </td>
+      <td>
+      <p align="center">PG II 2<br /><a class="email-link" href="mailto:foo@example.com" target="_self" title="">Christian Edelmann</a><br />Tel.: 1220<br />Mobil: 01604821657<br /><a class="internal-link" href="resolveuid/82784f294cba4c6ab300bd373bfd2323" target="_self" title="mehr Informationen"><span class="internal-link"><span class="internal-link"><span class="internal-link"><span class="internal-link">Team</span></span></span></span></a></p>
+      </td>
+      <td>
+      <p align="center">PG II 3<br /><a class="email-link" href="mailto:foo@example.com" target="_self" title=""><span class="link-mailto"><span class="email-link">John Doe<span class="link-mailto"><span class="email-link">John Doe</span></span></span></span></a><br class="email-link" />Tel.: 1230<br />Mobil: 0171 6285304<br /><a class="internal-link" href="resolveuid/44c241840b374e5c8a2e62f1bbc5fbda" target="_self" title="mehr Informationen"><span class="internal-link"><span class="internal-link"><span class="internal-link"><span class="internal-link">Team</span></span></span></span></a></p>
+      </td>
+      <td>
+      <p align="center"><span>PG II 4</span><br /><a class="email-link" href="mailto:foo@example.com" target="_self" title=""><span class="email-link">John Doe</span></a><br /><span>Tel.: 0160 5555555</span><br /><span>Mobil: 0160 5555555</span><br /><a class="internal-link" href="resolveuid/d9025559998245ddab08777a959425e4" target="_self" title="mehr Informationen"><span class="internal-link">Team</span></a></p>
+      </td>
+      <td>
+      <p align="center"><span>PG II 5</span><br /><a class="internal-link" href="resolveuid/9e18366b28594472b0cca944ed92208c" target="_self" title=""><span class="internal-link"><span class="internal-link"></span></span></a><a class="email-link" href="mailto:foo@example.com" target="_self" title=""><span class="email-link">John Doe</span></a><br /><span>Tel.: 0160 5555555</span><br /><span>Mobil: 0160 5555555</span><br /><a class="internal-link" href="resolveuid/f2908a6d78534f968c0b6428c3e8db46" target="_self" title=""><span class="internal-link">Team</span></a></p>
+      </td>
+      </tr>
+      </tbody>
+      </table>
+    tests:
+      - path: "len:"
+        expected: 8
+      - path: "0/@type"
+        expected: "slateTable"
+      - path: "len:0/table/rows"
+        expected: 5
+      - path: "len:0/table/rows/0/cells"
+        expected: 5
+      - path: "0/table/rows/0/cells/0/type"
+        expected: "header"
+      - path: "0/table/rows/0/cells/0/value/0"
+        expected: ""
+      - path: "1/@type"
+        expected: "image"
+      - path: "2/@type"
+        expected: "image"
+      - path: "3/@type"
+        expected: "image"
+      - path: "4/@type"
+        expected: "image"
+      - path: "5/@type"
+        expected: "image"
+      - path: "6/@type"
+        expected: "image"
+      - path: "7/@type"
+        expected: "image"

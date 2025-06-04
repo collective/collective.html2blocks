@@ -1,5 +1,5 @@
-from bs4 import PageElement as Element
 from bs4 import Tag
+from bs4.element import PageElement as Element
 from collections.abc import Callable
 from dataclasses import dataclass
 from typing import TypedDict
