@@ -17,4 +17,4 @@
 
 </div>
 
-**collective.html2blocks** helps with migrations from old Plone versions to Volto.
+**collective.html2blocks** helps with migrations from old Plone versions -- and other CMS -- to Volto.
