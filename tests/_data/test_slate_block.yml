@@ -809,3 +809,25 @@ params:
         expected: 'slate'
       - path: "1/@type"
         expected: 'image'
+
+  - name: Empty unordered list
+    src: '<ul class="listTypeSquare"></ul>'
+    tests:
+      - path: "len:"
+        expected: 0
+
+  - name: Empty unordered list wrapped in a paragraph
+    src: '<p><ul class="listTypeSquare"></ul></p>'
+    tests:
+      - path: "len:"
+        expected: 1
+      - path: "0/@type"
+        expected: 'slate'
+
+  - name: Empty unordered list wrapped in a div
+    src: '<div><ul class="listTypeSquare"></ul></div>'
+    tests:
+      - path: "len:"
+        expected: 1
+      - path: "0/@type"
+        expected: 'slate'

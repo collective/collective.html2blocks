@@ -63,18 +63,19 @@ def _handle_only_child(child: Element, styles: dict | None = None) -> dict | lis
     return slate.wrap_text(text)
 
 
-def _handle_block_(element: Element, tag_name: str) -> dict:
+def _handle_block_(element: Element, tag_name: str) -> dict | None:
     block_children: list = deserialize_children(element)
     total_children = len(block_children)
     first_child = block_children[0] if total_children else None
-    if total_children == 1:
+    if total_children == 1 and first_child:
         if butils.is_volto_block(first_child):
             # Check if we already have a block information
             return first_child
         child_type = first_child.get("type")
         if tag_name in ("p", "blockquote") and child_type == "p":
             block_children = first_child["children"]
-    if len(block_children) == 1 and butils.is_volto_block(first_child):
+            first_child = block_children[0] if total_children else None
+    if len(block_children) == 1 and first_child and butils.is_volto_block(first_child):
         return first_child
     response = {
         "type": tag_name,
@@ -253,7 +254,7 @@ def _block_(element: Element, tag_name: str) -> dict:
     return _handle_block_(element, tag_name)
 
 
-def _handle_list_(element: Element, tag_name: str) -> dict:
+def _handle_list_(element: Element, tag_name: str) -> dict | None:
     block = _handle_block_(element, tag_name)
     children = []
     # Remove not valid child
@@ -261,22 +262,24 @@ def _handle_list_(element: Element, tag_name: str) -> dict:
         if not (isinstance(child, dict) and child.get("type", "") == "li"):
             continue
         children.append(child)
+    if not children:
+        return None
     block["children"] = children
     return block
 
 
 @registry.element_converter(["ul"], "ul")
-def _ul_(element: Element, tag_name: str) -> dict:
+def _ul_(element: Element, tag_name: str) -> dict | None:
     return _handle_list_(element, tag_name)
 
 
 @registry.element_converter(["ol"], "ol")
-def _ol_(element: Element, tag_name: str) -> dict:
+def _ol_(element: Element, tag_name: str) -> dict | None:
     return _handle_list_(element, tag_name)
 
 
 @registry.element_converter(["dl"], "dl")
-def _dl_(element: Element, tag_name: str) -> dict:
+def _dl_(element: Element, tag_name: str) -> dict | None:
     block = _handle_block_(element, tag_name)
     children = []
     # Remove empty text nodes
@@ -284,6 +287,8 @@ def _dl_(element: Element, tag_name: str) -> dict:
         if slate.is_simple_text(child) and not child["text"].strip():
             continue
         children.append(child)
+    if not children:
+        return None
     block["children"] = children
     return block
 
