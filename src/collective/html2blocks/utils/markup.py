@@ -1,3 +1,4 @@
+from .inline import ALLOW_EMPTY_ELEMENTS
 from .inline import INLINE_ELEMENTS
 from bs4 import BeautifulSoup
 from bs4.element import Comment
@@ -73,15 +74,55 @@ def _recursively_simplify(tag: Tag):
             _recursively_simplify(child)
 
 
-def _remove_empty_tags(tag: Tag):
-    for child in list(tag.descendants):
-        if (
-            isinstance(child, Tag)
-            and not child.contents
-            and not child.string
-            and not child.attrs
+def is_empty(tag: Tag) -> bool:
+    return (
+        tag.name not in ALLOW_EMPTY_ELEMENTS
+        and not tag.contents
+        and not tag.string
+        and not tag.attrs
+    )
+
+
+def is_ignorable(el) -> bool:
+    return (isinstance(el, NavigableString) and not el.strip()) or (
+        isinstance(el, Tag) and el.name in ALLOW_EMPTY_ELEMENTS
+    )
+
+
+def _remove_empty_tags(soup: BeautifulSoup):
+    def remove_trailing_allowed_empty_recursive(tag: Tag):
+        for child in tag.find_all(recursive=False):
+            if isinstance(child, Tag):
+                remove_trailing_allowed_empty_recursive(child)
+
+        contents = list(tag.contents)
+        while (
+            contents
+            and isinstance(contents[-1], Tag)
+            and contents[-1].name in ALLOW_EMPTY_ELEMENTS
         ):
-            child.decompose()
+            contents[-1].decompose()
+            contents = list(tag.contents)
+
+    # Remove all empty tags (excluding allowed empty elements)
+    for tag in list(soup.find_all()):
+        if is_empty(tag):
+            tag.decompose()
+
+    # Clean up paragraphs
+    for p in list(soup.find_all("p")):
+        contents = list(p.contents)
+
+        # Remove ignorable leading content
+        while contents and is_ignorable(contents[0]):
+            contents[0].extract()
+            contents = list(p.contents)
+
+        remove_trailing_allowed_empty_recursive(p)
+
+        # Remove paragraph if now empty
+        if not any(c for c in p.contents if not is_ignorable(c)):
+            p.decompose()
 
 
 def _wrap_all_paragraphs(soup: BeautifulSoup, block_level_tags: Iterable[str]):

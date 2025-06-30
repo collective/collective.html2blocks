@@ -97,6 +97,11 @@ def _handle_block_(element: Element, tag_name: str) -> dict | None:
     return slate.process_children(response)
 
 
+@registry.element_converter(["br"])
+def _br_(element: Element, tag_name: str) -> dict:
+    return slate.wrap_text("\n", False)
+
+
 @registry.element_converter(["hr"], "p")
 def _hr_(element: Element, tag_name: str) -> dict:
     return {"type": tag_name, "children": slate.wrap_text("", True)}

@@ -61,3 +61,22 @@ def test_styles(tag_from_str, src, style, expected):
     element = tag_from_str(src)
     result = func(element)
     assert result.get(style) == expected
+
+
+@pytest.mark.parametrize(
+    "src,expected",
+    [
+        ["<p>Hello World!</p>", "<p>Hello World!</p>"],
+        ["<p>Hello<br>World!</p>", "<p>Hello<br/>World!</p>"],
+        ["<p>&nbsp;</p>", ""],
+        ["<p><br></p>", ""],
+        ["<p>Foo<br></p>", "<p>Foo</p>"],
+        ["<p><strong>Foo<br></strong></p>", "<p><strong>Foo</strong></p>"],
+        ["<br>", "<br/>"],
+    ],
+)
+def test__remove_empty_tags(soup_from_str, src: str, expected: str):
+    func = markup._remove_empty_tags
+    tag = soup_from_str(src)
+    func(tag)
+    assert str(tag) == expected

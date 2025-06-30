@@ -11,3 +11,5 @@ INLINE_ELEMENTS = (
     "sup",
     "u",
 )
+
+ALLOW_EMPTY_ELEMENTS = ("br", "hr")

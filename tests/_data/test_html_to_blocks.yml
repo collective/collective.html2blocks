@@ -101,7 +101,7 @@ params:
     src: <h2><img class="image-left" src="resolveuid/ae57038455c04d05b56aa2bebbb62844" /></h2><p> </p><p>Das BMF hat die Rundschreiben (sog. Verfahrenshinweise) für die Haushaltsaufstellung 2022 (2. Regierungsentwurf) sowie für 2023 bekanntgegeben. Die Rundschreiben sowie synoptische Gegenüberstellungen der Aufstellungsschreiben für die Haushalte 2022 und 2023 finden Sie in den Fachinformationen des PG I 2 (<a class="internal-link" href="resolveuid/2315012e3b114dfeb093bfed26a90e61" target="_self" title="mehr Informationen">Bundeshaushalt 2022</a> und <a class="internal-link" href="resolveuid/971e3d2c598f4ab58ecd6bbc2cc64a05" target="_self" title="mehr Informationen">Bundeshaushalt 2023</a>).</p>
     tests:
       - path: "len:"
-        expected: 3
+        expected: 2
       - path: "0/@type"
         expected: image
 
@@ -119,7 +119,7 @@ params:
       </div>
     tests:
       - path: "len:"
-        expected: 8
+        expected: 10
       - path: "0/plaintext"
         expected: 'Chrissy Wainwright'
       - path: "0/@type"
@@ -299,7 +299,7 @@ params:
       </div>
     tests:
       - path: "len:"
-        expected: 7
+        expected: 8
       - path: "0/@type"
         expected: "slate"
       - path: "1/@type"
@@ -311,8 +311,10 @@ params:
       - path: "4/@type"
         expected: "slate"
       - path: "5/@type"
-        expected: "video"
+        expected: "slate"
       - path: "6/@type"
+        expected: "video"
+      - path: "7/@type"
         expected: "image"
 
   - name: List of link items
@@ -340,7 +342,7 @@ params:
       - path: "type:"
         expected: list
       - path: "len:"
-        expected: 6
+        expected: 1
       - path: "0/@type"
         expected: slate
       - path: "0/value/0/type"
@@ -359,3 +361,17 @@ params:
         expected: image
       - path: "1/@type"
         expected: slate
+
+  - name: Paragraph with line break
+    src: <p>Hello there<br>Mr. John</p>
+    tests:
+      - path: "type:"
+        expected: list
+      - path: "len:"
+        expected: 1
+      - path: "0/@type"
+        expected: slate
+      - path: "len:0/value/0/children"
+        expected: 1
+      - path: "0/value/0/children/0/text"
+        expected: "Hello there\nMr. John"
