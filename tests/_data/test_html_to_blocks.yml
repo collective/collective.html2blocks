@@ -311,9 +311,9 @@ params:
       - path: "4/@type"
         expected: "slate"
       - path: "5/@type"
-        expected: "image"
-      - path: "6/@type"
         expected: "video"
+      - path: "6/@type"
+        expected: "image"
 
   - name: List of link items
     src: |
@@ -347,3 +347,15 @@ params:
         expected: ul
       - path: "len:0/value/0/children"
         expected: 8
+
+  - name: Paragraph with image as first element
+    src: <p><img src="/image/258ebebc-3733-4c0a-bc19-8b70f2cd6b7e.png" alt="" class="image-left" title="">Some text</p>
+    tests:
+      - path: "type:"
+        expected: list
+      - path: "len:"
+        expected: 2
+      - path: "0/@type"
+        expected: image
+      - path: "1/@type"
+        expected: slate

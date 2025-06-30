@@ -2,6 +2,7 @@ from .inline import INLINE_ELEMENTS
 from bs4 import BeautifulSoup
 from bs4.element import Comment
 from bs4.element import NavigableString
+from collections.abc import Iterable
 from collective.html2blocks._types import Element
 from collective.html2blocks._types import Tag
 from urllib import parse
@@ -49,48 +50,97 @@ def _filter_children(soup: BeautifulSoup) -> BeautifulSoup:
     return soup
 
 
-def _normalize_html(soup: BeautifulSoup):
-    def recursively_simplify(tag: Tag):
-        # Work bottom-up
-        for child in list(tag.children):
-            if isinstance(child, Tag):
-                recursively_simplify(child)
-
-        # Unwrap if this tag has exactly one child that's the same tag with same attrs
-        if (
-            isinstance(tag, Tag)
-            and len(tag.contents) == 1
-            and isinstance(tag.contents[0], Tag)
-        ):
-            child = tag.contents[0]
-            if tag.name == child.name and tag.attrs == child.attrs:
-                tag.replace_with(child)
-                recursively_simplify(child)
-
-    def remove_empty_tags(tag: Tag):
-        # Remove empty tags with no content, no children, and no attributes
-        for child in list(tag.descendants):
-            if (
-                isinstance(child, Tag)
-                and not child.contents
-                and not child.string
-                and not child.attrs
-            ):
-                child.decompose()
-
-    recursively_simplify(soup)
-    remove_empty_tags(soup)
+def _normalize_html(soup: BeautifulSoup, block_level_tags: Iterable[str] = ()):
+    _recursively_simplify(soup)
+    _remove_empty_tags(soup)
+    _wrap_all_paragraphs(soup, block_level_tags)
     return soup
 
 
+def _recursively_simplify(tag: Tag):
+    for child in list(tag.children):
+        if isinstance(child, Tag):
+            _recursively_simplify(child)
+
+    if (
+        isinstance(tag, Tag)
+        and len(tag.contents) == 1
+        and isinstance(tag.contents[0], Tag)
+    ):
+        child = tag.contents[0]
+        if tag.name == child.name and tag.attrs == child.attrs:
+            tag.replace_with(child)
+            _recursively_simplify(child)
+
+
+def _remove_empty_tags(tag: Tag):
+    for child in list(tag.descendants):
+        if (
+            isinstance(child, Tag)
+            and not child.contents
+            and not child.string
+            and not child.attrs
+        ):
+            child.decompose()
+
+
+def _wrap_all_paragraphs(soup: BeautifulSoup, block_level_tags: Iterable[str]):
+    for p_tag in list(soup.find_all("p")):
+        new_elements = _split_paragraph(p_tag, block_level_tags)
+        if new_elements:
+            p_tag.insert_after(*new_elements)
+            p_tag.decompose()
+
+
+def _get_root_soup(tag: Tag) -> BeautifulSoup:
+    parent = tag
+    while parent is not None and not isinstance(parent, BeautifulSoup):
+        parent = parent.parent
+    if parent is None:
+        raise ValueError("Could not find root BeautifulSoup object")
+    return parent
+
+
+def _split_paragraph(p_tag: Tag, block_level_tags: Iterable[str]) -> list[Tag]:
+    soup = _get_root_soup(p_tag)
+    new_elements = []
+    buffer = []
+
+    def flush_buffer():
+        if buffer:
+            p = soup.new_tag("p")
+            for item in buffer:
+                p.append(item)
+            new_elements.append(p)
+            buffer.clear()
+
+    for child in list(p_tag.contents):
+        if isinstance(child, Tag) and child.name in block_level_tags:
+            if child.name == "img" and not child.get("src"):
+                continue
+            flush_buffer()
+            p = soup.new_tag("p")
+            p.append(child)
+            new_elements.append(p)
+        else:
+            buffer.append(child)
+
+    flush_buffer()
+    return new_elements
+
+
 def parse_source(
-    source: str, filter_: bool = True, group: bool = True, normalize: bool = True
+    source: str,
+    filter_: bool = True,
+    group: bool = True,
+    normalize: bool = True,
+    block_level_tags: Iterable[str] = (),
 ) -> Element:
     # Remove linebreaks from the end of the source
     source = source.strip()
     soup = BeautifulSoup(source, features="html.parser")
     if normalize:
-        soup = _normalize_html(soup)
+        soup = _normalize_html(soup, block_level_tags)
     if filter_:
         soup = _filter_children(soup)
     if group:

@@ -76,6 +76,13 @@ def default_converter(func: Callable):
     return func
 
 
+def elements_with_block_converters() -> list[str]:
+    """Return a list of tag names with registered element converters."""
+    if not _REGISTRY:
+        return []
+    return list(_REGISTRY.block_converters.keys())
+
+
 def get_block_converter(
     element: t.Element | None = None, tag_name: str = "", strict: bool = True
 ) -> Callable | None:

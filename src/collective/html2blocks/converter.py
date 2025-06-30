@@ -6,7 +6,8 @@ from collective.html2blocks.utils import markup
 
 def html_to_blocks(source: str) -> list[dict]:
     """Convert from html source."""
-    soup = markup.parse_source(source)
+    block_level_tags = registry.elements_with_block_converters()
+    soup = markup.parse_source(source, block_level_tags=block_level_tags)
     response = []
     elements = markup.all_children(soup)
     for element in elements:
