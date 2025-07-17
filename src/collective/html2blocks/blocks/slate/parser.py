@@ -262,9 +262,10 @@ def _block_(element: Element, tag_name: str) -> dict:
 def _handle_list_(element: Element, tag_name: str) -> dict | None:
     block = _handle_block_(element, tag_name)
     children = []
+    allowed_children = ["li", tag_name]
     # Remove not valid child
     for child in block.get("children", []):
-        if not (isinstance(child, dict) and child.get("type", "") == "li"):
+        if not (isinstance(child, dict) and child.get("type", "") in allowed_children):
             continue
         children.append(child)
     if not children:

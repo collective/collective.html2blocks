@@ -392,3 +392,34 @@ params:
         expected: 'image'
       - path: "0/url"
         expected: 'resolveuid/02a0346be72447dba39e905b413d9bc9'
+
+  - name: Nested unordered lists should be preserved
+    src: |
+      <ul class="listTypeSquare">
+        <li><span>Item 1</span></li>
+        <li><span>Item 2</span></li>
+        <ul>
+          <li><span>Item 2.1</span></li>
+          <li><span>Item 2.2</span></li>
+          <ul>
+            <li><span>Item 2.2.1</span></li>
+            <li><span>Item 2.2.2</span></li>
+          </ul>
+        </ul>
+      </ul>
+
+    tests:
+      - path: "len:"
+        expected: 1
+      - path: "0/@type"
+        expected: 'slate'
+      - path: "len:0/value"
+        expected: 1
+      - path: "0/value/0/type"
+        expected: 'ul'
+      - path: "len:0/value/0/children"
+        expected: 3
+      - path: "0/value/0/children/2/type"
+        expected: 'ul'
+      - path: "len:0/value/0/children/2/children"
+        expected: 3
