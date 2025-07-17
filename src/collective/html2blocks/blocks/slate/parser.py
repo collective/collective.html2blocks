@@ -53,11 +53,11 @@ def finalize_slate(block: VoltoBlock) -> list[VoltoBlock]:
 def _handle_only_child(child: Element, styles: dict | None = None) -> dict | list:
     text = child.text
     styles = styles if styles else {}
-    block_children: list = deserialize_children(child)
-    if not text.strip():
-        return block_children if block_children else slate.wrap_text(" ")
-    elif block_converter := registry.get_block_converter(child):
+    if block_converter := registry.get_block_converter(child):
         return block_converter(child)
+    elif not text.strip():
+        block_children: list = deserialize_children(child)
+        return block_children if block_children else slate.wrap_text(" ")
     elif element_converter := registry.get_element_converter(child):
         return element_converter(child)
     return slate.wrap_text(text)

@@ -12,8 +12,7 @@ def html_to_blocks(source: str) -> list[dict]:
     elements = markup.all_children(soup)
     for element in elements:
         block_converter = registry.get_block_converter(element, strict=False)
-        el_blocks = block_converter(element)
-        if el_blocks:
+        if block_converter and (el_blocks := block_converter(element)):
             response.extend(el_blocks)
     return response
 

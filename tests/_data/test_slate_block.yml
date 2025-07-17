@@ -831,3 +831,17 @@ params:
         expected: 1
       - path: "0/@type"
         expected: 'slate'
+      - path: "len:0/value"
+        expected: 1
+      - path: "0/value/0/type"
+        expected: 'p'
+
+  - name: Image wrapped in a span inside a paragraph
+    src: '<p><span><img class="image-inline" src="resolveuid/02a0346be72447dba39e905b413d9bc9" /></span></p>'
+    tests:
+      - path: "len:"
+        expected: 1
+      - path: "0/@type"
+        expected: 'image'
+      - path: "0/url"
+        expected: 'resolveuid/02a0346be72447dba39e905b413d9bc9'
