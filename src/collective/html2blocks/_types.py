@@ -25,11 +25,17 @@ class Registry:
 VoltoBlock = TypedDict("VoltoBlock", {"@type": str})
 
 
+class BlocksLayout(TypedDict):
+    """Blocks layout information."""
+
+    items: list[str]
+
+
 class VoltoBlocksInfo(TypedDict):
     """Volto Blocks information."""
 
-    blocks: dict[str, dict]
-    blocks_layout: dict[str, list]
+    blocks: dict[str, VoltoBlock]
+    blocks_layout: BlocksLayout
 
 
 @dataclass
