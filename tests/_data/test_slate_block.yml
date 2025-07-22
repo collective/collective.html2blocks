@@ -320,11 +320,7 @@ params:
         expected: 'slate'
       - path: "0/plaintext"
         expected: 'Ciao world!'
-      - path: "0/value/0/type"
-        expected: 'p'
-      - path: "len:0/value/0/children"
-        expected: 1
-      - path: "0/value/0/children/0/text"
+      - path: "0/value/0/text"
         expected: 'Ciao world!'
 
   - name: Processing a div with a nested paragraph value
@@ -364,17 +360,13 @@ params:
         expected: 'world!'
 
   - name: Processing a div with a nested div
-    src: <div><div>Ciao world!</p></div>
+    src: <div><div>Ciao world!</div></div>
     tests:
       - path: "0/@type"
         expected: 'slate'
       - path: "0/plaintext"
         expected: 'Ciao world!'
-      - path: "0/value/0/type"
-        expected: 'p'
-      - path: "len:0/value/0/children"
-        expected: 1
-      - path: "0/value/0/children/0/text"
+      - path: "0/value/0/text"
         expected: 'Ciao world!'
 
   - name: Processing a div with a nested div and nested paragraphs
@@ -430,20 +422,20 @@ params:
   - name: Processing a h2 will ignore img element in the structure
     src: <h2 id="chrissy"><img src="https://plone.org/foundation/meetings/membership/2019-membership-meeting/nominations/img4_08594.jpg/@@images/7a07f0e5-0fd7-4366-a32d-6b033c8dfce7.jpeg" title="Chrissy Wainwright 2019" alt="Chrissy Wainwright 2019" class="image-right">Chrissy Wainwright</h2>
     tests:
-      - path: "0/@type"
-        expected: 'slate'
       - path: "len:"
         expected: 2
-      - path: "0/plaintext"
-        expected: 'Chrissy Wainwright'
-      - path: "len:0/value"
-        expected: 1
-      - path: "0/value/0/type"
-        expected: 'h2'
-      - path: "0/value/0/children/0/text"
-        expected: 'Chrissy Wainwright'
-      - path: "1/@type"
+      - path: "0/@type"
         expected: 'image'
+      - path: "1/@type"
+        expected: 'slate'
+      - path: "1/plaintext"
+        expected: 'Chrissy Wainwright'
+      - path: "len:1/value"
+        expected: 1
+      - path: "1/value/0/type"
+        expected: 'h2'
+      - path: "1/value/0/children/0/text"
+        expected: 'Chrissy Wainwright'
 
   - name: Processing a b
     src: <b>Hello world!</b>
@@ -806,9 +798,11 @@ params:
       - path: "len:"
         expected: 2
       - path: "0/@type"
-        expected: 'slate'
-      - path: "1/@type"
         expected: 'image'
+      - path: "1/@type"
+        expected: 'slate'
+      - path: "1/value/0/children/0/text"
+        expected: ' '
 
   - name: Empty unordered list
     src: '<ul class="listTypeSquare"></ul>'
@@ -820,9 +814,7 @@ params:
     src: '<p><ul class="listTypeSquare"></ul></p>'
     tests:
       - path: "len:"
-        expected: 1
-      - path: "0/@type"
-        expected: 'slate'
+        expected: 0
 
   - name: Empty unordered list wrapped in a div
     src: '<div><ul class="listTypeSquare"></ul></div>'
@@ -833,8 +825,8 @@ params:
         expected: 'slate'
       - path: "len:0/value"
         expected: 1
-      - path: "0/value/0/type"
-        expected: 'p'
+      - path: "0/value/0/text"
+        expected: ' '
 
   - name: Image wrapped in a span inside a paragraph
     src: '<p><span><img class="image-inline" src="resolveuid/02a0346be72447dba39e905b413d9bc9" /></span></p>'

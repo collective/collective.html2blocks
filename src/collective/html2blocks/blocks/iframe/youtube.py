@@ -1,6 +1,5 @@
+from collective.html2blocks import _types as t
 from collective.html2blocks import registry
-from collective.html2blocks._types import Element
-from collective.html2blocks._types import VoltoBlock
 
 import re
 
@@ -17,9 +16,9 @@ def get_youtube_video_id(url: str) -> str:
     return video_id
 
 
-def _youtube_block(src: str) -> list[VoltoBlock]:
+def _youtube_block(src: str) -> list[t.VoltoBlock]:
     """Return a block to display youtube videos."""
-    block = {"@type": "video", "url": src}
+    block: t.VoltoBlock = {"@type": "video", "url": src}
     return [block]
 
 
@@ -28,6 +27,6 @@ def _youtube_block(src: str) -> list[VoltoBlock]:
     src_pattern=YOUTUBE_REGEX,
     url_pattern=r"https://youtu.be/\g<provider_id>",
 )
-def youtube_block(element: Element, src: str, provider_id: str) -> list[VoltoBlock]:
+def youtube_block(element: t.Tag, src: str, provider_id: str) -> list[t.VoltoBlock]:
     """Implemented by @plone/volto."""
     return _youtube_block(src)

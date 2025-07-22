@@ -38,6 +38,12 @@ jobs:
           if: ${{ success() || failure() }}
           id: py-versions
           run: uvx check-python-versions@latest .
+        - name: Check typing
+          if: ${{ success() || failure() }}
+          id: typing
+          run: |
+            make install
+            uv run mypy src
 
         - name: Report
           if: ${{ success() || failure() }}
@@ -49,3 +55,4 @@ jobs:
             echo '| Lint | ${{ steps.ruff-lint.conclusion == 'failure' && '❌' || ' ✅' }} |' >> $GITHUB_STEP_SUMMARY
             echo '| Package Metadata | ${{ steps.pyroma.conclusion == 'failure' && '❌' || ' ✅' }} |' >> $GITHUB_STEP_SUMMARY
             echo '| Python Versions | ${{ steps.py-versions.conclusion == 'failure' && '❌' || ' ✅' }} |' >> $GITHUB_STEP_SUMMARY
+            echo '| Typing | ${{ steps.typing.conclusion == 'failure' && '❌' || ' ✅' }} |' >> $GITHUB_STEP_SUMMARY

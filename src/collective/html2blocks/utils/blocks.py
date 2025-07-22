@@ -2,7 +2,7 @@ from collective.html2blocks import _types as t
 from uuid import uuid4
 
 
-def is_volto_block(block: dict) -> bool:
+def is_volto_block(block: t.VoltoBlock | t.SlateBlockItem) -> bool:
     """Check if this is a Volto block."""
     return bool(block.get("@type"))
 

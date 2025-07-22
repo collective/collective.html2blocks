@@ -52,12 +52,18 @@ clean: ## Clean environment
 	@echo "$(RED)==> Cleaning environment and build$(RESET)"
 	rm -rf $(VENV_FOLDER) .python-version .venv .ruff_cache .pytest_cache uv.lock
 
+.PHONY: lint-mypy
+lint-mypy: $(BIN_FOLDER)/mypy ## Check type hints
+	@echo "$(GREEN)==> Check type hints$(RESET)"
+	@uv run mypy src
+
 .PHONY: lint
 lint: $(BIN_FOLDER)/ruff ## Check and fix code base according to Plone standards
 	@echo "$(GREEN)==> Lint codebase$(RESET)"
 	@uvx ruff@latest check --fix
 	@uvx pyroma@latest -d .
 	@uvx check-python-versions@latest .
+	$(MAKE) lint-mypy
 
 .PHONY: format
 format: $(BIN_FOLDER)/ruff ## Check and fix code base according to Plone standards

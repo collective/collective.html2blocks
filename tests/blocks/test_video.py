@@ -27,7 +27,7 @@ VIDEO_YOUTUBE_SOURCE = (
 def test_video_block(tag_from_str, source: str, key: str, expected: str):
     func = video.video_block
     element = tag_from_str(source)
-    results = func(element)
+    results = list(func(element))
     assert isinstance(results, list)
     result = results[0]
     assert isinstance(result, dict)

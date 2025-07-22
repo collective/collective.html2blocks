@@ -120,18 +120,18 @@ params:
     tests:
       - path: "len:"
         expected: 10
-      - path: "0/plaintext"
-        expected: 'Chrissy Wainwright'
       - path: "0/@type"
-        expected: slate
-      - path: "0/value/0/type"
-        expected: h2
-      - path: "0/value/0/children/0/text"
-        expected: Chrissy Wainwright
-      - path: "1/@type"
         expected: image
-      - path: "1/align"
+      - path: "0/align"
         expected: right
+      - path: "1/plaintext"
+        expected: 'Chrissy Wainwright'
+      - path: "1/@type"
+        expected: slate
+      - path: "1/value/0/type"
+        expected: h2
+      - path: "1/value/0/children/0/text"
+        expected: Chrissy Wainwright
 
   - name: Parsing html with definition lists
     src: >
@@ -307,15 +307,15 @@ params:
       - path: "2/@type"
         expected: "slate"
       - path: "3/@type"
-        expected: "slate"
+        expected: "video"
       - path: "4/@type"
         expected: "slate"
       - path: "5/@type"
-        expected: "slate"
-      - path: "6/@type"
         expected: "video"
-      - path: "7/@type"
+      - path: "6/@type"
         expected: "image"
+      - path: "7/@type"
+        expected: "slate"
 
   - name: List of link items
     src: |

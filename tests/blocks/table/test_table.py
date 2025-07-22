@@ -1,8 +1,8 @@
 def test_table_block(block_factory, traverse, name, src, path, expected):
-    result = block_factory(src)
+    results = list(block_factory(src))
     if path == "":
         # Block is None
-        assert result is expected
+        assert results is expected
     else:
-        value = traverse(result, path)
+        value = traverse(results, path)
         assert value == expected, f"{name}: {value} != {expected}"

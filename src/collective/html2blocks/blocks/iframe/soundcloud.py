@@ -1,6 +1,5 @@
+from collective.html2blocks import _types as t
 from collective.html2blocks import registry
-from collective.html2blocks._types import Element
-from collective.html2blocks._types import VoltoBlock
 
 import re
 
@@ -15,9 +14,9 @@ SOUNDCLOUD_REGEX = re.compile(
     src_pattern=SOUNDCLOUD_REGEX,
     url_pattern=r"https://api.soundcloud.com/tracks/\g<provider_id>\2",
 )
-def soundcloud_block(element: Element, src: str, provider_id: str) -> list[VoltoBlock]:
+def soundcloud_block(element: t.Tag, src: str, provider_id: str) -> list[t.VoltoBlock]:
     """Implemented by @kitconcept/volto-social-blocks."""
-    block = {
+    block: t.VoltoBlock = {
         "@type": "soundcloudBlock",
         "soundcloudId": provider_id,
         "align": "center",
