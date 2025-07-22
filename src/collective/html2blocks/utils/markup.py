@@ -3,23 +3,21 @@ from .inline import INLINE_ELEMENTS
 from bs4 import BeautifulSoup
 from bs4.element import Comment
 from bs4.element import NavigableString
+from bs4.element import PageElement
 from collections.abc import Iterable
-from collective.html2blocks._types import Element
 from collective.html2blocks._types import Tag
 from urllib import parse
 
 
-def _group_inline_elements(soup: BeautifulSoup) -> Element:
+def _group_inline_elements(soup: BeautifulSoup) -> BeautifulSoup:
     """Group inline elements."""
     wrapper = None
     children = list(soup.children)
     for element in children:
-        inline_element = is_inline(element, True)
-        if inline_element and not wrapper:
-            wrapper = soup.new_tag("p")
-            element.insert_before(wrapper)
-            wrapper.append(element.extract())
-        elif inline_element:
+        if inline_element := is_inline(element, True):
+            if not wrapper:
+                wrapper = soup.new_tag("p")
+                element.insert_before(wrapper)
             wrapper.append(element.extract())
         elif not inline_element and wrapper:
             if wrapper.text == "\n":
@@ -40,7 +38,11 @@ def _filter_children(soup: BeautifulSoup) -> BeautifulSoup:
         ):
             child.extract()
     children = list(soup.children)
-    if len(children) == 1 and children[0].name == "div":
+    if (
+        len(children) == 1
+        and isinstance(children[0], Tag)
+        and children[0].name == "div"
+    ):
         # If there is only a wraping div, return its children
         new_soup = BeautifulSoup("", features="html.parser")
         internal_ = list(children[0].children)
@@ -63,18 +65,16 @@ def _recursively_simplify(tag: Tag):
         if isinstance(child, Tag):
             _recursively_simplify(child)
 
-    if (
-        isinstance(tag, Tag)
-        and len(tag.contents) == 1
-        and isinstance(tag.contents[0], Tag)
-    ):
+    if len(tag.contents) == 1 and isinstance(tag.contents[0], Tag):
         child = tag.contents[0]
         if tag.name == child.name and tag.attrs == child.attrs:
             tag.replace_with(child)
             _recursively_simplify(child)
 
 
-def is_empty(tag: Tag) -> bool:
+def is_empty(tag: Tag | NavigableString) -> bool:
+    if isinstance(tag, NavigableString):
+        return tag.strip() == ""
     return (
         tag.name not in ALLOW_EMPTY_ELEMENTS
         and not tag.contents
@@ -83,50 +83,58 @@ def is_empty(tag: Tag) -> bool:
     )
 
 
-def is_ignorable(el) -> bool:
+def is_ignorable(el: PageElement) -> bool:
     return (isinstance(el, NavigableString) and not el.strip()) or (
         isinstance(el, Tag) and el.name in ALLOW_EMPTY_ELEMENTS
     )
 
 
-def _remove_empty_tags(soup: BeautifulSoup):
-    def remove_trailing_allowed_empty_recursive(tag: Tag):
-        for child in tag.find_all(recursive=False):
-            if isinstance(child, Tag):
-                remove_trailing_allowed_empty_recursive(child)
+def _remove_trailing_allowed_empty_recursive(tag: Tag):
+    for child in tag.find_all(recursive=False):
+        if isinstance(child, Tag):
+            _remove_trailing_allowed_empty_recursive(child)
+        elif isinstance(child, NavigableString) and child.strip() == "":
+            child.extract()
 
+    contents = list(tag.contents)
+    while (
+        contents
+        and isinstance(contents[-1], Tag)
+        and contents[-1].name in ALLOW_EMPTY_ELEMENTS
+    ):
+        contents[-1].decompose()
         contents = list(tag.contents)
-        while (
-            contents
-            and isinstance(contents[-1], Tag)
-            and contents[-1].name in ALLOW_EMPTY_ELEMENTS
-        ):
-            contents[-1].decompose()
-            contents = list(tag.contents)
+    return contents
 
+
+def _remove_empty_tags(soup: BeautifulSoup):
     # Remove all empty tags (excluding allowed empty elements)
-    for tag in list(soup.find_all()):
-        if is_empty(tag):
-            tag.decompose()
+    for element in list(soup.find_all()):
+        if isinstance(element, Tag | NavigableString) and is_empty(element):
+            element.decompose()
 
     # Clean up paragraphs
     for p in list(soup.find_all("p")):
-        contents = list(p.contents)
+        if not isinstance(p, Tag):
+            continue
+        contents: list[PageElement] = list(p.contents) if isinstance(p, Tag) else []
 
         # Remove ignorable leading content
         while contents and is_ignorable(contents[0]):
             contents[0].extract()
-            contents = list(p.contents)
+            contents = list(p.contents) if isinstance(p, Tag) else []
 
-        remove_trailing_allowed_empty_recursive(p)
+        contents = _remove_trailing_allowed_empty_recursive(p)
 
         # Remove paragraph if now empty
-        if not any(c for c in p.contents if not is_ignorable(c)):
+        if not any(c for c in contents if not is_ignorable(c)):
             p.decompose()
 
 
 def _wrap_all_paragraphs(soup: BeautifulSoup, block_level_tags: Iterable[str]):
     for p_tag in list(soup.find_all("p")):
+        if not isinstance(p_tag, Tag):
+            continue
         new_elements = _split_paragraph(p_tag, block_level_tags)
         if new_elements:
             p_tag.insert_after(*new_elements)
@@ -144,8 +152,8 @@ def _get_root_soup(tag: Tag) -> BeautifulSoup:
 
 def _split_paragraph(p_tag: Tag, block_level_tags: Iterable[str]) -> list[Tag]:
     soup = _get_root_soup(p_tag)
-    new_elements = []
-    buffer = []
+    new_elements: list[Tag] = []
+    buffer: list[Tag] = []
 
     def flush_buffer():
         if buffer:
@@ -176,7 +184,7 @@ def parse_source(
     group: bool = True,
     normalize: bool = True,
     block_level_tags: Iterable[str] = (),
-) -> Element:
+) -> Tag:
     # Remove linebreaks from the end of the source
     source = source.strip()
     soup = BeautifulSoup(source, features="html.parser")
@@ -190,27 +198,27 @@ def parse_source(
 
 
 def all_children(
-    element: Element | Tag, allow_tags: list[str] | None = None
-) -> list[Element | Tag]:
+    element: PageElement | Tag, allow_tags: list[str] | None = None
+) -> list[PageElement]:
     """Return a list of all children of an element."""
-    raw_children: list[Element | Tag] = list(getattr(element, "children", []))
+    raw_children: list[PageElement] = list(getattr(element, "children", []))
     if allow_tags:
-        chilren = [
+        children = [
             child
             for child in raw_children
             if getattr(child, "name", None) in allow_tags
         ]
     else:
-        chilren = raw_children
-    return chilren
+        children = raw_children
+    return children
 
 
-def styles(element: Element) -> dict:
+def styles(element: Tag) -> dict:
     """Parse style attributes in an element."""
     styles = {}
-    raw_styles = element.get("style", "").split(";")
-    for item in raw_styles:
-        item = [i.strip() for i in item.split(":")]
+    raw_styles = str(element.get("style", "")).split(";")
+    for raw_item in raw_styles:
+        item = [i.strip() for i in raw_item.split(":")]
         if len(item) != 2:
             # Malformed style info
             continue
@@ -218,23 +226,26 @@ def styles(element: Element) -> dict:
     return styles
 
 
-def css_classes(element: Element) -> list[str]:
+def css_classes(element: Tag) -> list[str]:
     """Return a list of css classes in an element."""
-    return element.get("class", [])
+    attr = element.get("class")
+    return attr if isinstance(attr, list) else [str(attr)]
 
 
-def is_inline(element: Element, include_span: bool = False) -> bool:
+def is_inline(element: PageElement, include_span: bool = False) -> bool:
     """Validate if element is inline."""
     if isinstance(element, NavigableString):
         return True
-    if include_span and element.name == "span":
+    if not isinstance(element, Tag):
+        return False
+    elif include_span and element.name == "span":
         return True
     return element.name in INLINE_ELEMENTS
 
 
 def extract_rows_and_possible_blocks(
     table_element: Tag, tags_to_extract: list[str]
-) -> tuple[list[tuple[Element, bool]], list[Element]]:
+) -> tuple[list[tuple[Tag, bool]], list[Tag]]:
     """Clean up table and return rows and possible blocks."""
     unbound_elements = []
 
@@ -245,17 +256,18 @@ def extract_rows_and_possible_blocks(
     rows = []
     for el in table_element.find_all("tr"):
         parent = el.parent
-        rows.append((el, parent.name == "thead"))
+        if isinstance(parent, Tag):
+            rows.append((el, parent.name == "thead"))
     return rows, unbound_elements
 
 
-def table_cell_type(cell: Element, is_header: bool = False) -> str:
+def table_cell_type(cell: Tag, is_header: bool = False) -> str:
     if is_header:
         return "header"
     return "data" if cell.name == "td" else "header"
 
 
-def extract_plaintext(element: Element) -> str:
+def extract_plaintext(element: Tag) -> str:
     plaintext = element.text.strip()
     tag_name = element.name
     if tag_name in ("ol", "ul"):
@@ -263,12 +275,12 @@ def extract_plaintext(element: Element) -> str:
     return plaintext
 
 
-def url_from_iframe(element: Element) -> str:
+def url_from_iframe(element: Tag) -> str:
     """Parse an iframe element and return the cleansed url."""
     src = ""
     if element.name == "iframe":
         src = element.get("src", "")
-    return src
+    return str(src)
 
 
 def cleanse_url(url: str) -> str:

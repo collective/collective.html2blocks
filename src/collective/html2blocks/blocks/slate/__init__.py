@@ -1,32 +1,31 @@
 from . import parser
+from collections.abc import Generator
+from collective.html2blocks import _types as t
 from collective.html2blocks import registry
-from collective.html2blocks._types import Element
-from collective.html2blocks._types import VoltoBlock
-from collective.html2blocks.utils import blocks as butils
 from collective.html2blocks.utils import markup
 
 
 @registry.default_converter
-def slate_block(element: Element) -> list[VoltoBlock]:
+def slate_block(
+    element: t.Tag,
+) -> Generator[t.VoltoBlock, None, t.VoltoBlock | None]:
     plaintext = markup.extract_plaintext(element)
-    value = parser.deserialize(element)
-    blocks = []
-    additional_blocks = []
+    value = yield from parser.deserialize(element)
+    blocks: list[t.VoltoBlock] = []
+    additional_blocks: list[t.VoltoBlock] = []
     if value is None:
         value = []
     elif isinstance(value, list):
-        value, additional_blocks = parser.extract_blocks(value)
+        value = yield from parser.extract_blocks(value)
     elif isinstance(value, dict) and (children := value.get("children", [])):
-        children, additional_blocks = parser.extract_blocks(children)
+        children = yield from parser.extract_blocks(children)
         value["children"] = children
-    elif isinstance(value, dict) and butils.is_volto_block(value):
-        # Return block information if it was processed somewhere else
-        # in the codebase
-        blocks = [value]
     if value and not isinstance(value, list):
         value = [value]
     if value and not blocks:
         block = {"@type": "slate", "plaintext": plaintext, "value": value}
-        blocks = parser.finalize_slate(block)
-    blocks.extend(additional_blocks)
-    return blocks
+        block = yield from parser.finalize_slate(block)
+        blocks = [block]
+    yield from blocks
+    yield from additional_blocks
+    return None

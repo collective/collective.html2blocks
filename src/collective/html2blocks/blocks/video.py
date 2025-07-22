@@ -1,16 +1,15 @@
+from collections.abc import Generator
+from collective.html2blocks import _types as t
 from collective.html2blocks import registry
-from collective.html2blocks._types import Element
-from collective.html2blocks._types import VoltoBlock
 from collective.html2blocks.blocks.iframe import youtube
 
 
 @registry.block_converter("video")
-def video_block(element: Element) -> list[VoltoBlock]:
+def video_block(element: t.Tag) -> Generator[t.VoltoBlock, None, None]:
     """Video block."""
     if not (src := element.get("src", "")):
-        source: Element | None = element.source
-        src = source.get("src", "")
+        source: t.Tag | None = element.source
+        src = str(source.get("src", "")) if source else ""
     if youtube.get_youtube_video_id(src):
-        return youtube._youtube_block(src)
-    block = {"@type": "video", "url": src}
-    return [block]
+        yield from youtube._youtube_block(src)
+    yield {"@type": "video", "url": src}

@@ -37,7 +37,7 @@ def test__scale_from_src(source, expected):
 
 
 def test_image_block(block_factory, traverse, name, src, path, expected):
-    results = block_factory(src)
+    results = list(block_factory(src))
     if path == "":
         # Empty block
         assert results == expected

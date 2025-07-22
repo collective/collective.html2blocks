@@ -1,6 +1,6 @@
+from collections.abc import Generator
+from collective.html2blocks import _types as t
 from collective.html2blocks import registry
-from collective.html2blocks._types import Element
-from collective.html2blocks._types import VoltoBlock
 from collective.html2blocks.logger import logger
 
 import re
@@ -17,7 +17,7 @@ def _align_from_classes(css_classes: list[str]) -> str:
     return align
 
 
-def _add_align_to_block(block: dict, css_classes: list[str]) -> None:
+def _add_align_to_block(block: t.VoltoBlock, css_classes: list[str]) -> None:
     size: str = "l"
     match align := _align_from_classes(css_classes):
         case "left":
@@ -28,7 +28,7 @@ def _add_align_to_block(block: dict, css_classes: list[str]) -> None:
     block["size"] = size
 
 
-def _add_size_to_block(block: dict, src: str) -> None:
+def _add_size_to_block(block: t.VoltoBlock, src: str) -> None:
     size: str = block.get("size", "m")
     match _scale_from_src(src):
         case "large":
@@ -42,7 +42,7 @@ def _add_size_to_block(block: dict, src: str) -> None:
     block["size"] = size
 
 
-def _add_data_attrs_to_block(block: dict, attrs: dict) -> None:
+def _add_data_attrs_to_block(block: t.VoltoBlock, attrs: dict) -> None:
     data_attrs: dict = {k: v for k, v in attrs.items() if k.startswith("data-")}
     for raw_key, value in data_attrs.items():
         key = raw_key.replace("data-", "")
@@ -61,18 +61,18 @@ def _scale_from_src(src: str) -> str:
 
 
 @registry.block_converter("img")
-def image_block(element: Element) -> list[VoltoBlock]:
+def image_block(element: t.Tag) -> Generator[t.VoltoBlock, None, None]:
     """Given an image, return an image block."""
     src: str = element.get("src")
     if src is None:
         logger.debug(f"Dropping element {element}")
-        return []
+        return None
     url: str = src.split("/@@images")[0]
     css_classes: list[str] = element.get("class", [])
     alt: str = element.get("alt", "")
     title: str = element.get("title", "")
-    block = {"@type": "image", "url": url, "alt": alt, "title": title}
+    block: t.VoltoBlock = {"@type": "image", "url": url, "alt": alt, "title": title}
     _add_align_to_block(block, css_classes)
     _add_size_to_block(block, src)
     _add_data_attrs_to_block(block, element.attrs)
-    return [block]
+    yield block

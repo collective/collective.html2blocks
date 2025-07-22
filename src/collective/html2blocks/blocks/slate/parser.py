@@ -1,87 +1,86 @@
 from bs4 import Comment
 from bs4.element import NavigableString
+from collective.html2blocks import _types as t
 from collective.html2blocks import registry
-from collective.html2blocks._types import Element
-from collective.html2blocks._types import VoltoBlock
 from collective.html2blocks.logger import logger
 from collective.html2blocks.utils import blocks as butils
 from collective.html2blocks.utils import markup
 from collective.html2blocks.utils import slate
+from collective.html2blocks.utils.generator import item_generator
 
 
-def extract_blocks(raw_children: list[dict]) -> tuple[list[dict], list[VoltoBlock]]:
+def extract_blocks(
+    raw_children: list[t.SlateBlockItem | t.VoltoBlock],
+) -> t.SlateItemsGenerator:
     raw_children = raw_children if raw_children else []
     children = []
-    blocks = []
     for child in raw_children:
         if isinstance(child, dict) and butils.is_volto_block(child):
-            blocks.append(child)
+            yield child
         else:
             children.append(child)
-    return children, blocks
+    return children
 
 
-def _instropect_children(child: dict) -> tuple[list[dict], list[VoltoBlock]]:
-    blocks = []
+def _instropect_children(child: t.SlateBlockItem) -> t.SlateItemGenerator:
     children = []
     if child and "children" in child:
-        children, sub_blocks = extract_blocks(child["children"])
-        blocks.extend(sub_blocks)
-        child["children"] = children
-    return child, blocks
+        gen = extract_blocks(child["children"])
+        children = yield from item_generator(gen)
+        child["children"] = children or []
+    return child
 
 
-def finalize_slate(block: VoltoBlock) -> list[VoltoBlock]:
+def finalize_slate(block: t.VoltoBlock) -> t.SlateItemGenerator:
     """Check if slate has invalid children blocks."""
-    blocks = []
     value = []
-    for item in block["value"]:
-        if not item:
+    for raw_item in block.get("value", []):
+        if not raw_item:
             continue
-        child, sub_blocks = _instropect_children(item)
-        value.append(child)
-        if sub_blocks:
-            blocks.extend(sub_blocks)
+        gen = _instropect_children(raw_item)
+        item = yield from item_generator(gen)
+        if item:
+            value.append(item)
     block["value"] = value
-    if blocks:
-        blocks.insert(0, block)
-    else:
-        blocks = [block]
-    return blocks
+    return block
 
 
-def _handle_only_child(child: Element, styles: dict | None = None) -> dict | list:
+def _handle_only_child(
+    child: t.Tag, styles: dict | None = None
+) -> t.SlateItemGenerator:
     text = child.text
     styles = styles if styles else {}
     if block_converter := registry.get_block_converter(child):
-        return block_converter(child)
+        yield from block_converter(child)
     elif not text.strip():
-        block_children: list = deserialize_children(child)
-        return block_children if block_children else slate.wrap_text(" ")
+        gen = deserialize_children(child)
+        block_children = yield from item_generator(gen)
+        if block_children and isinstance(block_children, list):
+            return slate.wrap_paragraph(block_children)
+        else:
+            return slate.wrap_text(" ")
     elif element_converter := registry.get_element_converter(child):
-        return element_converter(child)
+        gen = element_converter(child)
+        result = yield from item_generator(gen)
+        return result
     return slate.wrap_text(text)
 
 
-def _handle_block_(element: Element, tag_name: str) -> dict | None:
-    block_children: list = deserialize_children(element)
+def _handle_block_(element: t.Tag, tag_name: str) -> t.SlateItemGenerator:
+    gen = deserialize_children(element)
+    block_children: list[t.SlateBlockItem] = yield from item_generator(gen)
+    if not block_children:
+        return None
     total_children = len(block_children)
     first_child = block_children[0] if total_children else None
     if total_children == 1 and first_child:
-        if butils.is_volto_block(first_child):
-            # Check if we already have a block information
-            return first_child
         child_type = first_child.get("type")
         if tag_name in ("p", "blockquote") and child_type == "p":
-            block_children = first_child["children"]
+            block_children = first_child.get("children", [])
             first_child = block_children[0] if total_children else None
-    if len(block_children) == 1 and first_child and butils.is_volto_block(first_child):
-        return first_child
-    response = {
-        "type": tag_name,
-    }
+    response: t.SlateBlockItem = {"type": tag_name}
     if tag_name in ("td", "th") and block_children and isinstance(first_child, str):
-        block_children = [slate.wrap_paragraph(slate.wrap_text(first_child, True))]
+        block_children = [slate.wrap_paragraph([slate.wrap_text(first_child)])]
     if slate.has_internal_block(block_children):
         internal_children = slate.normalize_block_nodes(block_children, tag_name)
         if (
@@ -98,110 +97,116 @@ def _handle_block_(element: Element, tag_name: str) -> dict | None:
 
 
 @registry.element_converter(["br"])
-def _br_(element: Element, tag_name: str) -> dict:
-    return slate.wrap_text("\n", False)
+def _br_(element: t.Tag, tag_name: str) -> t.SlateItemGenerator:
+    """Convert br tag to newline text."""
+    result = slate.wrap_text("\n")
+    yield
+    return result
 
 
 @registry.element_converter(["hr"], "p")
-def _hr_(element: Element, tag_name: str) -> dict:
-    return {"type": tag_name, "children": slate.wrap_text("", True)}
+def _hr_(element: t.Tag, tag_name: str) -> t.SlateItemGenerator:
+    """Convert hr tag to empty paragraph."""
+    children = [slate.wrap_text("")]
+    result = {"type": tag_name, "children": children}
+    yield
+    return result
 
 
 @registry.element_converter(["body"])
-def _body_(element: Element, tag_name: str) -> dict:
+def _body_(element: t.Tag, tag_name: str) -> t.SlateItemGenerator:
     """Deserialize body tag."""
-    return {"children": deserialize_children(element)}
+    gen = deserialize_children(element)
+    children = yield from item_generator(gen)
+    return {"children": children}
 
 
 @registry.element_converter(["h1", "h2", "h3", "h4", "h5", "h6"])
-def _header_(element: Element, tag_name: str) -> dict:
-    block = _handle_block_(element, tag_name)
-    if slate.invalid_subblock(block):
-        return block
-    response = block
+def _header_(element: t.Tag, tag_name: str) -> t.SlateItemGenerator:
+    gen = _handle_block_(element, tag_name)
+    block = yield from item_generator(gen)
+    if not block:
+        return None
     valid_subblocks = []
-    invalid_subblocks = []
-    for child in block["children"]:
+    for child in block.get("children", []):
         if slate.invalid_subblock(child):
-            invalid_subblocks.append(child)
+            yield child
         else:
             valid_subblocks.append(child)
-    if invalid_subblocks:
-        block["children"] = valid_subblocks
-        response = [block, *invalid_subblocks]
-    return response
+    block["children"] = valid_subblocks
+    return block
 
 
 @registry.element_converter(["b", "strong"], "strong")
-def _strong_(element: Element, tag_name: str) -> dict:
+def _strong_(element: t.Tag, tag_name: str) -> t.SlateItemGenerator:
     """Deserialize b and strong tags."""
-    return {"type": tag_name, "children": deserialize_children(element)}
+    gen = deserialize_children(element)
+    children = yield from item_generator(gen)
+    return {"type": tag_name, "children": children}
 
 
 @registry.element_converter(["code"], "code")
-def _code_(element: Element, tag_name: str) -> dict:
+def _code_(element: t.Tag, tag_name: str) -> t.SlateItemGenerator:
     """Deserialize Code Block."""
     # CHECK
     text = element.text
+    yield
     return {"type": tag_name, "text": text}
 
 
 @registry.element_converter(["div"], "div")
-def _div_(element: Element, tag_name: str) -> dict:
+def _div_(element: t.Tag, tag_name: str) -> t.SlateItemGenerator:
     """Deserialize a div block."""
     styles = markup.styles(element)
     children = markup.all_children(element)
     block = {}
     if len(children) == 1:
         child = children[0]
-        blocks = _handle_only_child(child, styles)
-        if isinstance(blocks, list):
-            block = slate.wrap_paragraph([blocks])
-        else:
-            block = (
-                slate.wrap_paragraph([blocks])
-                if slate.is_simple_text(blocks)
-                else blocks
-            )
+        block = yield from item_generator(_handle_only_child(child, styles))
     else:
         block_children = []
         for child in children:
             if isinstance(child, NavigableString):
-                value = slate.wrap_text(child.text, True)
+                value = [slate.wrap_text(child.text)]
                 block_children.append(slate.wrap_paragraph(value))
             elif child.name == "div":
-                converter = registry.get_element_converter(child)
-                block_children.append(converter(child))
+                gen = _div_(child)
+                child_block = yield from item_generator(gen)
+                block_children.append(child_block)
             else:
-                block_children.append(deserialize(child))
+                gen = deserialize(child)
+                child_block = yield from item_generator(gen)
+                block_children.append(child_block)
         block["children"] = block_children
     return block
 
 
 @registry.element_converter(["pre"], "pre")
-def _pre_(element: Element, tag_name: str) -> dict:
+def _pre_(element: t.Tag, tag_name: str) -> t.SlateItemGenerator:
     """Deserialize a pre block."""
     # Based on Slate example implementation. Replaces <pre> tags with <code>.
     # Comment: I don't know how good of an idea is this. I'd rather have two
     # separate formats: "preserve whitespace" and "code". This feels like a hack
     children = markup.all_children(element)
     if children and children[0].name == "code":
-        converter = registry.get_element_converter(children[0])
-        return converter(children[0])
-
-    return _handle_block_(element, tag_name)
+        child = children[0]
+        gen = _code_(child)
+        item = yield from item_generator(gen)
+        return item
+    gen = _handle_block_(element, tag_name)
+    item = yield from item_generator(gen)
+    return item
 
 
 @registry.element_converter(["a"], "link")
-def _link_(element: Element, tag_name: str) -> dict:
+def _link_(element: t.Tag, tag_name: str) -> t.SlateItemGenerator:
     """Deserializer."""
-    children = slate.remove_empty_text(deserialize_children(element))
+    gen = deserialize_children(element)
+    children = yield from item_generator(gen)
+    children = slate.remove_empty_text(children)
     if not children:
         return slate.wrap_text("")
 
-    total_children = len(children)
-    if total_children == 1 and slate.invalid_subblock(children[0]):
-        return children[0]
     block = {
         "type": tag_name,
         "data": {
@@ -215,30 +220,34 @@ def _link_(element: Element, tag_name: str) -> dict:
 
 
 @registry.element_converter(["span"])
-def _span_(element: Element, tag_name: str) -> dict:
+def _span_(element: t.Tag, tag_name: str) -> t.SlateItemGenerator:
     """Deserialize a span element."""
     styles = markup.styles(element)
     children = markup.all_children(element)
     if len(children) > 1:
-        return {"children": deserialize_children(element)}
-    else:
-        text = element.text
-        if styles.get("font-weight", "") == "bold":
-            # Handle TinyMCE' bold formatting
-            return {"type": "strong", "children": slate.wrap_text(text, True)}
-        elif styles.get("font-style", "") == "italic":
-            # Handle TinyMCE' italic formatting
-            return {"type": "em", "children": slate.wrap_text(text, True)}
-        elif styles.get("vertical-align") == "sub":
-            # Handle Google Docs' <sub> formatting
-            return {"type": "sub", "children": slate.wrap_text(text, True)}
-        elif styles.get("vertical-align") == "sup":
-            # Handle Google Docs' <sup> formatting
-            return {"type": "sup", "children": slate.wrap_text(text, True)}
-        elif children:
-            return _handle_only_child(children[0], styles)
-        elif text:
-            return slate.wrap_text(text)
+        gen = deserialize_children(element)
+        children = yield from item_generator(gen)
+        return {"children": children}
+    text = element.text
+    if styles.get("font-weight", "") == "bold":
+        # Handle TinyMCE' bold formatting
+        return {"type": "strong", "children": [slate.wrap_text(text)]}
+    elif styles.get("font-style", "") == "italic":
+        # Handle TinyMCE' italic formatting
+        return {"type": "em", "children": [slate.wrap_text(text)]}
+    elif styles.get("vertical-align") == "sub":
+        # Handle Google Docs' <sub> formatting
+        return {"type": "sub", "children": [slate.wrap_text(text)]}
+    elif styles.get("vertical-align") == "sup":
+        # Handle Google Docs' <sup> formatting
+        return {"type": "sup", "children": [slate.wrap_text(text)]}
+    elif children:
+        gen = _handle_only_child(children[0], styles)
+        item = yield from item_generator(gen)
+        if text:
+            return item
+    elif text:
+        return slate.wrap_text(text)
 
 
 _BLOCK_ELEMENTS_ = [
@@ -255,79 +264,101 @@ _BLOCK_ELEMENTS_ = [
 
 
 @registry.element_converter(_BLOCK_ELEMENTS_)
-def _block_(element: Element, tag_name: str) -> dict:
-    return _handle_block_(element, tag_name)
+def _block_(element: t.Tag, tag_name: str) -> t.SlateItemGenerator:
+    gen = _handle_block_(element, tag_name)
+    item = yield from item_generator(gen)
+    return item
 
 
-def _handle_list_(element: Element, tag_name: str) -> dict | None:
-    block = _handle_block_(element, tag_name)
+def _handle_list_(element: t.Tag, tag_name: str) -> t.SlateItemGenerator:
+    gen = _handle_block_(element, tag_name)
+    item = yield from item_generator(gen)
+    if not item:
+        return
     children = []
     allowed_children = ["li", tag_name]
     # Remove not valid child
-    for child in block.get("children", []):
+    for child in item.get("children", []):
         if not (isinstance(child, dict) and child.get("type", "") in allowed_children):
             continue
         children.append(child)
     if not children:
         return None
-    block["children"] = children
-    return block
+    item["children"] = children
+    return item
 
 
 @registry.element_converter(["ul"], "ul")
-def _ul_(element: Element, tag_name: str) -> dict | None:
-    return _handle_list_(element, tag_name)
+def _ul_(element: t.Tag, tag_name: str) -> t.SlateItemGenerator:
+    gen = _handle_list_(element, tag_name)
+    item = yield from item_generator(gen)
+    return item
 
 
 @registry.element_converter(["ol"], "ol")
-def _ol_(element: Element, tag_name: str) -> dict | None:
-    return _handle_list_(element, tag_name)
+def _ol_(element: t.Tag, tag_name: str) -> t.SlateItemGenerator:
+    gen = _handle_list_(element, tag_name)
+    item = yield from item_generator(gen)
+    return item
 
 
 @registry.element_converter(["dl"], "dl")
-def _dl_(element: Element, tag_name: str) -> dict | None:
-    block = _handle_block_(element, tag_name)
+def _dl_(element: t.Tag, tag_name: str) -> t.SlateItemGenerator:
+    gen = _handle_block_(element, tag_name)
+    item = yield from item_generator(gen)
+    if not item:
+        return
     children = []
     # Remove empty text nodes
-    for child in block.get("children", []):
-        if slate.is_simple_text(child) and not child["text"].strip():
+    for child in item.get("children", []):
+        if slate.is_simple_text(child) and not child.get("text", "").strip():
             continue
         children.append(child)
     if not children:
         return None
-    block["children"] = children
-    return block
+    item["children"] = children
+    return item
 
 
 @registry.element_converter(["del", "s"], "s")
-def _s_(element: Element, tag_name: str) -> dict:
-    return _handle_block_(element, tag_name)
+def _s_(element: t.Tag, tag_name: str) -> t.SlateItemGenerator:
+    gen = _handle_block_(element, tag_name)
+    item = yield from item_generator(gen)
+    return item
 
 
 @registry.element_converter(["em", "i"], "em")
-def _em_(element: Element, tag_name: str) -> dict:
-    return _handle_block_(element, tag_name)
+def _em_(element: t.Tag, tag_name: str) -> t.SlateItemGenerator:
+    gen = _handle_block_(element, tag_name)
+    item = yield from item_generator(gen)
+    return item
 
 
-def deserialize_children(element: Element) -> list[dict]:
+def deserialize_children(element: t.Tag) -> t.SlateItemsGenerator:
     children = markup.all_children(element)
-    block_children = [deserialize(child) for child in children]
-    return slate.group_text_blocks(block_children)
+    block_children = []
+    for child in children:
+        info = yield from item_generator(deserialize(child))
+        block_children.append(info)
+    return slate.group_text_blocks(block_children) or []
 
 
-def _deserialize(element: Element) -> dict | list | None:
+def _deserialize(element: t.Tag) -> t.SlateItemsGenerator:
     if markup.is_inline(element) and not element.text.strip():
         response = slate.wrap_text("")
     elif converter := registry.get_block_converter(element):
         # Hack: We 'believe' only slate would return a list of blocks
-        blocks = converter(element)
-        response = blocks[0] if blocks else None
+        gen = converter(element)
+        yield from converter(element)
+        return []
     elif element_converter := registry.get_element_converter(element):
-        response = element_converter(element)
+        gen = element_converter(element)
+        response = yield from item_generator(gen)
     else:
-        response = deserialize_children(element)
+        gen = deserialize_children(element)
+        response = yield from item_generator(gen)
     # Clean up response
-    if isinstance(response, dict) and slate._just_children(response):
+    if response and isinstance(response, dict) and slate._just_children(response):
         children = response["children"]
         response = slate.flatten_children(children)
 
@@ -336,7 +367,7 @@ def _deserialize(element: Element) -> dict | list | None:
     return response
 
 
-def deserialize(element: Element) -> dict | None:
+def deserialize(element: t.Tag) -> t.SlateItemGenerator:
     """Return the JSON-like representation of an element."""
     tag_name = element.name
     text = element.text
@@ -352,4 +383,6 @@ def deserialize(element: Element) -> dict | None:
         return slate.wrap_text(text)
     elif tag_name == "br":
         return slate.wrap_text("\n")
-    return _deserialize(element)
+    gen = _deserialize(element)
+    slate_item = yield from item_generator(gen)
+    return slate_item if slate_item else None

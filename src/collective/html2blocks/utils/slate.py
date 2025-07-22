@@ -1,21 +1,22 @@
 from .inline import INLINE_ELEMENTS
+from collective.html2blocks import _types as t
 from random import random
 
 import math
 
 
-def is_inline(value: dict | str) -> bool:
+def is_inline(value: t.SlateBlockItem | str) -> bool:
     """Validate if block or string could be considered inline."""
     return isinstance(value, str) or value.get("type") in INLINE_ELEMENTS
 
 
-def wrap_text(value: str, as_list: bool = False) -> dict | list[dict]:
+def wrap_text(value: str) -> t.SlateBlockItem:
     """Wrap a value into a valid sub object."""
-    response = {"text": value}
-    return [response] if as_list else response
+    response: t.SlateBlockItem = {"text": value}
+    return response
 
 
-def wrap_paragraph(value: list) -> dict:
+def wrap_paragraph(value: list[t.SlateBlockItem]) -> t.SlateBlockItem:
     """Wrap a value in to paragraph sub object."""
     return {
         "type": "p",
@@ -23,26 +24,28 @@ def wrap_paragraph(value: list) -> dict:
     }
 
 
-def is_simple_text(data: dict) -> bool:
+def is_simple_text(data: t.SlateBlockItem) -> bool:
     keys = set(data.keys())
     return keys == {"text"}
 
 
-def remove_empty_text(value: list[dict]) -> list[dict]:
+def remove_empty_text(value: list[t.SlateBlockItem]) -> list[t.SlateBlockItem]:
     new_value = []
     for item in value:
-        if is_simple_text(item) and not item["text"].strip:
+        if is_simple_text(item) and not item.get("text", "").strip():
             continue
         new_value.append(item)
     return new_value
 
 
-def _just_children(data: dict) -> bool:
+def _just_children(data: t.SlateBlockItem) -> bool:
     keys = set(data.keys())
     return keys == {"children"}
 
 
-def flatten_children(raw_block_children: list[dict | list]) -> list[dict]:
+def flatten_children(
+    raw_block_children: list[t.SlateBlockItem | list],
+) -> list[t.SlateBlockItem]:
     block_children = []
     for block in raw_block_children:
         if isinstance(block, list):
@@ -50,25 +53,29 @@ def flatten_children(raw_block_children: list[dict | list]) -> list[dict]:
         elif not block:
             continue
         elif _just_children(block):
-            block_children.extend(block["children"])
+            children = block.get("children", [])
+            if children:
+                block_children.extend(children)
         else:
             block_children.append(block)
     return block_children
 
 
-def group_text_blocks(block_children: list[dict]) -> list[dict]:
+def group_text_blocks(block_children: list[t.SlateBlockItem]) -> list[t.SlateBlockItem]:
     """Group text objects."""
     blocks = []
-    text_block = False
+    text_block: t.SlateBlockItem | None = None
     for block in flatten_children(block_children):
         text = block.get("text", "")
         is_text_block = is_simple_text(block)
-        if not text_block and is_text_block:
+        if is_text_block and not text_block:
             text_block = block
-        elif is_text_block:
+        elif is_text_block and text_block:
             # Preserve whitespaces
             if len(text):
-                text_block["text"] += f"{text}"
+                cur_text = text_block.get("text", "")
+                if cur_text:
+                    text_block["text"] = f"{cur_text}{text}"
         elif text_block and not is_text_block:
             blocks.append(text_block)
             text_block = None
@@ -80,7 +87,7 @@ def group_text_blocks(block_children: list[dict]) -> list[dict]:
     return blocks
 
 
-def has_internal_block(block_children: list[dict]) -> bool:
+def has_internal_block(block_children: list[t.SlateBlockItem]) -> bool:
     status = False
     for child in block_children:
         status = status or is_inline(child)
@@ -100,7 +107,7 @@ def normalize_block_nodes(block_children: list, tag_name: str = "span") -> list:
 
 def group_inline_nodes(block_children: list, tag_name: str = "span") -> list:
     nodes = []
-    inline_nodes = None
+    inline_nodes: t.SlateBlockItem | None = None
     for child in block_children:
         if is_inline(child):
             if inline_nodes is None:
@@ -117,10 +124,10 @@ def group_inline_nodes(block_children: list, tag_name: str = "span") -> list:
     return nodes
 
 
-def process_children(block: dict) -> dict:
+def process_children(block: t.SlateBlockItem) -> t.SlateBlockItem:
     """Handle cases where children is an empty list."""
     if block.get("children") == []:
-        block["children"] = wrap_text("", True)
+        block["children"] = [wrap_text("")]
     return block
 
 
@@ -153,14 +160,14 @@ def table(
     return table
 
 
-def table_row(cells: list[str]) -> dict:
+def table_row(cells: list[t.SlateBlockItem]) -> t.SlateBlockItem:
     return {
         "key": _get_id(),
         "cells": cells,
     }
 
 
-def table_cell(cell_type: str, value: list[dict | str]) -> dict:
+def table_cell(cell_type: str, value: t.SlateBlockItem) -> t.SlateBlockItem:
     return {
         "key": _get_id(),
         "type": cell_type,
@@ -168,7 +175,7 @@ def table_cell(cell_type: str, value: list[dict | str]) -> dict:
     }
 
 
-def invalid_subblock(block: dict) -> bool:
+def invalid_subblock(block: t.SlateBlockItem | t.VoltoBlock) -> bool:
     """Check if block should not be a child of a slate block."""
     type_ = block.get("@type", "")
     return bool(type_)
