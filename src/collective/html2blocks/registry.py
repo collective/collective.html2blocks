@@ -2,19 +2,13 @@ from . import _types as t
 from .logger import logger
 from .utils.markup import cleanse_url
 from collections.abc import Callable
+from functools import wraps
 from typing import cast
 
 import re
 
 
-def _initialize_registry() -> t.Registry:
-    registry = t.Registry({}, {}, {})
-    from collective.html2blocks import blocks  # noQA: F401
-
-    return registry
-
-
-_REGISTRY = _initialize_registry()
+_REGISTRY = t.Registry({}, {}, {})
 
 
 class block_converter:
@@ -39,19 +33,16 @@ class element_converter:
         self.type_name = type_name
 
     def __call__(self, func: t.ElementConverterFunc) -> t.ElementConverter:
+        @wraps(func)
         def _inner_(element: t.Tag) -> t.SlateItemGenerator:
             type_name = self.type_name or element.name
             return func(element, type_name)
-
-        # Set attributes
-        _inner_.__name__ = func.__name__
-        _inner_.__module__ = func.__module__
 
         # Cast to ElementConverter for type safety
         inner = cast(t.ElementConverter, _inner_)
         inner.__orig_mod__ = func.__module__
 
-        friendly_name = f"{inner.__orig_mod__}.{inner.__name__}"
+        friendly_name = f"{inner.__module__}.{inner.__name__}"
         for tag_name in self.tag_names:
             logger.debug(f"Registering element converter {friendly_name} to {tag_name}")
             _REGISTRY.element_converters[tag_name] = inner
@@ -172,3 +163,13 @@ __all__ = [
     "get_iframe_converter",
     "iframe_converter",
 ]
+
+
+def _initialize_registry() -> t.Registry:
+    """Initialize the registry."""
+    from collective.html2blocks import blocks  # noqa: F401
+
+    return _REGISTRY
+
+
+_initialize_registry()  # Ensure the registry is initialized on import
