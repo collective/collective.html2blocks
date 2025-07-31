@@ -34,6 +34,8 @@ def _instropect_children(child: t.SlateBlockItem) -> t.SlateItemGenerator:
 def finalize_slate(block: t.VoltoBlock) -> t.SlateItemGenerator:
     """Check if slate has invalid children blocks."""
     value = []
+    plaintext = block.get("plaintext", "")
+    block["plaintext"] = plaintext.strip()
     for raw_item in block.get("value", []):
         if not raw_item:
             continue
@@ -85,7 +87,7 @@ def _handle_block_(element: t.Tag, tag_name: str) -> t.SlateItemGenerator:
         internal_children = slate.normalize_block_nodes(block_children, tag_name)
         if (
             len(internal_children) == 1
-            and internal_children[0]["type"] == response["type"]
+            and internal_children[0].get("type") == response["type"]
         ):
             block_children = internal_children[0]["children"]
         elif len(internal_children) > 1:

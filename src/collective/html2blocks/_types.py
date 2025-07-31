@@ -20,6 +20,7 @@ class VoltoBlock(BaseVoltoBlock, total=False):
     align: NotRequired[str]
     size: NotRequired[str]
     url: NotRequired[str]
+    plaintext: NotRequired[str]
 
 
 class SlateBlockItem(TypedDict, total=False):
