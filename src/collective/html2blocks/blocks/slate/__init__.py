@@ -3,6 +3,7 @@ from collections.abc import Generator
 from collective.html2blocks import _types as t
 from collective.html2blocks import registry
 from collective.html2blocks.utils import markup
+from collective.html2blocks.utils import slate as utils
 
 
 @registry.default_converter
@@ -20,9 +21,9 @@ def slate_block(
     elif isinstance(value, dict) and (children := value.get("children", [])):
         children = yield from parser.extract_blocks(children)
         value["children"] = children
-    if value and not isinstance(value, list):
-        value = [value]
     if value and not blocks:
+        value = [value] if not isinstance(value, list) else value
+        value = utils.process_top_level_items(value)
         block = {"@type": "slate", "plaintext": plaintext, "value": value}
         block = yield from parser.finalize_slate(block)
         blocks = [block]

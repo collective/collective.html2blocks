@@ -29,6 +29,41 @@ def is_simple_text(data: t.SlateBlockItem) -> bool:
     return keys == {"text"}
 
 
+def _group_top_level(
+    items: list[t.SlateBlockItem],
+) -> list[tuple[list[t.SlateBlockItem], bool]]:
+    """Group top-level items to be wrapped."""
+    flags = [is_inline(item) or is_simple_text(item) for item in items]
+    groups = []
+    current_group = [items[0]]
+    last_flag = flags[0]
+    for i in range(1, len(items)):
+        last_flag = flags[i - 1]
+        if flags[i] != last_flag:
+            groups.append((current_group, last_flag))
+            current_group = [items[i]]
+        else:
+            current_group.append(items[i])
+
+    groups.append((current_group, last_flag))
+    return groups
+
+
+def process_top_level_items(
+    raw_value: list[t.SlateBlockItem],
+) -> list[t.SlateBlockItem]:
+    """Process top-level items and ensure they are always wrapped."""
+    raw_value = raw_value or []
+    value = []
+    groupped = _group_top_level(raw_value)
+    for group, should_wrap in groupped:
+        if should_wrap:
+            value.append(wrap_paragraph(group))
+        else:
+            value.extend(group)
+    return value
+
+
 def remove_empty_text(value: list[t.SlateBlockItem]) -> list[t.SlateBlockItem]:
     new_value = []
     for item in value:

@@ -23,8 +23,10 @@ params:
       - path: "0/plaintext"
         expected: 'Hello World!'
       - path: "0/value/0/type"
+        expected: 'p'
+      - path: "0/value/0/children/0/type"
         expected: 'strong'
-      - path: "0/value/0/children/0/text"
+      - path: "0/value/0/children/0/children/0/text"
         expected: 'Hello World!'
 
   - name: Plaintext trims string
@@ -35,8 +37,10 @@ params:
       - path: "0/plaintext"
         expected: 'Hello World!'
       - path: "0/value/0/type"
+        expected: 'p'
+      - path: "0/value/0/children/0/type"
         expected: 'strong'
-      - path: "0/value/0/children/0/text"
+      - path: "0/value/0/children/0/children/0/text"
         expected: ' Hello World! '
 
   - name: Paragraph with nested strong
@@ -199,8 +203,10 @@ params:
       - path: "0/plaintext"
         expected: 'import this'
       - path: "0/value/0/type"
+        expected: 'p'
+      - path: "0/value/0/children/0/type"
         expected: 'code'
-      - path: "0/value/0/text"
+      - path: "0/value/0/children/0/text"
         expected: 'import this'
 
   - name: Processing a br
@@ -210,10 +216,10 @@ params:
         expected: 'slate'
       - path: "0/plaintext"
         expected: ''
-      - path: "len:0/value"
-        expected: 1
-      - path: "0/value/0/text"
-        expected: "\n"
+      - path: "0/value/0/type"
+        expected: 'p'
+      - path: "len:0/value/0/children"
+        expected:  1
 
   - name: Processing a code element
     src: <code>import this</code>
@@ -223,8 +229,10 @@ params:
       - path: "0/plaintext"
         expected: 'import this'
       - path: "0/value/0/type"
+        expected: 'p'
+      - path: "0/value/0/children/0/type"
         expected: 'code'
-      - path: "0/value/0/text"
+      - path: "0/value/0/children/0/text"
         expected: 'import this'
 
   - name: Processing a blockquote block
@@ -248,7 +256,9 @@ params:
         expected: 'slate'
       - path: "0/plaintext"
         expected: 'Hello world!'
-      - path: "0/value/0/text"
+      - path: "0/value/0/type"
+        expected: 'p'
+      - path: "0/value/0/children/0/text"
         expected: 'Hello world!'
 
   - name: Processing a span with a line break
@@ -258,8 +268,10 @@ params:
         expected: 'slate'
       - path: "0/plaintext"
         expected: ''
-      - path: "0/value/0/text"
-        expected: " "
+      - path: "0/value/0/type"
+        expected: 'p'
+      - path: "0/value/0/children/0/text"
+        expected: ' '
 
   - name: Processing a span without children nodes
     src: <span></span>
@@ -275,14 +287,16 @@ params:
       - path: "0/plaintext"
         expected: 'Hola world!'
       - path: "len:0/value"
-        expected: 3
-      - path: "0/value/0/text"
+        expected: 1
+      - path: "0/value/0/type"
+        expected: 'p'
+      - path: "0/value/0/children/0/text"
         expected: 'Hola '
-      - path: "0/value/1/type"
+      - path: "0/value/0/children/1/type"
         expected: 'strong'
-      - path: "0/value/1/children/0/text"
+      - path: "0/value/0/children/1/children/0/text"
         expected: 'world'
-      - path: "0/value/2/text"
+      - path: "0/value/0/children/2/text"
         expected: '!'
 
   - name: Processing a span with google docs style for sup
@@ -295,8 +309,10 @@ params:
       - path: "len:0/value"
         expected: 1
       - path: "0/value/0/type"
+        expected: 'p'
+      - path: "0/value/0/children/0/type"
         expected: 'sup'
-      - path: "0/value/0/children/0/text"
+      - path: "0/value/0/children/0/children/0/text"
         expected: 'Hallo world!'
 
   - name: Processing a span inside another element with an empty value will drop empty span
@@ -320,7 +336,9 @@ params:
         expected: 'slate'
       - path: "0/plaintext"
         expected: 'Ciao world!'
-      - path: "0/value/0/text"
+      - path: "0/value/0/type"
+        expected: 'p'
+      - path: "0/value/0/children/0/text"
         expected: 'Ciao world!'
 
   - name: Processing a div with a nested paragraph value
@@ -366,7 +384,9 @@ params:
         expected: 'slate'
       - path: "0/plaintext"
         expected: 'Ciao world!'
-      - path: "0/value/0/text"
+      - path: "0/value/0/type"
+        expected: 'p'
+      - path: "0/value/0/children/0/text"
         expected: 'Ciao world!'
 
   - name: Processing a div with a nested div and nested paragraphs
@@ -445,10 +465,12 @@ params:
       - path: "0/plaintext"
         expected: 'Hello world!'
       - path: "0/value/0/type"
+        expected: 'p'
+      - path: "0/value/0/children/0/type"
         expected: 'strong'
-      - path: "len:0/value/0/children"
+      - path: "len:0/value/0/children/0/children"
         expected: 1
-      - path: "0/value/0/children/0/text"
+      - path: "0/value/0/children/0/children/0/text"
         expected: 'Hello world!'
 
   - name: Processing a strong
@@ -459,10 +481,12 @@ params:
       - path: "0/plaintext"
         expected: 'Hello world!'
       - path: "0/value/0/type"
+        expected: 'p'
+      - path: "0/value/0/children/0/type"
         expected: 'strong'
-      - path: "len:0/value/0/children"
+      - path: "len:0/value/0/children/0/children"
         expected: 1
-      - path: "0/value/0/children/0/text"
+      - path: "0/value/0/children/0/children/0/text"
         expected: 'Hello world!'
 
   - name: Processing a strong with empty content
@@ -472,7 +496,9 @@ params:
         expected: 'slate'
       - path: "0/plaintext"
         expected: ''
-      - path: "0/value/0/text"
+      - path: "0/value/0/type"
+        expected: 'p'
+      - path: "0/value/0/children/0/text"
         expected: ''
 
   - name: Processing a strike
@@ -483,10 +509,12 @@ params:
       - path: "0/plaintext"
         expected: 'Hello world!'
       - path: "0/value/0/type"
+        expected: 'p'
+      - path: "0/value/0/children/0/type"
         expected: 's'
-      - path: "len:0/value/0/children"
+      - path: "len:0/value/0/children/0/children"
         expected: 1
-      - path: "0/value/0/children/0/text"
+      - path: "0/value/0/children/0/children/0/text"
         expected: 'Hello world!'
 
   - name: Processing an italic with i tag
@@ -497,10 +525,12 @@ params:
       - path: "0/plaintext"
         expected: 'Hello world!'
       - path: "0/value/0/type"
+        expected: 'p'
+      - path: "0/value/0/children/0/type"
         expected: 'em'
-      - path: "len:0/value/0/children"
+      - path: "len:0/value/0/children/0/children"
         expected: 1
-      - path: "0/value/0/children/0/text"
+      - path: "0/value/0/children/0/children/0/text"
         expected: 'Hello world!'
 
   - name: Processing an italic with em tag
@@ -511,10 +541,12 @@ params:
       - path: "0/plaintext"
         expected: 'Hello world!'
       - path: "0/value/0/type"
+        expected: 'p'
+      - path: "0/value/0/children/0/type"
         expected: 'em'
-      - path: "len:0/value/0/children"
+      - path: "len:0/value/0/children/0/children"
         expected: 1
-      - path: "0/value/0/children/0/text"
+      - path: "0/value/0/children/0/children/0/text"
         expected: 'Hello world!'
 
   - name: Processing an ordered list
@@ -633,10 +665,12 @@ params:
       - path: "0/plaintext"
         expected: 'Hello world!'
       - path: "0/value/0/type"
+        expected: 'p'
+      - path: "0/value/0/children/0/type"
         expected: 'sub'
-      - path: "len:0/value/0/children"
+      - path: "len:0/value/0/children/0/children"
         expected: 1
-      - path: "0/value/0/children/0/text"
+      - path: "0/value/0/children/0/children/0/text"
         expected: 'Hello world!'
 
   - name: Processing a sup
@@ -647,10 +681,12 @@ params:
       - path: "0/plaintext"
         expected: 'Hello world!'
       - path: "0/value/0/type"
+        expected: 'p'
+      - path: "0/value/0/children/0/type"
         expected: 'sup'
-      - path: "len:0/value/0/children"
+      - path: "len:0/value/0/children/0/children"
         expected: 1
-      - path: "0/value/0/children/0/text"
+      - path: "0/value/0/children/0/children/0/text"
         expected: 'Hello world!'
 
   - name: Processing a hr
@@ -675,14 +711,16 @@ params:
       - path: "0/plaintext"
         expected: 'Welcome to Plone!'
       - path: "0/value/0/type"
+        expected: 'p'
+      - path: "0/value/0/children/0/type"
         expected: 'link'
-      - path: "0/value/0/data/url"
+      - path: "0/value/0/children/0/data/url"
         expected: 'https://plone.org/'
-      - path: "0/value/0/data/title"
+      - path: "0/value/0/children/0/data/title"
         expected: 'Plone website'
-      - path: "0/value/0/data/target"
+      - path: "0/value/0/children/0/data/target"
         expected: '_blank'
-      - path: "0/value/0/children/0/text"
+      - path: "0/value/0/children/0/children/0/text"
         expected: 'Welcome to Plone!'
 
   - name: Processing a paragraph with a link
@@ -825,7 +863,9 @@ params:
         expected: 'slate'
       - path: "len:0/value"
         expected: 1
-      - path: "0/value/0/text"
+      - path: "0/value/0/type"
+        expected: 'p'
+      - path: "0/value/0/children/0/text"
         expected: ' '
 
   - name: Image wrapped in a span inside a paragraph
@@ -837,3 +877,17 @@ params:
         expected: 'image'
       - path: "0/url"
         expected: 'resolveuid/02a0346be72447dba39e905b413d9bc9'
+
+  - name: Text wrapped in a div needs to be wrapped inside a paragraph
+    src: '<div>Mittwoch, 24.7.2024</div>'
+    tests:
+      - path: "len:"
+        expected: 1
+      - path: "0/@type"
+        expected: 'slate'
+      - path: "0/plaintext"
+        expected: 'Mittwoch, 24.7.2024'
+      - path: "0/value/0/type"
+        expected: 'p'
+      - path: "0/value/0/children/0/text"
+        expected: 'Mittwoch, 24.7.2024'
