@@ -28,6 +28,9 @@ BACKEND_FOLDER=$(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 GIT_FOLDER=$(BACKEND_FOLDER)/.git
 VENV_FOLDER=$(BACKEND_FOLDER)/.venv
 BIN_FOLDER=$(VENV_FOLDER)/bin
+IMAGE_NAME=ghcr.io/collective/html2blocks
+IMAGE_TAG=latest
+
 
 all: build
 
@@ -79,3 +82,14 @@ test: $(BIN_FOLDER)/pytest ## run tests
 .PHONY: test-cov
 test-cov: $(BIN_FOLDER)/pytest ## run tests
 	@uv run pytest --cov=collective.html2blocks --cov-report term-missing
+
+# Building the Container image
+.PHONY: image-build
+image-build: ## Build the Container image
+	@echo "$(GREEN)==> Building Container image$(RESET)"
+	@docker build -t $(IMAGE_NAME):$(IMAGE_TAG) .
+
+.PHONY: image-start
+image-start: image-build ## Start the container using the image
+	@echo "$(GREEN)==> Starting Container image$(RESET)"
+	@docker run -p 8000:8000 --rm -it $(IMAGE_NAME):$(IMAGE_TAG)

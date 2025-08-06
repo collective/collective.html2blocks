@@ -24,6 +24,7 @@ dependencies = [
     "python-slugify>=8.0.4",
     "mypy>=1.15.0",
     "typer>=0.15.1",
+    "fastapi[standard]>=0.116.1",
 ]
 [project.scripts]
 html2blocks = "collective.html2blocks.cli:cli"

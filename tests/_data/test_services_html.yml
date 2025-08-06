@@ -1,0 +1,29 @@
+---
+setup:
+  argnames: ["name", "src", "converter", "path", "expected"]
+  test_args: ["path", "expected"]
+params:
+  - name: Empty
+    src: ""
+    converter: slate
+    tests:
+      - path: "len:"
+        expected: 0
+
+  - name: Simple Case
+    src: |
+      <div><p>Hello World!</p></div>
+    converter: slate
+    tests:
+      - path: "len:"
+        expected: 1
+      - path: "0/@type"
+        expected: "slate"
+      - path: "0/plaintext"
+        expected: "Hello World!"
+      - path: "len:0/value"
+        expected: 1
+      - path: "0/value/0/type"
+        expected: "p"
+      - path: "0/value/0/children/0/text"
+        expected: "Hello World!"

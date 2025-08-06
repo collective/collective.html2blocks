@@ -32,7 +32,7 @@ def convert(
     src: Annotated[Path, typer.Argument(help="Path to the html file")],
     dst: Annotated[Path, typer.Argument(help="Path to write the JSON conversion")],
 ):
-    """Return information about the tool."""
+    """Convert a HTML file to JSON blocks."""
     from collective.html2blocks import converter
 
     dst = dst.resolve()
