@@ -54,6 +54,8 @@ def process_top_level_items(
 ) -> list[t.SlateBlockItem]:
     """Process top-level items and ensure they are always wrapped."""
     raw_value = raw_value or []
+    # Remove empty or null items
+    raw_value = [item for item in raw_value if item]
     value = []
     groupped = _group_top_level(raw_value)
     for group, should_wrap in groupped:
