@@ -1,3 +1,21 @@
+"""
+Image block converter for collective.html2blocks.
+
+This module provides the block converter for <img> elements, transforming them
+into Volto image blocks. It extracts image attributes, alignment, size, and
+custom data attributes, supporting Plone/Volto conventions for image handling.
+
+Implementation details:
+- Alignment and size are inferred from CSS classes and image src patterns.
+- Custom data attributes are added to the block for extensibility.
+- The converter yields a Volto image block with all relevant metadata.
+
+Example usage::
+
+    from collective.html2blocks.blocks.image import image_block
+    blocks = list(image_block(element))
+"""
+
 from collections.abc import Generator
 from collective.html2blocks import _types as t
 from collective.html2blocks import registry
@@ -62,7 +80,23 @@ def _scale_from_src(src: str) -> str:
 
 @registry.block_converter("img")
 def image_block(element: t.Tag) -> Generator[t.VoltoBlock, None, None]:
-    """Given an image, return an image block."""
+    """
+    Convert an <img> element to a Volto image block.
+
+    This converter extracts src, alt, title, alignment, size, and custom data
+    attributes from the image element and yields a Volto image block.
+
+    Args:
+        element (Tag): The <img> element to convert.
+
+    Yields:
+        VoltoBlock: The converted image block.
+
+    Example::
+
+        blocks = list(image_block(element))
+        # [{'@type': 'image', 'url': ..., 'alt': ..., ...}]
+    """
     src: str = element.get("src")
     if src is None:
         logger.debug(f"Dropping element {element}")

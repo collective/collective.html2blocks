@@ -1,3 +1,17 @@
+"""
+HTML markup utilities for collective.html2blocks.
+
+This module provides functions for parsing, normalizing, and extracting
+information from HTML markup, including grouping inline elements, filtering,
+normalizing, and extracting table and style information.
+
+Example usage::
+
+    from collective.html2blocks.utils import markup
+    soup = markup.parse_source('<p>Hello <b>world</b></p>')
+    children = markup.all_children(soup)
+"""
+
 from .inline import ALLOW_EMPTY_ELEMENTS
 from .inline import INLINE_ELEMENTS
 from bs4 import BeautifulSoup
@@ -10,7 +24,15 @@ from urllib import parse
 
 
 def _group_inline_elements(soup: BeautifulSoup) -> BeautifulSoup:
-    """Group inline elements."""
+    """
+    Group inline elements into paragraphs in the soup.
+
+    Args:
+        soup (BeautifulSoup): The soup to process.
+
+    Returns:
+        BeautifulSoup: The modified soup with inline elements grouped.
+    """
     wrapper = None
     children = list(soup.children)
     for element in children:
@@ -27,9 +49,14 @@ def _group_inline_elements(soup: BeautifulSoup) -> BeautifulSoup:
 
 
 def _filter_children(soup: BeautifulSoup) -> BeautifulSoup:
-    """Return a list of all top level children of soup.
+    """
+    Filter out comments and empty elements from the soup.
 
-    Filtering Comment and empty elements.
+    Args:
+        soup (BeautifulSoup): The soup to process.
+
+    Returns:
+        BeautifulSoup: The filtered soup.
     """
     children = list(soup.children)
     for child in children:
@@ -54,6 +81,17 @@ def _filter_children(soup: BeautifulSoup) -> BeautifulSoup:
 
 
 def _normalize_html(soup: BeautifulSoup, block_level_tags: Iterable[str] = ()):
+    """
+    Normalize HTML by simplifying, removing empty tags, and wrapping paragraphs.
+
+    Args:
+        soup (BeautifulSoup): The soup to normalize.
+        block_level_tags (Iterable[str], optional): Block-level tags to wrap.
+                                                    Defaults to ().
+
+    Returns:
+        BeautifulSoup: The normalized soup.
+    """
     _recursively_simplify(soup)
     _remove_empty_tags(soup)
     _wrap_all_paragraphs(soup, block_level_tags)
@@ -61,6 +99,12 @@ def _normalize_html(soup: BeautifulSoup, block_level_tags: Iterable[str] = ()):
 
 
 def _recursively_simplify(tag: Tag):
+    """
+    Recursively simplify nested tags with identical names and attributes.
+
+    Args:
+        tag (Tag): The tag to simplify.
+    """
     for child in list(tag.children):
         if isinstance(child, Tag):
             _recursively_simplify(child)
@@ -73,6 +117,15 @@ def _recursively_simplify(tag: Tag):
 
 
 def is_empty(tag: Tag | NavigableString) -> bool:
+    """
+    Check if a tag or string is empty (not allowed or has no content).
+
+    Args:
+        tag (Tag | NavigableString): The tag or string to check.
+
+    Returns:
+        bool: True if empty, False otherwise.
+    """
     if isinstance(tag, NavigableString):
         return tag.strip() == ""
     return (
@@ -84,12 +137,30 @@ def is_empty(tag: Tag | NavigableString) -> bool:
 
 
 def is_ignorable(el: PageElement) -> bool:
+    """
+    Check if an element is ignorable (empty string or allowed empty tag).
+
+    Args:
+        el (PageElement): The element to check.
+
+    Returns:
+        bool: True if ignorable, False otherwise.
+    """
     return (isinstance(el, NavigableString) and not el.strip()) or (
         isinstance(el, Tag) and el.name in ALLOW_EMPTY_ELEMENTS
     )
 
 
 def _remove_trailing_allowed_empty_recursive(tag: Tag):
+    """
+    Remove trailing allowed empty elements recursively from a tag.
+
+    Args:
+        tag (Tag): The tag to process.
+
+    Returns:
+        list: The contents after removal.
+    """
     for child in tag.find_all(recursive=False):
         if isinstance(child, Tag):
             _remove_trailing_allowed_empty_recursive(child)
@@ -108,6 +179,12 @@ def _remove_trailing_allowed_empty_recursive(tag: Tag):
 
 
 def _remove_empty_tags(soup: BeautifulSoup):
+    """
+    Remove all empty tags from the soup, except allowed empty elements.
+
+    Args:
+        soup (BeautifulSoup): The soup to process.
+    """
     # Remove all empty tags (excluding allowed empty elements)
     for element in list(soup.find_all()):
         if isinstance(element, Tag | NavigableString) and is_empty(element):
@@ -132,6 +209,13 @@ def _remove_empty_tags(soup: BeautifulSoup):
 
 
 def _wrap_all_paragraphs(soup: BeautifulSoup, block_level_tags: Iterable[str]):
+    """
+    Wrap all paragraphs in the soup, splitting as needed by block-level tags.
+
+    Args:
+        soup (BeautifulSoup): The soup to process.
+        block_level_tags (Iterable[str]): Block-level tags to split by.
+    """
     for p_tag in list(soup.find_all("p")):
         if not isinstance(p_tag, Tag):
             continue
@@ -142,6 +226,15 @@ def _wrap_all_paragraphs(soup: BeautifulSoup, block_level_tags: Iterable[str]):
 
 
 def _get_root_soup(tag: Tag) -> BeautifulSoup:
+    """
+    Get the root BeautifulSoup object for a tag.
+
+    Args:
+        tag (Tag): The tag to find the root for.
+
+    Returns:
+        BeautifulSoup: The root soup object.
+    """
     parent = tag
     while parent is not None and not isinstance(parent, BeautifulSoup):
         parent = parent.parent
@@ -151,6 +244,16 @@ def _get_root_soup(tag: Tag) -> BeautifulSoup:
 
 
 def _split_paragraph(p_tag: Tag, block_level_tags: Iterable[str]) -> list[Tag]:
+    """
+    Split a paragraph tag into multiple paragraphs by block-level tags.
+
+    Args:
+        p_tag (Tag): The paragraph tag to split.
+        block_level_tags (Iterable[str]): Block-level tags to split by.
+
+    Returns:
+        list[Tag]: List of new paragraph tags.
+    """
     soup = _get_root_soup(p_tag)
     new_elements: list[Tag] = []
     buffer: list[Tag] = []
@@ -185,6 +288,23 @@ def parse_source(
     normalize: bool = True,
     block_level_tags: Iterable[str] = (),
 ) -> Tag:
+    """
+    Parse HTML source and return a normalized soup object.
+
+    Args:
+        source (str): The HTML source to parse.
+        filter_ (bool, optional): Whether to filter children. Defaults to True.
+        group (bool, optional): Whether to group inline elements. Defaults to True.
+        normalize (bool, optional): Whether to normalize HTML. Defaults to True.
+        block_level_tags (Iterable[str], optional): Block-level tags. Defaults to ().
+
+    Returns:
+        Tag: The parsed and normalized soup object.
+
+    Example::
+
+        soup = parse_source('<p>Hello <b>world</b></p>')
+    """
     # Remove linebreaks from the end of the source
     source = source.strip()
     soup = BeautifulSoup(source, features="html.parser")
@@ -200,7 +320,17 @@ def parse_source(
 def all_children(
     element: PageElement | Tag, allow_tags: list[str] | None = None
 ) -> list[PageElement]:
-    """Return a list of all children of an element."""
+    """
+    Return a list of all children of an element, optionally filtered by tag names.
+
+    Args:
+        element (PageElement | Tag): The element to get children from.
+        allow_tags (list[str], optional): List of tag names to include.
+                                          Defaults to None.
+
+    Returns:
+        list[PageElement]: List of child elements.
+    """
     raw_children: list[PageElement] = list(getattr(element, "children", []))
     if allow_tags:
         children = [
@@ -214,7 +344,15 @@ def all_children(
 
 
 def styles(element: Tag) -> dict:
-    """Parse style attributes in an element."""
+    """
+    Parse style attributes from an element into a dictionary.
+
+    Args:
+        element (Tag): The element to parse styles from.
+
+    Returns:
+        dict: Dictionary of style properties.
+    """
     styles = {}
     raw_styles = str(element.get("style", "")).split(";")
     for raw_item in raw_styles:
@@ -227,13 +365,31 @@ def styles(element: Tag) -> dict:
 
 
 def css_classes(element: Tag) -> list[str]:
-    """Return a list of css classes in an element."""
+    """
+    Return a list of CSS classes from an element.
+
+    Args:
+        element (Tag): The element to get classes from.
+
+    Returns:
+        list[str]: List of CSS class names.
+    """
     attr = element.get("class")
     return attr if isinstance(attr, list) else [str(attr)]
 
 
 def is_inline(element: PageElement, include_span: bool = False) -> bool:
-    """Validate if element is inline."""
+    """
+    Check if an element is considered inline.
+
+    Args:
+        element (PageElement): The element to check.
+        include_span (bool, optional): Whether to treat span as inline.
+                                       Defaults to False.
+
+    Returns:
+        bool: True if inline, False otherwise.
+    """
     if isinstance(element, NavigableString):
         return True
     if not isinstance(element, Tag):
@@ -246,7 +402,16 @@ def is_inline(element: PageElement, include_span: bool = False) -> bool:
 def extract_rows_and_possible_blocks(
     table_element: Tag, tags_to_extract: list[str]
 ) -> tuple[list[tuple[Tag, bool]], list[Tag]]:
-    """Clean up table and return rows and possible blocks."""
+    """
+    Extract rows and possible blocks from a table element.
+
+    Args:
+        table_element (Tag): The table element to process.
+        tags_to_extract (list[str]): List of tag names to extract.
+
+    Returns:
+        tuple[list[tuple[Tag, bool]], list[Tag]]: Rows and extracted blocks.
+    """
     unbound_elements = []
 
     for tag_name in tags_to_extract:
@@ -262,12 +427,31 @@ def extract_rows_and_possible_blocks(
 
 
 def table_cell_type(cell: Tag, is_header: bool = False) -> str:
+    """
+    Get the type of a table cell ('header' or 'data').
+
+    Args:
+        cell (Tag): The table cell element.
+        is_header (bool, optional): Whether the cell is a header. Defaults to False.
+
+    Returns:
+        str: 'header' or 'data'.
+    """
     if is_header:
         return "header"
     return "data" if cell.name == "td" else "header"
 
 
 def extract_plaintext(element: Tag) -> str:
+    """
+    Extract plaintext from an element, handling lists specially.
+
+    Args:
+        element (Tag): The element to extract text from.
+
+    Returns:
+        str: The extracted plaintext.
+    """
     plaintext = element.text.strip()
     tag_name = element.name
     if tag_name in ("ol", "ul"):
@@ -276,7 +460,15 @@ def extract_plaintext(element: Tag) -> str:
 
 
 def url_from_iframe(element: Tag) -> str:
-    """Parse an iframe element and return the cleansed url."""
+    """
+    Parse an iframe element and return its src URL.
+
+    Args:
+        element (Tag): The iframe element.
+
+    Returns:
+        str: The src URL of the iframe.
+    """
     src = ""
     if element.name == "iframe":
         src = element.get("src", "")
@@ -284,7 +476,15 @@ def url_from_iframe(element: Tag) -> str:
 
 
 def cleanse_url(url: str) -> str:
-    """Clean up url."""
+    """
+    Clean up a URL by decoding HTML entities and normalizing.
+
+    Args:
+        url (str): The URL to clean.
+
+    Returns:
+        str: The cleansed URL.
+    """
     raw_url = url.replace("&amp;", "&")
     parsed = parse.urlparse(raw_url)
     return parsed.geturl()

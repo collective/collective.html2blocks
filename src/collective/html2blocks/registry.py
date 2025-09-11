@@ -1,3 +1,30 @@
+"""
+Registry for block, element, and iframe converters in collective.html2blocks.
+
+This module provides decorators and accessors for registering and retrieving
+converter functions that transform HTML elements into Volto blocks or Slate items.
+
+Converters are registered using decorators and stored in a global registry.
+This enables extensible and dynamic HTML-to-block conversion for Plone/Volto.
+
+Example usage::
+
+    from collective.html2blocks.registry import block_converter
+
+    @block_converter('p')
+    def convert_paragraph(element):
+        ...
+
+See also:
+    - block_converter
+    - element_converter
+    - iframe_converter
+    - get_block_converter
+    - get_element_converter
+    - get_iframe_converter
+    - report_registrations
+"""
+
 from . import _types as t
 from .logger import logger
 from .utils.markup import cleanse_url
@@ -12,7 +39,18 @@ _REGISTRY = t.Registry({}, {}, {})
 
 
 class block_converter:
-    """Register a block converter."""
+    """
+    Decorator to register a block converter function for one or more tag names.
+
+    Args:
+        *tag_names (str): One or more HTML tag names to register the converter for.
+
+    Example::
+
+        @block_converter('p', 'div')
+        def convert_paragraph(element):
+            ...
+    """
 
     def __init__(self, *tag_names: str):
         self.tag_names = tag_names
@@ -26,7 +64,19 @@ class block_converter:
 
 
 class element_converter:
-    """Register an element converter."""
+    """
+    Decorator to register an element converter function for one or more tag names.
+
+    Args:
+        tag_names (list[str]): List of HTML tag names to register the converter for.
+        type_name (str, optional): Type name to use for the converter. Defaults to "".
+
+    Example::
+
+        @element_converter(['span'], 'strong')
+        def convert_span(element, type_name):
+            ...
+    """
 
     def __init__(self, tag_names: list[str], type_name: str = ""):
         self.tag_names = tag_names
@@ -51,7 +101,20 @@ class element_converter:
 
 
 class iframe_converter:
-    """Register an iframe converter."""
+    """
+    Decorator to register an iframe converter function for a provider and pattern.
+
+    Args:
+        provider (str): The provider name (e.g., 'youtube').
+        src_pattern (re.Pattern | str, optional): Regex pattern for matching src URLs.
+        url_pattern (str, optional): Replacement pattern for URLs.
+
+    Example::
+
+        @iframe_converter('youtube', r'https://youtube.com/embed/(?P<provider_id>[^/]+)')
+        def convert_youtube_iframe(element):
+            ...
+    """
 
     def __init__(
         self, provider: str, src_pattern: re.Pattern | str = "", url_pattern: str = ""
@@ -75,13 +138,37 @@ class iframe_converter:
 
 
 def default_converter(func: t.BlockConverter) -> t.BlockConverter:
-    """Register the default converter."""
+    """
+    Register the default block converter.
+
+    Args:
+        func (BlockConverter): The converter function to use as default.
+
+    Returns:
+        BlockConverter: The registered default converter.
+
+    Example::
+
+        @default_converter
+        def convert_default(element):
+            ...
+    """
     _REGISTRY.default = func
     return func
 
 
 def elements_with_block_converters() -> list[str]:
-    """Return a list of tag names with registered element converters."""
+    """
+    Return a list of tag names with registered block converters.
+
+    Returns:
+        list[str]: List of tag names.
+
+    Example::
+
+        >>> elements_with_block_converters()
+        ['p', 'div', ...]
+    """
     if not _REGISTRY:
         return []
     return list(_REGISTRY.block_converters.keys())
@@ -90,7 +177,23 @@ def elements_with_block_converters() -> list[str]:
 def get_block_converter(
     element: t.Tag | None = None, tag_name: str = "", strict: bool = True
 ) -> Callable | None:
-    """Return a registered converter for a given element or tag_name."""
+    """
+    Return a registered block converter for a given element or tag name.
+
+    Args:
+        element (Tag, optional): The HTML element to get the converter for.
+        tag_name (str, optional): The tag name to get the converter for.
+        strict (bool, optional): If True, only return if registered. If False, fallback
+                                 to default.
+
+    Returns:
+        Callable | None: The registered converter function, or None if not found.
+
+    Example::
+
+        >>> get_block_converter(tag_name='p')
+        <function convert_paragraph ...>
+    """
     if not (element or tag_name):
         raise RuntimeError("Should provide an element or a tag_name")
     if not tag_name and element:
@@ -104,7 +207,22 @@ def get_block_converter(
 def get_element_converter(
     element: t.Tag | None = None, tag_name: str = ""
 ) -> t.ElementConverter | None:
-    """Return a registered converter for a given element or tag_name."""
+    """
+    Return a registered element converter for a given element or tag name.
+
+    Args:
+        element (Tag, optional): The HTML element to get the converter for.
+        tag_name (str, optional): The tag name to get the converter for.
+
+    Returns:
+        ElementConverter | None: The registered converter function,
+                                 or None if not found.
+
+    Example::
+
+        >>> get_element_converter(tag_name='span')
+        <function convert_span ...>
+    """
     if not (element or tag_name):
         raise RuntimeError("Should provide an element or a tag_name")
     if not tag_name and element:
@@ -116,7 +234,20 @@ def get_element_converter(
 
 
 def get_iframe_converter(src: str) -> t.EmbedInfo:
-    """Return a registered converter for a given element src."""
+    """
+    Return a registered iframe converter for a given src URL.
+
+    Args:
+        src (str): The iframe src URL to match against registered patterns.
+
+    Returns:
+        EmbedInfo: Information about the matched provider and converter.
+
+    Example::
+
+        >>> get_iframe_converter('https://youtube.com/embed/abc123')
+        EmbedInfo(url='...', provider_id='abc123', converter=<function ...>)
+    """
     converters = _REGISTRY.iframe_converters
     for pattern, provider in converters.items():
         if pattern == "default":
@@ -131,7 +262,17 @@ def get_iframe_converter(src: str) -> t.EmbedInfo:
 
 
 def report_registrations() -> t.ReportRegistrations:
-    """Return information about current registrations."""
+    """
+    Return information about current converter registrations.
+
+    Returns:
+        ReportRegistrations: Dictionary with block, element, and iframe registrations.
+
+    Example::
+
+        >>> report_registrations()
+        {'block': {...}, 'element': {...}, 'iframe': {...}}
+    """
     report: t.ReportRegistrations = {"block": {}, "element": {}, "iframe": {}}
     for tag_name, blk_converter in _REGISTRY.block_converters.items():
         friendly_name = f"{blk_converter.__module__}.{blk_converter.__name__}"
@@ -162,11 +303,17 @@ __all__ = [
     "get_element_converter",
     "get_iframe_converter",
     "iframe_converter",
+    "report_registrations",
 ]
 
 
 def _initialize_registry() -> t.Registry:
-    """Initialize the registry."""
+    """
+    Initialize the registry and import all block modules.
+
+    Returns:
+        Registry: The initialized registry instance.
+    """
     from collective.html2blocks import blocks  # noqa: F401
 
     return _REGISTRY

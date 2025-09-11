@@ -1,3 +1,30 @@
+"""
+Slate block parser for HTML-to-Volto conversion.
+
+This module provides functions and registry-based converters to transform HTML elements
+into Slate-compatible JSON structures for Volto/Plone CMS. It supports block-level and
+inline elements, handling edge cases for lists, tables, code blocks, and more.
+
+Key features:
+- Registry-based element converters for extensibility.
+- Generator-based deserialization for efficient tree traversal.
+- Handles normalization, whitespace, and special formatting
+  (e.g., callouts, code, links).
+
+Example usage:
+    from bs4 import BeautifulSoup
+    from collective.html2blocks.blocks.slate import parser
+    soup = BeautifulSoup('<p>Hello <strong>world</strong></p>', 'html.parser')
+    slate_block = parser.deserialize(soup.p)
+    # slate_block -> {'type': 'p', 'children': [{'text': 'Hello '},
+    #                {'type': 'strong', 'children': [{'text': 'world'}]}]}
+
+Implementation notes:
+- Converters are registered via @registry.element_converter for extensibility.
+- Generator functions yield intermediate results for composability.
+- Utility functions handle normalization and edge cases for Slate blocks.
+"""
+
 from bs4 import Comment
 from bs4.element import NavigableString
 from collective.html2blocks import _types as t
@@ -12,6 +39,23 @@ from collective.html2blocks.utils.generator import item_generator
 def extract_blocks(
     raw_children: list[t.SlateBlockItem | t.VoltoBlock],
 ) -> t.SlateItemsGenerator:
+    """
+    Extracts Volto blocks from a list of Slate children, yielding Volto blocks and
+    collecting non-block children for further processing.
+
+    Args:
+        raw_children: List of SlateBlockItem or VoltoBlock dicts.
+
+    Yields:
+        VoltoBlock dicts found in the input.
+
+    Returns:
+        List of non-block children for further processing.
+
+    Example:
+        >>> list(extract_blocks([{'@type': 'image'}, {'type': 'p', 'children': []}]))
+        [{'@type': 'image'}]
+    """
     raw_children = raw_children if raw_children else []
     children = []
     for child in raw_children:
@@ -23,6 +67,19 @@ def extract_blocks(
 
 
 def _instropect_children(child: t.SlateBlockItem) -> t.SlateItemGenerator:
+    """
+    Recursively introspects and normalizes the children of a Slate block item.
+
+    Args:
+        child: SlateBlockItem dict with possible 'children' key.
+
+    Yields:
+        Normalized child block items.
+
+    Returns:
+        The updated child dict with normalized children.
+
+    """
     children = []
     if child and "children" in child:
         gen = extract_blocks(child["children"])
@@ -32,7 +89,18 @@ def _instropect_children(child: t.SlateBlockItem) -> t.SlateItemGenerator:
 
 
 def finalize_slate(block: t.VoltoBlock) -> t.SlateItemGenerator:
-    """Check if slate has invalid children blocks."""
+    """
+    Finalizes a Slate block by normalizing its children and cleaning up plaintext.
+
+    Args:
+        block: VoltoBlock dict with 'value' and 'plaintext' keys.
+
+    Yields:
+        Normalized Slate block items.
+
+    Returns:
+        The updated block dict with normalized children and cleaned plaintext.
+    """
     value = []
     plaintext = block.get("plaintext", "")
     block["plaintext"] = plaintext.strip()
@@ -50,6 +118,19 @@ def finalize_slate(block: t.VoltoBlock) -> t.SlateItemGenerator:
 def _handle_only_child(
     child: t.Tag, styles: dict | None = None
 ) -> t.SlateItemGenerator:
+    """
+    Handles a single child element, applying block or element converters as needed.
+
+    Args:
+        child: BeautifulSoup Tag to process.
+        styles: Optional dict of CSS styles.
+
+    Yields:
+        Slate block items or wrapped text/paragraphs.
+
+    Returns:
+        Normalized Slate block item or text.
+    """
     text = child.text
     styles = styles if styles else {}
     if block_converter := registry.get_block_converter(child):
@@ -69,6 +150,19 @@ def _handle_only_child(
 
 
 def _handle_block_(element: t.Tag, tag_name: str) -> t.SlateItemGenerator:
+    """
+    Handles block-level elements, normalizing children and applying special formatting.
+
+    Args:
+        element: BeautifulSoup Tag representing the block element.
+        tag_name: Name of the block tag (e.g., 'p', 'blockquote').
+
+    Yields:
+        Normalized Slate block items.
+
+    Returns:
+        Slate block item dict with normalized children.
+    """
     gen = deserialize_children(element)
     block_children: list[t.SlateBlockItem] = yield from item_generator(gen)
     if not block_children:
@@ -337,6 +431,18 @@ def _em_(element: t.Tag, tag_name: str) -> t.SlateItemGenerator:
 
 
 def deserialize_children(element: t.Tag) -> t.SlateItemsGenerator:
+    """
+    Deserializes all children of an element into Slate-compatible blocks.
+
+    Args:
+        element: BeautifulSoup Tag whose children will be deserialized.
+
+    Yields:
+        Slate block items for each child.
+
+    Returns:
+        Grouped text blocks or an empty list.
+    """
     children = markup.all_children(element)
     block_children = []
     for child in children:
@@ -346,6 +452,19 @@ def deserialize_children(element: t.Tag) -> t.SlateItemsGenerator:
 
 
 def _deserialize(element: t.Tag) -> t.SlateItemsGenerator:
+    """
+    Internal deserialization logic for an element, applying block/element converters or
+    recursively deserializing children.
+
+    Args:
+        element: BeautifulSoup Tag to deserialize.
+
+    Yields:
+        Slate block items or text.
+
+    Returns:
+        Normalized Slate block item(s) or text.
+    """
     if markup.is_inline(element) and not element.text.strip():
         response = slate.wrap_text("")
     elif converter := registry.get_block_converter(element):
@@ -370,20 +489,41 @@ def _deserialize(element: t.Tag) -> t.SlateItemsGenerator:
 
 
 def deserialize(element: t.Tag) -> t.SlateItemGenerator:
-    """Return the JSON-like representation of an element."""
-    tag_name = element.name
-    text = element.text
+    """
+    Return the JSON-like Slate representation of an HTML element.
+
+    This is the main entry point for converting a BeautifulSoup Tag into a Slate block
+    or text node. Handles comments, whitespace, block/element converters, and recursive
+    deserialization.
+
+    Args:
+        element: BeautifulSoup Tag to convert.
+
+    Yields:
+        Slate block items or text nodes.
+
+    Returns:
+        Slate block item or None if dropped.
+
+    Example:
+        >>> from bs4 import BeautifulSoup
+        >>> soup = BeautifulSoup('<p>Hello <strong>world</strong></p>', 'html.parser')
+        >>> deserialize(soup.p)
+        {'type': 'p', 'children': [{'text': 'Hello '},
+        {'type': 'strong', 'children': [{'text': 'world'}]}]}
+    """
     if isinstance(element, Comment):
         logger.debug(f"Dropping element {element}")
         return None
     elif isinstance(element, NavigableString):
         # instead of === '\n' we use isWhitespace for when deserializing tables
         # from Calc and other similar cases
+        text = element.text
         if not text.strip():
             text = " "
         text = text.replace("\n", " ").replace("\t", " ")
         return slate.wrap_text(text)
-    elif tag_name == "br":
+    elif element.name == "br":
         return slate.wrap_text("\n")
     gen = _deserialize(element)
     slate_item = yield from item_generator(gen)
