@@ -14,7 +14,7 @@ This guide explains how to add new tests to the `collective.html2blocks` codebas
 
 ## Introduction: Test parametrization and the `traverse` fixture
 
-Tests in `collective.html2blocks` are often parametrized using YAML files, which define input data and expected results. The `traverse` fixture is a utility that allows you to extract and assert values from deeply nested dictionaries and lists using a path-like syntax. You can also apply simple functions (like `len`, `type`, or `keys`) to the traversed value by appending a colon and function name, for example `foo/bar:baz:len`. This makes it easy to write concise, readable assertions in your test cases.
+Tests in `collective.html2blocks` are parametrized using YAML files, which define input data and expected results. The `traverse` fixture is a utility that allows you to extract and assert values from deeply nested dictionaries and lists using a path-like syntax. You can also apply simple functions (like `len`, `type`, or `keys`) to the traversed value by appending a colon and function name, for example `foo/bar:baz:len`. This makes it easy to write concise, readable assertions in your test cases.
 
 ## Testing the converter
 
