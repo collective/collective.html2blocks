@@ -91,8 +91,8 @@ format: $(BIN_FOLDER)/ruff ## Check and fix code base according to Plone standar
 test: $(BIN_FOLDER)/pytest ## run tests
 	@uv run pytest
 
-.PHONY: test-cov
-test-cov: $(BIN_FOLDER)/pytest ## run tests
+.PHONY: test-coverage
+test-coverage: $(BIN_FOLDER)/pytest ## run tests
 	@uv run pytest --cov=collective.html2blocks --cov-report term-missing
 
 ############################################
