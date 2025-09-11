@@ -73,13 +73,23 @@ To add a test for the `/html` endpoint, edit `tests/_data/test_services_html.yml
 
 ```yaml
 params:
-  - name: soundcloud
-    src: '<iframe width="480" hfor examplet="270" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/1275507478&amp;color=%23ff5500&amp;auto_play=false&amp;hide_related=false&amp;show_comments=true&amp;show_user=true&amp;show_reposts=false&amp;show_teaser=true&amp;visual=true" allowfullscreen></iframe>'
+  - name: Simple Case
+    src: |
+      <div><p>Hello World!</p></div>
+    converter: slate
     tests:
+      - path: "len:"
+        expected: 1
       - path: "0/@type"
-        expected: 'soundcloudBlock'
-      - path: "0/soundcloudId"
-        expected: '1275507478'
+        expected: "slate"
+      - path: "0/plaintext"
+        expected: "Hello World!"
+      - path: "len:0/value"
+        expected: 1
+      - path: "0/value/0/type"
+        expected: "p"
+      - path: "0/value/0/children/0/text"
+        expected: "Hello World!"
 ```
 
 
