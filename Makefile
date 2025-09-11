@@ -41,6 +41,10 @@ help: ## This help message
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
 
+############################################
+# Installation
+############################################
+
 $(BIN_FOLDER)/pytest: ## Install dependencies
 	@echo "$(GREEN)==> Install environment$(RESET)"
 	@uv sync
@@ -55,6 +59,9 @@ clean: ## Clean environment
 	@echo "$(RED)==> Cleaning environment and build$(RESET)"
 	rm -rf $(VENV_FOLDER) .python-version .venv .ruff_cache .pytest_cache uv.lock
 
+############################################
+# Linting
+############################################
 .PHONY: lint-mypy
 lint-mypy: $(BIN_FOLDER)/mypy ## Check type hints
 	@echo "$(GREEN)==> Check type hints$(RESET)"
@@ -68,13 +75,18 @@ lint: $(BIN_FOLDER)/ruff ## Check and fix code base according to Plone standards
 	@uvx check-python-versions@latest .
 	$(MAKE) lint-mypy
 
+############################################
+# Formatting
+############################################
 .PHONY: format
 format: $(BIN_FOLDER)/ruff ## Check and fix code base according to Plone standards
 	@echo "$(GREEN)==> Format codebase$(RESET)"
 	@uvx ruff@latest check --select I --fix
 	@uvx ruff@latest format
 
+############################################
 # Tests
+############################################
 .PHONY: test
 test: $(BIN_FOLDER)/pytest ## run tests
 	@uv run pytest
@@ -83,7 +95,9 @@ test: $(BIN_FOLDER)/pytest ## run tests
 test-cov: $(BIN_FOLDER)/pytest ## run tests
 	@uv run pytest --cov=collective.html2blocks --cov-report term-missing
 
-# Building the Container image
+############################################
+# Container
+############################################
 .PHONY: image-build
 image-build: ## Build the Container image
 	@echo "$(GREEN)==> Building Container image$(RESET)"
@@ -93,3 +107,21 @@ image-build: ## Build the Container image
 image-start: image-build ## Start the container using the image
 	@echo "$(GREEN)==> Starting Container image$(RESET)"
 	@docker run -p 8000:8000 --rm -it $(IMAGE_NAME):$(IMAGE_TAG)
+
+############################################
+# Release
+############################################
+.PHONY: changelog
+changelog: ## Release the package to pypi.org
+	@echo "🚀 Display the draft for the changelog"
+	@uv run towncrier --draft
+
+.PHONY: release
+release: ## Release the package to pypi.org
+	@echo "🚀 Release package"
+	@uv run prerelease
+	@uv run release
+	@rm -Rf dist
+	@uv build
+	@uv publish
+	@uv run postrelease
