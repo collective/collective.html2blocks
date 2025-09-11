@@ -1,3 +1,22 @@
+"""
+Table block converter for collective.html2blocks.
+
+This module provides the block converter for <table> elements, transforming them
+into Volto table blocks. It handles header detection, row and cell extraction,
+cell type assignment, and supports nested blocks within table cells.
+
+Implementation details:
+- Detects header rows and can hide headers if the table lacks explicit <th> cells.
+- Extracts and normalizes cell values, supporting both text and nested blocks.
+- Uses helper functions for cell value processing and row extraction.
+- Yields the main table block and any additional blocks found within cells.
+
+Example usage::
+
+    from collective.html2blocks.blocks.table import table_block
+    blocks = list(table_block(element))
+"""
+
 from collections.abc import Generator
 from collective.html2blocks import _types as t
 from collective.html2blocks import registry
@@ -43,7 +62,24 @@ def _process_cell_value(
 
 @registry.block_converter("table")
 def table_block(element: t.Tag) -> Generator[t.VoltoBlock, None, None]:
-    """Return a table block."""
+    """
+    Convert a <table> element to a Volto table block.
+
+    This converter extracts rows, headers, and cell values from the table element,
+    normalizes cell content, and yields a Volto table block. Additional blocks
+    found within table cells are also yielded.
+
+    Args:
+        element (Tag): The <table> element to convert.
+
+    Yields:
+        VoltoBlock: The converted table block and any nested blocks.
+
+    Example::
+
+        blocks = list(table_block(element))
+        # [{'@type': 'slateTable', 'table': {...}}, ...]
+    """
     additional_blocks: list[t.VoltoBlock] = []
     block: t.VoltoBlock = {"@type": "slateTable"}
     rows = []
