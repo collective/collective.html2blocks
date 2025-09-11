@@ -85,4 +85,36 @@ collective.transmute
 pytest
     [pytest](https://docs.pytest.org/) is a Python test framework that makes it easy to write small, readable tests, and can scale to support complex functional testing for applications and libraries.
 
+setuptools
+    [setuptools](https://setuptools.pypa.io/) is a Python package development and distribution library. It is commonly used to build, package, and install Python projects, especially those using a `setup.py` file.
+
+PEP 621
+    [PEP 621](https://peps.python.org/pep-0621/) is a Python Enhancement Proposal that standardizes how project metadata is specified in `pyproject.toml` files for Python packages.
+
+uv
+    [uv](https://github.com/astral-sh/uv) is a fast Python package manager and build tool that supports modern workflows, including dependency management via `pyproject.toml`.
+
+pyproject.toml
+    `pyproject.toml` is a configuration file for Python projects that defines build system requirements, dependencies, and project metadata. It is used by modern Python packaging tools and specified by PEP 518 and PEP 621.
+
+Typer
+    [Typer](https://typer.tiangolo.com/) is a Python library for building command-line interfaces (CLIs) using type hints, automatic help generation, and minimal code.
+
+CLI
+    Command-Line Interface. A program that is operated by typing commands into a terminal or shell, rather than using a graphical user interface (GUI).
+
+Converter
+    In collective.html2blocks, a converter is a component or function that transforms HTML content into Volto blocks or other structured formats.
+
+Registration
+    The process of making a converter, block, or other component available to the system, typically by adding it to a registry or configuration.
+
+blocks_layout
+    The structure that defines the order and arrangement of blocks within a Volto page or content item. It is usually represented as a JSON object.
+
+Uvicorn
+    [Uvicorn](https://www.uvicorn.org/) is a lightning-fast ASGI server implementation for Python, commonly used to run FastAPI applications.
+
+OpenAPI
+    [OpenAPI](https://www.openapis.org/) is a specification for describing RESTful APIs, enabling automatic documentation, client generation, and validation.
 ```
