@@ -45,7 +45,7 @@ jobs:
       plone-version: ${{ matrix.plone-version }}
 
   coverage:
-    name: "Backend: Coverage"
+    name: "Test Coverage"
     uses: plone/meta/.github/workflows/backend-pytest-coverage.yml@2.x
     needs:
       - config
@@ -55,7 +55,7 @@ jobs:
       plone-version:  ${{ needs.config.outputs.plone-version }}
 
   image:
-    name: "Backend: Coverage"
+    name: "Create container image"
     uses: ./.github/workflows/image.yml
     needs:
       - config
