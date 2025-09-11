@@ -1,1 +1,0 @@
-Implemented `collective.html2blocks.converters.volto_blocks` function [@ericof]

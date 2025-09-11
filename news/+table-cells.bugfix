@@ -1,1 +1,0 @@
-Fix table rows duplicating the number of cells due to the existence of line breaks or comments @ericof
