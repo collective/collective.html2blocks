@@ -1,3 +1,4 @@
 prepending
 Repo
+setuptools
 Transmogrifier
