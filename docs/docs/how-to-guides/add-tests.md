@@ -8,7 +8,7 @@ myst:
 ---
 
 
-# How to add tests to `collective.html2blocks`
+# Adding tests
 
 This guide explains how to add new tests to the `collective.html2blocks` codebase, covering test parametrization, the use of the `traverse` fixture, and the organization of test cases for converters and API endpoints. The codebase uses {term}`pytest` and YAML-based parametrization for flexible, maintainable testing.
 
