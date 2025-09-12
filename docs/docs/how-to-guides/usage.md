@@ -21,13 +21,13 @@ This guide provides step-by-step instructions for running the HTML to Volto bloc
 
 You can quickly deploy the HTML to Volto blocks service using our official container image, `ghcr.io/collective/html2blocks`. This method is ideal for testing, development, or integrating the service into containerized environments. To run the latest version and expose the service on port `8090` of your machine, use:
 
-```bash
+```shell
 docker run -p 8090:8000 ghcr.io/collective/html2blocks:latest
 ```
 
 To use a specific released version, simply replace `latest` with the desired version number. For example, to run version 1.0.0a1:
 
-```bash
+```shell
 docker run -p 8090:8000 ghcr.io/collective/html2blocks:1.0.0a1
 ```
 
@@ -36,7 +36,7 @@ docker run -p 8090:8000 ghcr.io/collective/html2blocks:1.0.0a1
 
 If you have installed `collective.html2blocks` in your project or local Python virtual environment, you can start the HTTP server directly. This is useful for local development, integration, or running the service as part of a larger application. Run:
 
-```bash
+```shell
 uv run html2blocks --port 8090
 ```
 
@@ -48,7 +48,7 @@ For a full list of available options and advanced usage, see the [CLI documentat
 You can also run the latest published version of the server without installing the `collective.html2blocks` package locally. This is useful for quick tests or ephemeral environments.
 Use the following command.
 
-```bash
+```shell
 uvx html2blocks --from collective.html2blocks serve --port 8090
 ```
 
