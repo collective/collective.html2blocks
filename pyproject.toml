@@ -49,6 +49,7 @@ strict-naming = true
 [tool.hatch.build.targets.sdist]
 exclude = [
   "/.github",
+  "/docs/docs/_build", # Do not include built docs
 ]
 
 [tool.hatch.build.targets.wheel]
