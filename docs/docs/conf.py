@@ -4,9 +4,9 @@
 
 # -- Path setup --------------------------------------------------------------
 
+from collective.html2blocks import __version__
 from datetime import datetime
 from packaging.version import Version
-from plone_sphinx_theme import __version__
 
 
 # If extensions (or modules to document with autodoc) are in another directory,
@@ -24,7 +24,7 @@ author = "Érico Andrei"
 trademark_name = "collective"
 now = datetime.now()
 year = str(now.year)
-copyright_ = year
+copyright = year  # noQA: A001
 
 
 # The version info for the project you're documenting, acts as replacement for
@@ -241,7 +241,7 @@ autodoc_class_signature = "separated"
 # -- Options for sphinx_sitemap to html -----------------------------
 
 # Used by sphinx_sitemap to generate a sitemap
-html_baseurl = "https://MY_READTHEDOCS_PROJECT_SLUG.readthedocs.io/"
+html_baseurl = "https://collective.github.io/collective.html2blocks/"
 # https://sphinx-sitemap.readthedocs.io/en/latest/advanced-configuration.html#customizing-the-url-scheme
 sitemap_url_scheme = "{link}"
 sitemap_filename = "sitemap-custom.xml"
@@ -289,9 +289,9 @@ mermaid_version = "11.2.0"
 
 
 # -- OpenGraph configuration ----------------------------------
-ogp_site_url = "https://MY_READTHEDOCS_PROJECT_SLUG.readthedocs.io/"
+ogp_site_url = "https://collective.github.io/collective.html2blocks/"
 ogp_description_length = 200
-ogp_image = "https://MY_READTHEDOCS_PROJECT_SLUG/_static/MY_LOGO.svg"
+ogp_image = "https://collective.github.io/collective.html2blocks/_static/logo.svg"
 ogp_site_name = "collective.html2blocks Documentation"
 ogp_type = "website"
 ogp_custom_meta_tags = [
