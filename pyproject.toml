@@ -44,8 +44,15 @@ build-backend = "hatchling.build"
 path = "src/collective/html2blocks/__init__.py"
 
 [tool.hatch.build]
-strict-naming = false
-packages = ["src/collective", "src/collective/html2blocks"]
+strict-naming = true
+
+[tool.hatch.build.targets.sdist]
+exclude = [
+  "/.github",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/collective"]
 
 [tool.uv]
 default-groups = ["test"]
