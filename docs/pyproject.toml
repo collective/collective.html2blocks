@@ -54,8 +54,8 @@ dev = [
 ]
 
 [project.urls]
-Repository = "https://github.com/collective/collectivehtml2blocksdocumentation"
-Documentation = "https://MY_READTHEDOCS_PROJECT_SLUG.readthedocs.io/"
+Repository = "https://github.com/collective/collective.html2blocks"
+Documentation = "https://collective.github.io/collective.html2blocks"
 
 [build-system]
 requires = ["setuptools"]
