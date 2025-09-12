@@ -8,7 +8,7 @@ myst:
 ---
 
 This glossary provides example terms and definitions relevant to **collective.html2blocks**.
-Technical documentation for the collective.html2blocks package
+Technical documentation for the `collective.html2blocks` package
 
 ```{note}
 This is an example glossary demonstrating MyST Markdown’s `{glossary}` directive. You can adapt it for your project’s appendix by editing or replacing these entries with your own terms and definitions.
@@ -104,7 +104,7 @@ CLI
     Command-Line Interface. A program that is operated by typing commands into a terminal or shell, rather than using a graphical user interface (GUI).
 
 Converter
-    In collective.html2blocks, a converter is a component or function that transforms HTML content into Volto blocks or other structured formats.
+    In `collective.html2blocks`, a converter is a component or function that transforms HTML content into Volto blocks or other structured formats.
 
 Registration
     The process of making a converter, block, or other component available to the system, typically by adding it to a registry or configuration.

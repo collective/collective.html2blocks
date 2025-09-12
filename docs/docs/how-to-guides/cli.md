@@ -10,15 +10,20 @@ myst:
 # `html2blocks` command line application
 
 Installing `collective.html2blocks` in your project will provide you with a new {term}`CLI` application named `html2blocks`.
-To use it, either locate the Python virtual environment used by your project (usually present in the `.venv` folder of your backend codebase) and run `.venv/bin/html2blocks`, or if your project uses `uv` run `uv run html2blocks` and `uv` will correctly initiate this {term}`CLI` application.
+
+You can either:
+
+1.  locate the Python virtual environment used by your project (usually present in the `.venv` folder of your backend codebase) and run `.venv/bin/html2blocks`, or
+1.  if your project uses `uv`, then run `uv run html2blocks`, and `uv` will correctly initiate this {term}`CLI` application.
 
 All examples here will showcase `uv run html2blocks` for the sake of simplicity.
 
-## The application
 
-After running `uv run html2blocks` you will be granted with a list of options and commands available in the tool, powered by {term}`Typer`:
+## Application help
 
-```text
+After running `uv run html2blocks`, you'll be presented with a list of options and commands available in the tool, powered by {term}`Typer`:
+
+```console
 Usage: html2blocks [OPTIONS] COMMAND [ARGS]...
 
  Main CLI callback for collective.html2blocks.
@@ -43,16 +48,20 @@ Usage: html2blocks [OPTIONS] COMMAND [ARGS]...
 
 ## Commands
 
+The `html2blocks` application provides three commands: `info`, `convert`, and `server`.
+
+
 ### `info`
 
 This command displays information about the `collective.html2blocks` package and all converter {term}`Registration`.
 
-```bash
+```shell
 uv run html2blocks info
 ```
+
 will display:
 
-```text
+```console
 # collective.html2blocks - 1.0.0a0
 
 ## Block Converters
@@ -95,22 +104,28 @@ will display:
  - em: collective.html2blocks.blocks.slate.parser._em_
  - i: collective.html2blocks.blocks.slate.parser._em_
 ```
+
 Of course, if in your project you did register additional converters, they should be displayed in here as well.
 
+
 ## `convert`
+
 This command reads the HTML file at `SRC`, converts its contents to a JSON representing Volto block information (containing the `{term}`blocks` and `{term}`blocks_layout` keys) using the package's {term}`Converter`, and writes the result as JSON to `DST`.
 
-Example usage, having a file named `input.html`:
+Example usage, having a file named {file}`input.html`:
 
 ```html
 <div><p>Hello <strong>World!</strong></p></div>
 ```
+
 you can run this command with:
-```bash
+
+```shell
 uv run html2blocks convert input.html output.json
 ```
 
-This will create a new file named `output.json` with the following contents:
+This will create a new file named {file}`output.json` with the following contents:
+
 ```json
 {
   "blocks": {
@@ -145,6 +160,7 @@ This will create a new file named `output.json` with the following contents:
 }
 ```
 
+
 ## `server`
 
 This command starts a {term}`Uvicorn` server hosting the FastAPI app for converting HTML to Volto blocks. You can customize the host, port, and enable reload for development.
@@ -158,13 +174,13 @@ This command starts a {term}`Uvicorn` server hosting the FastAPI app for convert
 
 So, to run the server on a specific port, for example `8090`, you should run:
 
-```bash
+```shell
 uv run html2blocks server --port 8090
 ```
 
 and you should see:
 
-```text
+```console
 Starting HTML to Blocks service at http://127.0.0.1:8090
 INFO:     Started server process [94408]
 INFO:     Waiting for application startup.

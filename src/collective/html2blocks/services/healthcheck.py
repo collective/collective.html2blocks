@@ -1,12 +1,13 @@
 """
-Healthcheck service for collective.html2blocks.
+Healthcheck service for ``collective.html2blocks``.
 
 Provides a simple endpoint to verify that the API service is running and healthy.
 
-Example usage::
+Example:
+    .. code-block:: console
 
-    GET /ok
-    Response: {"status": "up"}
+        GET /ok
+        Response: {"status": "up"}
 """
 
 from fastapi import APIRouter
@@ -25,9 +26,13 @@ async def healthcheck() -> dict:
     Returns:
         dict: Status information, e.g. {"status": "up"}
 
-    Example::
+    Example:
+        .. code-block:: shell
 
-        $ curl http://localhost:8000/ok
-        {"status": "up"}
+            curl http://localhost:8000/ok
+
+        .. code-block:: console
+
+            {"status": "up"}
     """
     return {"status": "up"}
