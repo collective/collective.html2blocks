@@ -26,9 +26,9 @@ myst:
 
 </div>
 
-**collective.html2blocks** is an open-source Python package designed to facilitate the migration of content from legacy {term}`Plone` sites and other {term}`CMS` to {term}`Volto`. It provides robust tools for converting HTML content into Volto blocks, making it easier to modernize and restructure existing websites without manual reformatting.
+**collective.html2blocks** is an open-source Python package designed to facilitate the migration of content from legacy {term}`Plone` sites and other {term}`CMS`s to {term}`Volto`. It provides robust tools for converting HTML content into Volto blocks, making it easier to modernize and restructure existing websites without manual reformatting.
 
-The package offers a flexible registry and converter system for parsing HTML, handling complex content structures, and generating Volto-compatible JSON. It supports CLI and REST API interfaces, enabling batch processing, automation, and integration into existing migration workflows. With `collective.html2blocks`, developers can streamline migrations, preserve rich content, and take advantage of Volto's block-based editing experience.
+The package offers a flexible registry and converter system for parsing HTML, handling complex content structures, and generating Volto-compatible JSON. It supports CLI and REST API, enabling batch processing, automation, and integration into existing migration workflows. With `collective.html2blocks`, developers can streamline migrations, preserve rich content, and take advantage of Volto's block-based editing experience.
 
 
 ```{toctree}
