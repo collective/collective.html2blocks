@@ -4,7 +4,7 @@ myst:
     "description": "collective.html2blocks Commands"
     "property=og:description": "collective.html2blocks Commands"
     "property=og:title": "collective.html2blocks Commands"
-    "keywords": "Plone, _collective.html2blocks,_ Commands"
+    "keywords": "Plone, collective.html2blocks, Commands"
 ---
 
 # `collective.html2blocks.commands`
