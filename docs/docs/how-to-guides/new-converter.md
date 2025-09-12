@@ -7,7 +7,7 @@ myst:
     "keywords": "Plone, collective.html2blocks, block converter, Volto, migration, guide"
 ---
 
-# Registering a new converter
+# Register a new converter
 
 To implement a new block converter in `collective.html2blocks`, you typically register a function using the `@registry.block_converter` or `@registry.element_converter` decorator.
 
@@ -34,4 +34,5 @@ def code_block_converter(element: Tag) -> dict:
     "wrapLongLines": True,
   }
 ```
+
 This converter will transform a `<code>` HTML element into a Volto code block, preserving the code content and formatting options. You can customize the converter to support other languages or block options as needed. Once registered, the converter will be used automatically during HTML-to-block conversion.
