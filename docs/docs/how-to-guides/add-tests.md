@@ -8,7 +8,7 @@ myst:
 ---
 
 
-# Adding tests
+# Add tests
 
 This guide explains how to add new tests to the `collective.html2blocks` codebase, covering test parametrization, the use of the `traverse` fixture, and the organization of test cases for converters and API endpoints. The codebase uses {term}`pytest` and YAML-based parametrization for flexible, maintainable testing.
 
@@ -23,7 +23,7 @@ This section covers how to test the main converter functions, such as `collectiv
 
 ### `html_to_blocks` function
 
-To add a test for `html_to_blocks`, edit `tests/_data/test_html_to_blocks.yml` and add a new entry under `params`:
+To add a test for `html_to_blocks`, edit {file}`tests/_data/test_html_to_blocks.yml` and add a new entry under `params`:
 
 ```yaml
 params:
@@ -47,7 +47,7 @@ params:
 
 ### `volto_blocks` function
 
-To add a test for `volto_blocks`, edit `tests/_data/test_volto_blocks.yml` and add a new entry:
+To add a test for `volto_blocks`, edit {file}`tests/_data/test_volto_blocks.yml` and add a new entry:
 
 ```yaml
 params:
@@ -62,14 +62,14 @@ params:
         expected: 5
 ```
 
-## Testing the http-based API
+## Testing the HTTP-based API
 
 This section describes how to test the FastAPI endpoints provided by `collective.html2blocks`. These endpoints expose conversion logic over HTTP, allowing integration with external tools and migration workflows.
 
 
 ### `/html` endpoint
 
-To add a test for the `/html` endpoint, edit `tests/_data/test_services_html.yml` and add a new entry:
+To add a test for the `/html` endpoint, edit {file}`tests/_data/test_services_html.yml` and add a new entry:
 
 ```yaml
 params:
@@ -95,7 +95,7 @@ params:
 
 ### `/volto` endpoint
 
-To add a test for the `/volto` endpoint, edit `tests/_data/test_services_volto.yml` and add a new entry:
+To add a test for the `/volto` endpoint, edit {file}`tests/_data/test_services_volto.yml` and add a new entry:
 
 ```yaml
 params:
@@ -118,7 +118,7 @@ This section explains how to test individual block converters, such as those for
 
 ### iframe
 
-To add a test for the iframe block converter, edit `tests/_data/test_iframe_block.yml` and add a new entry:
+To add a test for the iframe block converter, edit {file}`tests/_data/test_iframe_block.yml` and add a new entry:
 
 ```yaml
 params:
@@ -134,7 +134,7 @@ params:
 
 ### image
 
-To add a test for the image block converter, edit `tests/_data/test_image_block.yml` and add a new entry:
+To add a test for the image block converter, edit {file}`tests/_data/test_image_block.yml` and add a new entry:
 
 ```yaml
 params:
@@ -158,7 +158,7 @@ params:
 
 ### slate
 
-To add a test for the slate block converter, edit `tests/_data/test_slate_block.yml` and add a new entry:
+To add a test for the slate block converter, edit {file}`tests/_data/test_slate_block.yml` and add a new entry:
 
 ```yaml
 params:
@@ -178,7 +178,7 @@ params:
 
 ### table
 
-To add a test for the table block converter, edit `tests/_data/test_table_block.yml` and add a new entry:
+To add a test for the table block converter, edit {file}`tests/_data/test_table_block.yml` and add a new entry:
 
 ```yaml
 params:
