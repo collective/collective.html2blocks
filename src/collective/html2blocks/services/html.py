@@ -1,13 +1,14 @@
 """
-HTML conversion service for collective.html2blocks.
+HTML conversion service for ``collective.html2blocks``.
 
 Provides API endpoints for converting HTML content to Volto blocks and block layout
 information. Includes endpoints for both simple block conversion and full Volto layout.
 
-Example usage::
+Example:
+    .. code-block:: console
 
-    POST /html
-    POST /volto
+        POST /html
+        POST /volto
 """
 
 from collective.html2blocks import _types as t
@@ -27,7 +28,7 @@ class HtmlBody(BaseModel):
 
     Attributes:
         html (str): The HTML content to convert.
-        converter (str): The type of conversion to perform (default is "slate").
+        converter (str): The type of conversion to perform (default is ``slate``).
     """
 
     html: str
@@ -51,9 +52,10 @@ async def convert_html(body: HtmlBody) -> list[t.VoltoBlock]:
     Raises:
         HTTPException: If an unsupported converter is specified.
 
-    Example::
+    Example:
+        .. code-block:: shell
 
-        $ curl -X POST /html -d '{"html": "<p>Hello</p>", "converter": "slate"}'
+            curl -X POST /html -d '{"html": "<p>Hello</p>", "converter": "slate"}'
     """
     converter = body.converter
     html = body.html
@@ -93,9 +95,10 @@ def convert_to_volto(body: VoltoBody) -> t.VoltoBlocksInfo:
     Returns:
         VoltoBlocksInfo: Information about the converted Volto blocks and layout.
 
-    Example::
+    Example:
+        .. code-block:: shell
 
-        $ curl -X POST /volto -d '{"html": "<p>Hello</p>"}'
+            curl -X POST /volto -d '{"html": "<p>Hello</p>"}'
     """
     html = body.html
     default_blocks = body.default_blocks or []
