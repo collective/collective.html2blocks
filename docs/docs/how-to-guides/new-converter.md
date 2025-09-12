@@ -9,7 +9,7 @@ myst:
 
 # Registering a new converter
 
-To implement a new block converter in collective.html2blocks, you typically register a function using the `@registry.block_converter` or `@registry.element_converter` decorator.
+To implement a new block converter in `collective.html2blocks`, you typically register a function using the `@registry.block_converter` or `@registry.element_converter` decorator.
 
 The `@registry.block_converter` decorator is used for functions that return a Volto block—an object with an `@type` key and other properties expected by Volto editors. These blocks are inserted directly into the output and can represent custom or third-party block types.
 

@@ -45,7 +45,7 @@ uvx html2blocks --from collective.html2blocks serve --port 8090
 ```
 
 ```{warning}
-Note: This command only works with released versions of collective.html2blocks.
+Note: This command only works with released versions of `collective.html2blocks`.
 ```
 
 ## As a dependency on your code
