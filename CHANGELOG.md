@@ -9,6 +9,19 @@
 
 <!-- towncrier release notes start -->
 
+## 1.0.0a2 (2025-09-12)
+
+
+### Bugfix
+
+- Fix issue with packaging collective.html2blocks as a wheel. @ericof 
+
+
+### Documentation
+
+- Clean up initial documentation. @stevepiercy [#15](https://github.com/collective/collective.html2blocks/issues/15)
+- Deploy documentation to https://collective.github.io/collective.html2blocks. @ericof [#16](https://github.com/collective/collective.html2blocks/issues/16)
+
 ## 1.0.0a1 (2025-09-11)
 
 
