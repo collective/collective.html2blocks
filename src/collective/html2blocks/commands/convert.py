@@ -1,13 +1,14 @@
 """
-Convert command for collective.html2blocks CLI.
+Convert command for ``collective.html2blocks`` CLI.
 
 This Typer subcommand provides functionality to convert HTML files to Volto blocks
 in JSON format. It checks file paths, reads HTML input, performs conversion, and
 writes the result to the specified output file.
 
-Example usage::
+Example:
+    .. code-block:: shell
 
-    $ uv run html2blocks convert input.html output.json
+        uv run html2blocks convert input.html output.json
 """
 
 from pathlib import Path
@@ -30,10 +31,11 @@ def check_path(path: Path) -> bool:
     Returns:
         bool: True if the path exists, False otherwise.
 
-    Example::
+    Example:
+        .. code-block:: pycon
 
-        >>> check_path(Path('input.html'))
-        True
+            >>> check_path(Path('input.html'))
+            True
     """
     path = path.resolve()
     return path.exists()
@@ -68,19 +70,23 @@ def convert(
     dst: Annotated[Path, typer.Argument(help="Path to write the JSON conversion")],
 ):
     """
-    Convert a HTML file to Volto blocks JSON.
+    Convert an HTML file to Volto blocks JSON.
 
-    This command reads the HTML file at `src`, converts its contents to Volto blocks
-    using the package's converter, and writes the result as JSON to `dst`.
+    This command reads the HTML file at ``src``, converts its contents to Volto
+    blocks using the package's converter, and writes the result as JSON to ``dst``.
 
     Args:
         src (Path): Path to the HTML file to convert.
         dst (Path): Path to write the JSON output.
 
-    Example::
+    Example:
+        .. code-block:: shell
 
-        $ uv run html2blocks convert input.html output.json
-        Converted input.html contents into file output.json
+            uv run html2blocks convert input.html output.json
+
+        .. code-block:: console
+
+            Converted input.html contents into file output.json
     """
     from collective.html2blocks import converter
 
