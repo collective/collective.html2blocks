@@ -1,12 +1,13 @@
 """
-Server command for collective.html2blocks CLI.
+Server command for ``collective.html2blocks`` CLI.
 
 This Typer subcommand runs the HTML to Blocks API service using Uvicorn.
 It allows you to specify host, port, and reload options for development.
 
-Example usage::
+Example:
+    .. code-block:: shell
 
-    $ uv run html2blocks server --host 0.0.0.0 --port 8080 --reload
+        uv run html2blocks server --host 0.0.0.0 --port 8080 --reload
 """
 
 from collective.html2blocks.logger import console_logging
@@ -29,14 +30,18 @@ def serve(host: str = "127.0.0.1", port: int = 8000, reload: bool = False):
     for development.
 
     Args:
-        host (str, optional): Host address to bind. Defaults to "127.0.0.1".
-        port (int, optional): Port to listen on. Defaults to 8000.
-        reload (bool, optional): Enable auto-reload for development. Defaults to False.
+        host (str, optional): Host address to bind. Defaults to ``127.0.0.1``.
+        port (int, optional): Port to listen on. Defaults to ``8000``.
+        reload (bool, optional): Enable auto-reload for development. Defaults to ``False``.
 
-    Example::
+    Example:
+        .. code-block:: shell
 
-        $ uv run html2blocks server --host 0.0.0.0 --port 8080 --reload
-        Starting HTML to Blocks service at http://0.0.0.0:8080
+            uv run html2blocks server --host 0.0.0.0 --port 8080 --reload
+
+        .. code-block:: console
+
+            Starting HTML to Blocks service at http://0.0.0.0:8080
     """
     with console_logging(logger) as log:
         log.info(f"Starting HTML to Blocks service at http://{host}:{port}")
