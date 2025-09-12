@@ -69,6 +69,15 @@ jobs:
       username: ${{ github.actor }}
       password: ${{ secrets.GITHUB_TOKEN }}
 
+  docs-deploy:
+    name: "Deploy documentation"
+    uses: ./.github/workflows/docs-deploy.yml
+    needs:
+      - config
+      - docs
+    with:
+      python-version: ${{ needs.config.outputs.python-version }}
+      working-directory: "docs"
   report:
     name: "Final report"
     if: ${{ always() }}
@@ -78,6 +87,7 @@ jobs:
       - lint
       - test
       - docs
+      - docs-deploy
       - image
       - coverage
     steps:
@@ -88,7 +98,9 @@ jobs:
           echo '| Job ID | Conclusion |' >> $GITHUB_STEP_SUMMARY
           echo '| --- | --- |' >> $GITHUB_STEP_SUMMARY
           echo '| Config | ${{ needs.config.result }} |' >> $GITHUB_STEP_SUMMARY
-          echo '| Lint | ${{ needs.coverage.result }} |' >> $GITHUB_STEP_SUMMARY
-          echo '| Test | ${{ needs.coverage.result }} |' >> $GITHUB_STEP_SUMMARY
+          echo '| Lint | ${{ needs.lint.result }} |' >> $GITHUB_STEP_SUMMARY
+          echo '| Test | ${{ needs.test.result }} |' >> $GITHUB_STEP_SUMMARY
           echo '| Coverage | ${{ needs.coverage.result }} |' >> $GITHUB_STEP_SUMMARY
+          echo '| Docs | ${{ needs.docs.result }} |' >> $GITHUB_STEP_SUMMARY
+          echo '| Docs Deployment | ${{ needs.docs-deploy.result }} |' >> $GITHUB_STEP_SUMMARY
           echo '| Image | ${{ needs.image.result }} |' >> $GITHUB_STEP_SUMMARY

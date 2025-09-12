@@ -32,6 +32,7 @@ html2blocks = "collective.html2blocks.cli:cli"
 Homepage = "https://github.com/collective/collective.html2blocks#readme"
 Changelog = "https://github.com/collective/collective.html2blocks/blob/main/CHANGELOG.md"
 Issues = "https://github.com/collective/collective.html2blocks/issues"
+Documentation = "https://collective.github.io/collective.html2blocks"
 Source = "https://github.com/collective/collective.html2blocks"
 Repository = "https://github.com/collective/collective.html2blocks"
 
