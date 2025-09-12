@@ -1,14 +1,16 @@
 """
-CLI entry point for collective.html2blocks.
+CLI entry point for ``collective.html2blocks``.
 
 This module provides the Typer-based command-line interface for converting HTML
 content to Volto blocks, inspecting conversion info, and running the API server.
 
-Example usage::
+Example usage:
 
-    $ uv run html2blocks convert input.html
-    $ uv run html2blocks info
-    $ uv run html2blocks server
+.. code-block:: shell
+
+    uv run html2blocks convert input.html
+    uv run html2blocks info
+    uv run html2blocks server
 """
 
 from collective.html2blocks.commands.convert import app as app_convert
@@ -24,7 +26,7 @@ app = typer.Typer(no_args_is_help=True)
 @app.callback(invoke_without_command=True)
 def main(ctx: typer.Context):
     """
-    Main CLI callback for collective.html2blocks.
+    Main CLI callback for ``collective.html2blocks``.
 
     This function is invoked when the CLI is run without a subcommand. It displays
     a welcome message and help information for available commands.
@@ -32,7 +34,9 @@ def main(ctx: typer.Context):
     Args:
         ctx (typer.Context): Typer context object.
 
-    Example::
+    Example:
+
+    .. code-block:: shell
 
         $ uv run html2blocks
         Welcome to collective.html2blocks.
@@ -51,7 +55,9 @@ def cli():
 
     This function serves as the entry point for the CLI, invoking the Typer app.
 
-    Example::
+    Example usage:
+
+    .. code-block:: pycon
 
         >>> cli()
         # Launches the CLI

@@ -12,4 +12,6 @@ myst:
 ```{eval-rst}
 .. automodule:: collective.html2blocks.cli
     :members:
+
+.. autodecorator:: collective.html2blocks.cli.main
 ```
