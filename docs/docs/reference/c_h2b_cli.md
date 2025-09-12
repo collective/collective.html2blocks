@@ -13,5 +13,5 @@ myst:
 .. automodule:: collective.html2blocks.cli
     :members:
 
-.. autodecorator:: collective.html2blocks.cli.main
+.. autofunction:: collective.html2blocks.cli.main
 ```
