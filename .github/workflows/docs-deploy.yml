@@ -41,7 +41,7 @@ jobs:
         id: deployment
         uses: actions/upload-pages-artifact@v3
         with:
-          path: _build/
+          path: ${{ inputs.working-directory }}/_build/
 
   deploy:
     name: Deploy to GitHub Pages
