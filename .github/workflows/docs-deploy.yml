@@ -11,7 +11,10 @@ on:
         type: string
         required: false
         default: '.'
-
+    outputs:
+      url:
+        description: "URL of the deployed documentation"
+        value: ${{ jobs.deploy.outputs.url }}
 jobs:
   build:
     name: Documentation
@@ -41,11 +44,14 @@ jobs:
         id: deployment
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ${{ inputs.working-directory }}/_build/
+          path: ${{ inputs.working-directory }}/_build/html/
 
   deploy:
     name: Deploy to GitHub Pages
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    outputs:
+      url: ${{ steps.deployment.outputs.page_url }}
+
     needs:
       - build
 
