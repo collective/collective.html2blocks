@@ -1,15 +1,16 @@
 """
-HTML markup utilities for collective.html2blocks.
+HTML markup utilities for ``collective.html2blocks``.
 
 This module provides functions for parsing, normalizing, and extracting
 information from HTML markup, including grouping inline elements, filtering,
 normalizing, and extracting table and style information.
 
-Example usage::
+Example:
+    .. code-block:: python
 
-    from collective.html2blocks.utils import markup
-    soup = markup.parse_source('<p>Hello <b>world</b></p>')
-    children = markup.all_children(soup)
+        from collective.html2blocks.utils import markup
+        soup = markup.parse_source('<p>Hello <b>world</b></p>')
+        children = markup.all_children(soup)
 """
 
 from .inline import ALLOW_EMPTY_ELEMENTS
@@ -87,7 +88,7 @@ def _normalize_html(soup: BeautifulSoup, block_level_tags: Iterable[str] = ()):
     Args:
         soup (BeautifulSoup): The soup to normalize.
         block_level_tags (Iterable[str], optional): Block-level tags to wrap.
-                                                    Defaults to ().
+                                                    Defaults to ``()``.
 
     Returns:
         BeautifulSoup: The normalized soup.
@@ -124,7 +125,7 @@ def is_empty(tag: Tag | NavigableString) -> bool:
         tag (Tag | NavigableString): The tag or string to check.
 
     Returns:
-        bool: True if empty, False otherwise.
+        bool: ``True`` if empty, ``False`` otherwise.
     """
     if isinstance(tag, NavigableString):
         return tag.strip() == ""
@@ -144,7 +145,7 @@ def is_ignorable(el: PageElement) -> bool:
         el (PageElement): The element to check.
 
     Returns:
-        bool: True if ignorable, False otherwise.
+        bool: ``True`` if ignorable, ``False`` otherwise.
     """
     return (isinstance(el, NavigableString) and not el.strip()) or (
         isinstance(el, Tag) and el.name in ALLOW_EMPTY_ELEMENTS
@@ -293,17 +294,18 @@ def parse_source(
 
     Args:
         source (str): The HTML source to parse.
-        filter_ (bool, optional): Whether to filter children. Defaults to True.
-        group (bool, optional): Whether to group inline elements. Defaults to True.
-        normalize (bool, optional): Whether to normalize HTML. Defaults to True.
-        block_level_tags (Iterable[str], optional): Block-level tags. Defaults to ().
+        filter_ (bool, optional): Whether to filter children. Defaults to ``True``.
+        group (bool, optional): Whether to group inline elements. Defaults to ``True``.
+        normalize (bool, optional): Whether to normalize HTML. Defaults to ``True``.
+        block_level_tags (Iterable[str], optional): Block-level tags. Defaults to ``()``.
 
     Returns:
         Tag: The parsed and normalized soup object.
 
-    Example::
+    Example:
+        .. code-block:: python
 
-        soup = parse_source('<p>Hello <b>world</b></p>')
+            soup = parse_source("<p>Hello <b>world</b></p>")
     """
     # Remove linebreaks from the end of the source
     source = source.strip()
@@ -326,7 +328,7 @@ def all_children(
     Args:
         element (PageElement | Tag): The element to get children from.
         allow_tags (list[str], optional): List of tag names to include.
-                                          Defaults to None.
+                                          Defaults to ``None``.
 
     Returns:
         list[PageElement]: List of child elements.
@@ -385,10 +387,10 @@ def is_inline(element: PageElement, include_span: bool = False) -> bool:
     Args:
         element (PageElement): The element to check.
         include_span (bool, optional): Whether to treat span as inline.
-                                       Defaults to False.
+                                       Defaults to ``False``.
 
     Returns:
-        bool: True if inline, False otherwise.
+        bool: ``True`` if inline, ``False`` otherwise.
     """
     if isinstance(element, NavigableString):
         return True
@@ -428,14 +430,14 @@ def extract_rows_and_possible_blocks(
 
 def table_cell_type(cell: Tag, is_header: bool = False) -> str:
     """
-    Get the type of a table cell ('header' or 'data').
+    Get the type of a table cell (``header`` or ``data``).
 
     Args:
         cell (Tag): The table cell element.
-        is_header (bool, optional): Whether the cell is a header. Defaults to False.
+        is_header (bool, optional): Whether the cell is a header. Defaults to ``False``.
 
     Returns:
-        str: 'header' or 'data'.
+        str: ``header`` or ``data``.
     """
     if is_header:
         return "header"
@@ -461,13 +463,13 @@ def extract_plaintext(element: Tag) -> str:
 
 def url_from_iframe(element: Tag) -> str:
     """
-    Parse an iframe element and return its src URL.
+    Parse an iframe element and return its ``src`` URL.
 
     Args:
         element (Tag): The iframe element.
 
     Returns:
-        str: The src URL of the iframe.
+        str: The ``src`` URL of the iframe.
     """
     src = ""
     if element.name == "iframe":

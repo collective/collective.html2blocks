@@ -4,12 +4,13 @@ Utility functions for Volto block detection and layout construction.
 This module provides helpers for identifying Volto blocks and assembling
 block layout information for use in Volto-based content management systems.
 
-Example usage::
+Example:
+    .. code-block:: python
 
-    from collective.html2blocks.utils import blocks
+        from collective.html2blocks.utils import blocks
 
-    block = {"@type": "slate", "value": [...], ...}
-    blocks.info_from_blocks([block])
+        block = {"@type": "slate", "value": [...], ...}
+        blocks.info_from_blocks([block])
 """
 
 from collective.html2blocks import _types as t
@@ -20,7 +21,7 @@ def is_volto_block(block: t.VoltoBlock | t.SlateBlockItem) -> bool:
     """
     Check if the given block is a Volto block.
 
-    A Volto block is identified by the presence of the '@type' key.
+    A Volto block is identified by the presence of the ``@type`` key.
 
     Args:
         block (VoltoBlock | SlateBlockItem): The block to check.
@@ -28,12 +29,13 @@ def is_volto_block(block: t.VoltoBlock | t.SlateBlockItem) -> bool:
     Returns:
         bool: True if the block is a Volto block, False otherwise.
 
-    Example::
+    Example:
+        .. code-block:: pycon
 
-        >>> is_volto_block({"@type": "slate", "value": []})
-        True
-        >>> is_volto_block({"type": "p", "children": []})
-        False
+            >>> is_volto_block({"@type": "slate", "value": []})
+            True
+            >>> is_volto_block({"type": "p", "children": []})
+            False
     """
     return bool(block.get("@type"))
 
@@ -51,12 +53,13 @@ def info_from_blocks(raw_blocks: list[t.VoltoBlock]) -> t.VoltoBlocksInfo:
     Returns:
         VoltoBlocksInfo: Dictionary with 'blocks' and 'blocks_layout' keys.
 
-    Example::
+    Example:
+        .. code-block:: pycon
 
-        >>> blocks = [{"@type": "slate", "value": []}]
-        >>> info = info_from_blocks(blocks)
-        >>> print(info)
-        {'blocks': {'...uuid...': {...}}, 'blocks_layout': {'items': ['...uuid...']}}
+            >>> blocks = [{"@type": "slate", "value": []}]
+            >>> info = info_from_blocks(blocks)
+            >>> print(info)
+            {'blocks': {'...uuid...': {...}}, 'blocks_layout': {'items': ['...uuid...']}}
     """
     blocks = {str(uuid4()): block for block in raw_blocks}
     layout = list(blocks.keys())

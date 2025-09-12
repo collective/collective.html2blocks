@@ -1,14 +1,15 @@
 """
-Slate block utilities for collective.html2blocks.
+Slate block utilities for ``collective.html2blocks``.
 
 This module provides functions for manipulating Slate block items, including
 wrapping, flattening, grouping, and normalizing block structures for Volto.
 
-Example usage::
+Example:
+    .. code-block:: python
 
-    from collective.html2blocks.utils import slate
-    block = slate.wrap_text('Hello world')
-    paragraph = slate.wrap_paragraph([block])
+        from collective.html2blocks.utils import slate
+        block = slate.wrap_text('Hello world')
+        paragraph = slate.wrap_paragraph([block])
 """
 
 from .inline import INLINE_ELEMENTS
@@ -26,7 +27,7 @@ def is_inline(value: t.SlateBlockItem | str) -> bool:
         value (SlateBlockItem | str): The value to check.
 
     Returns:
-        bool: True if inline, False otherwise.
+        bool: ``True`` if inline, ``False`` otherwise.
     """
     return isinstance(value, str) or value.get("type") in INLINE_ELEMENTS
 
@@ -41,10 +42,11 @@ def wrap_text(value: str) -> t.SlateBlockItem:
     Returns:
         SlateBlockItem: The wrapped text block.
 
-    Example::
+    Example:
+        .. code-block:: pycon
 
-        >>> wrap_text('Hello')
-        {'text': 'Hello'}
+            >>> wrap_text('Hello')
+            {'text': 'Hello'}
     """
     response: t.SlateBlockItem = {"text": value}
     return response
@@ -60,10 +62,11 @@ def wrap_paragraph(value: list[t.SlateBlockItem]) -> t.SlateBlockItem:
     Returns:
         SlateBlockItem: The paragraph block.
 
-    Example::
+    Example:
+        .. code-block:: pycon
 
-        >>> wrap_paragraph([{'text': 'Hello'}])
-        {'type': 'p', 'children': [{'text': 'Hello'}]}
+            >>> wrap_paragraph([{'text': 'Hello'}])
+            {'type': 'p', 'children': [{'text': 'Hello'}]}
     """
     return {
         "type": "p",
@@ -73,13 +76,13 @@ def wrap_paragraph(value: list[t.SlateBlockItem]) -> t.SlateBlockItem:
 
 def is_simple_text(data: t.SlateBlockItem) -> bool:
     """
-    Check if a SlateBlockItem is simple text (only has 'text' key).
+    Check if a SlateBlockItem is simple text (only has ``text`` key).
 
     Args:
         data (SlateBlockItem): The block to check.
 
     Returns:
-        bool: True if simple text, False otherwise.
+        bool: ``True`` if simple text, ``False`` otherwise.
     """
     keys = set(data.keys())
     return keys == {"text"}
@@ -158,13 +161,13 @@ def remove_empty_text(value: list[t.SlateBlockItem]) -> list[t.SlateBlockItem]:
 
 def _just_children(data: t.SlateBlockItem) -> bool:
     """
-    Check if a SlateBlockItem only has 'children'.
+    Check if a SlateBlockItem only has ``children``.
 
     Args:
         data (SlateBlockItem): The block to check.
 
     Returns:
-        bool: True if only 'children', False otherwise.
+        bool: ``True`` if only ``children``, ``False`` otherwise.
     """
     keys = set(data.keys())
     return keys == {"children"}
@@ -239,7 +242,7 @@ def has_internal_block(block_children: list[t.SlateBlockItem]) -> bool:
         block_children (list[SlateBlockItem]): The children to check.
 
     Returns:
-        bool: True if any child is inline, False otherwise.
+        bool: ``True`` if any child is inline, ``False`` otherwise.
     """
     status = False
     for child in block_children:
@@ -253,7 +256,7 @@ def normalize_block_nodes(block_children: list, tag_name: str = "span") -> list:
 
     Args:
         block_children (list): The block nodes to normalize.
-        tag_name (str, optional): The tag name to use. Defaults to 'span'.
+        tag_name (str, optional): The tag name to use. Defaults to ``span``.
 
     Returns:
         list: The normalized nodes.
@@ -274,7 +277,7 @@ def group_inline_nodes(block_children: list, tag_name: str = "span") -> list:
 
     Args:
         block_children (list): The nodes to group.
-        tag_name (str, optional): The tag name to use. Defaults to 'span'.
+        tag_name (str, optional): The tag name to use. Defaults to ``span``.
 
     Returns:
         list: The grouped nodes.
@@ -334,7 +337,7 @@ def table(
     Args:
         rows (list[dict | str]): The table rows.
         css_classes (list[str]): CSS classes for styling.
-        hide_headers (bool, optional): Whether to hide headers. Defaults to False.
+        hide_headers (bool, optional): Whether to hide headers. Defaults to ``False``.
 
     Returns:
         dict: The table block.
@@ -378,7 +381,7 @@ def table_cell(cell_type: str, value: t.SlateBlockItem) -> t.SlateBlockItem:
     Construct a table cell block.
 
     Args:
-        cell_type (str): The cell type ('header' or 'data').
+        cell_type (str): The cell type (``header`` or ``data``).
         value (SlateBlockItem): The cell value.
 
     Returns:
@@ -399,7 +402,7 @@ def invalid_subblock(block: t.SlateBlockItem | t.VoltoBlock) -> bool:
         block (SlateBlockItem | VoltoBlock): The block to check.
 
     Returns:
-        bool: True if invalid, False otherwise.
+        bool: ``True`` if invalid, ``False`` otherwise.
     """
     type_ = block.get("@type", "")
     return bool(type_)
