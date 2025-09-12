@@ -1,7 +1,7 @@
 # collective.html2blocks
 
 Documentation for collective.html2blocks.
-Technical documentation for the collective.html2blocks package
+Technical documentation for the collective.html2blocks package.
 
 This project provides a Sphinx-based documentation environment for your Plone project, powered by the [Plone Sphinx Theme](https://github.com/plone/plone-sphinx-theme).
 It's generated using the `documentation_starter` template from [Cookieplone](https://github.com/plone/cookieplone).
