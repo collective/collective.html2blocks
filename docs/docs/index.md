@@ -64,6 +64,7 @@ reference/api
 :maxdepth: 2
 :hidden: true
 
+CHANGELOG
 glossary
 genindex
 ```
