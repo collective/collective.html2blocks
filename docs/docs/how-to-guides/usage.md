@@ -7,7 +7,7 @@ myst:
     "keywords": "Plone, collective.html2blocks, CLI, Docker, Python, Volto, blocks, converter, API, guide, usage"
 ---
 
-# Usage guide
+# Usage
 
 This guide provides step-by-step instructions for running the HTML to Volto blocks service, using the CLI, Docker, and Python integration.
 

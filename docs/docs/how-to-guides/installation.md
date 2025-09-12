@@ -7,7 +7,7 @@ myst:
         "keywords": "Plone, collective.html2blocks, installation, Python, dependency, pyproject.toml, setup.py, requirements.txt, guide"
 ---
 
-# Installation guide
+# Installation
 
 You can install `collective.html2blocks` in your project using several supported methods, depending on your project's setup and preferred workflow.
 
