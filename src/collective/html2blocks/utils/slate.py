@@ -128,17 +128,24 @@ def process_top_level_items(
     Returns:
         list[SlateBlockItem]: The processed items.
     """
+    items = []
     raw_value = raw_value or []
     # Remove empty or null items
-    raw_value = [item for item in raw_value if item]
-    value = []
-    groupped = _group_top_level(raw_value)
-    for group, should_wrap in groupped:
-        if should_wrap:
-            value.append(wrap_paragraph(group))
+    values = []
+    for item in raw_value:
+        if isinstance(item, list):
+            values.extend(item)
+        elif item:
+            values.append(item)
         else:
-            value.extend(group)
-    return value
+            # ignore empty items
+            continue
+    for group, should_wrap in _group_top_level(values):
+        if should_wrap:
+            items.append(wrap_paragraph(group))
+        else:
+            items.extend(group)
+    return items
 
 
 def remove_empty_text(value: list[t.SlateBlockItem]) -> list[t.SlateBlockItem]:

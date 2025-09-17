@@ -172,7 +172,6 @@ preview = true
 [tool.mypy]
 ignore_missing_imports = true
 
-
 [tool.zest-releaser]
 upload-pypi = false # Build and upload with uv
 python-file-with-version = "src/collective/html2blocks/__init__.py"

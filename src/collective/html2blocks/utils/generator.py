@@ -51,7 +51,7 @@ def item_generator(
                 return 'done'
 
             result = list(item_generator(my_gen(), filter_none=True))
-    """
+    """  # noqa: E501
     try:
         while True:
             item = next(gen)
