@@ -306,7 +306,7 @@ def parse_source(
         .. code-block:: python
 
             soup = parse_source("<p>Hello <b>world</b></p>")
-    """
+    """  # noqa: E501
     # Remove linebreaks from the end of the source
     source = source.strip()
     soup = BeautifulSoup(source, features="html.parser")

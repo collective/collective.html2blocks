@@ -60,7 +60,7 @@ def info_from_blocks(raw_blocks: list[t.VoltoBlock]) -> t.VoltoBlocksInfo:
             >>> info = info_from_blocks(blocks)
             >>> print(info)
             {'blocks': {'...uuid...': {...}}, 'blocks_layout': {'items': ['...uuid...']}}
-    """
+    """  # noqa: E501
     blocks = {str(uuid4()): block for block in raw_blocks}
     layout = list(blocks.keys())
     return {"blocks": blocks, "blocks_layout": {"items": layout}}

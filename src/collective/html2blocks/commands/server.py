@@ -42,7 +42,7 @@ def serve(host: str = "127.0.0.1", port: int = 8000, reload: bool = False):
         .. code-block:: console
 
             Starting HTML to Blocks service at http://0.0.0.0:8080
-    """
+    """  # noqa: E501
     with console_logging(logger) as log:
         log.info(f"Starting HTML to Blocks service at http://{host}:{port}")
         uvicorn.run(
