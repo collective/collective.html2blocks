@@ -71,3 +71,39 @@ def test_table_cell(cell_type: str, value: list):
     assert result["type"] == cell_type
     assert "value" in result
     assert isinstance(result["value"], list)
+
+
+@pytest.mark.parametrize(
+    "raw_value,expected",
+    [
+        [
+            [{"text": "Hello world!"}, {"text": ""}],
+            [{"children": [{"text": "Hello world!"}, {"text": ""}], "type": "p"}],
+        ],
+        [
+            [
+                {"children": [{"text": "Hello world!"}], "type": "p"},
+                {"text": "Olá"},
+                {"text": "Mundo"},
+            ],
+            [
+                {"children": [{"text": "Hello world!"}], "type": "p"},
+                {"children": [{"text": "Olá"}, {"text": "Mundo"}], "type": "p"},
+            ],
+        ],
+        [
+            [{"text": ""}, [{"text": "Olá"}, {"text": "Mundo"}]],
+            [
+                {
+                    "children": [{"text": ""}, {"text": "Olá"}, {"text": "Mundo"}],
+                    "type": "p",
+                }
+            ],
+        ],
+    ],
+)
+def test_process_top_level_items(raw_value: list, expected: list):
+    func = slate.process_top_level_items
+    result = func(raw_value)
+    assert isinstance(result, list)
+    assert result == expected
