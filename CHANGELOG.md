@@ -9,6 +9,24 @@
 
 <!-- towncrier release notes start -->
 
+## 1.0.0a3 (2025-10-04)
+
+
+### Bugfix
+
+- Ensure correct type for each item handled in collective.html2blocks.utils.slate.process_top_level_items. @ericof [#18](https://github.com/collective/collective.html2blocks/issues/18)
+
+
+### Internal
+
+- Do not package the build documentation with the source package. @ericof 
+- Update vscode settings. @ericof 
+
+
+### Documentation
+
+- Documentation: Ignore CHANGELOG.md during vale checks. @ericof 
+
 ## 1.0.0a2 (2025-09-12)
 
 
