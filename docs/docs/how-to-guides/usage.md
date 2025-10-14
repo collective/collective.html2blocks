@@ -37,7 +37,7 @@ docker run -p 8090:8000 ghcr.io/collective/html2blocks:1.0.0a1
 If you have installed `collective.html2blocks` in your project or local Python virtual environment, you can start the HTTP server directly. This is useful for local development, integration, or running the service as part of a larger application. Run:
 
 ```shell
-uv run html2blocks --port 8090
+uv run html2blocks server --port 8090
 ```
 
 ```{note}
@@ -49,7 +49,7 @@ You can also run the latest published version of the server without installing t
 Use the following command.
 
 ```shell
-uvx html2blocks --from collective.html2blocks serve --port 8090
+uvx --from collective.html2blocks html2blocks server --port 8090
 ```
 
 ```{note}
