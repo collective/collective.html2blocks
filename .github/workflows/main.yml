@@ -55,7 +55,7 @@ jobs:
       plone-version:  ${{ needs.config.outputs.plone-version }}
 
   image:
-    name: "Create container image"
+    name: "Image ${{ needs.config.outputs.image-name }}:${{ needs.config.outputs.base-tag }}"
     uses: ./.github/workflows/image.yml
     needs:
       - config
