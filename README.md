@@ -9,7 +9,7 @@
 [![PyPI - Status](https://img.shields.io/pypi/status/collective.html2blocks)](https://pypi.org/project/collective.html2blocks/)
 
 
-[![CI](https://github.com/collective/collective.html2blocks/actions/workflows/ci.yml/badge.svg)](https://github.com/collective/collective.html2blocks/actions/workflows/ci.yml)
+[![CI](https://github.com/collective/collective.html2blocks/actions/workflows/main.yml/badge.svg)](https://github.com/collective/collective.html2blocks/actions/workflows/main.yml)
 
 [![GitHub contributors](https://img.shields.io/github/contributors/collective/collective.html2blocks)](https://github.com/collective/collective.html2blocks)
 [![GitHub Repo stars](https://img.shields.io/github/stars/collective/collective.html2blocks?style=social)](https://github.com/collective/collective.html2blocks)
