@@ -103,7 +103,10 @@ def finalize_slate(block: t.VoltoBlock) -> t.SlateItemGenerator:
     """
     value = []
     plaintext = block.get("plaintext", "")
-    block["plaintext"] = plaintext.strip()
+    # Normalize plaintext for search/preview: collapse runs of whitespace
+    # (including NBSP) into a single space and strip. Slate node text is
+    # left untouched — NBSP can be intentional in body text.
+    block["plaintext"] = " ".join(plaintext.split())
     for raw_item in block.get("value", []):
         if not raw_item:
             continue
