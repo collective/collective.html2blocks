@@ -93,28 +93,66 @@ def _normalize_html(soup: BeautifulSoup, block_level_tags: Iterable[str] = ()):
     Returns:
         BeautifulSoup: The normalized soup.
     """
-    _recursively_simplify(soup)
-    _remove_empty_tags(soup)
-    _wrap_all_paragraphs(soup, block_level_tags)
-    return soup
+    new_soup = BeautifulSoup("", features="html.parser")
+    all_contents = list(soup.contents)
+    for child in all_contents:
+        if isinstance(child, Tag):
+            child = _recursively_simplify(child)
+        new_soup.append(child)
+    _remove_empty_tags(new_soup)
+    _wrap_all_paragraphs(new_soup, block_level_tags)
+    return new_soup
 
 
-def _recursively_simplify(tag: Tag):
+def _recursively_simplify(element: PageElement) -> PageElement:
     """
     Recursively simplify nested tags with identical names and attributes.
 
-    Args:
-        tag (Tag): The tag to simplify.
-    """
-    for child in list(tag.children):
-        if isinstance(child, Tag):
-            _recursively_simplify(child)
+    This function collapses redundant nested tags that have the same name and
+    attributes. For example, multiple nested ``<div align='center'>`` tags
+    become a single ``<div align='center'>``.
 
-    if len(tag.contents) == 1 and isinstance(tag.contents[0], Tag):
-        child = tag.contents[0]
-        if tag.name == child.name and tag.attrs == child.attrs:
-            tag.replace_with(child)
-            _recursively_simplify(child)
+    Args:
+        element (PageElement): The element to simplify.
+
+    Returns:
+        PageElement: The simplified element.
+
+    Example:
+        .. code-block:: python
+
+            from bs4 import BeautifulSoup
+            html = "<div><div><p>Text</p></div></div>"
+            soup = BeautifulSoup(html, "html.parser")
+            result = _recursively_simplify(soup.div)
+            # result: <div><p>Text</p></div>
+    """
+    if not isinstance(element, Tag):
+        return element
+
+    # First, recursively simplify all children
+    all_children = [child.extract() for child in list(element.children)]
+    for child in all_children:
+        if isinstance(child, Tag):
+            child = _recursively_simplify(child)
+        element.append(child)
+
+    # Keep collapsing identical nested tags until no more can be collapsed
+    while (
+        isinstance(element, Tag)
+        and len(element.contents) == 1
+        and isinstance(element.contents[0], Tag)
+    ):
+        child = element.contents[0]
+        if element.name == child.name and element.attrs == child.attrs:
+            # The child has the same name and attributes, so we can collapse
+            # We return the child instead of the parent
+            child.extract()  # Remove child from element
+            element = child
+        else:
+            break
+
+    return element
 
 
 def is_empty(tag: Tag | NavigableString) -> bool:

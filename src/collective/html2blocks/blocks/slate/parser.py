@@ -363,6 +363,8 @@ _BLOCK_ELEMENTS_ = [
 def _block_(element: t.Tag, tag_name: str) -> t.SlateItemGenerator:
     gen = _handle_block_(element, tag_name)
     item = yield from item_generator(gen)
+    if item and item.get("type") == "p":
+        return slate.flatten_p_children(item)
     return item
 
 
