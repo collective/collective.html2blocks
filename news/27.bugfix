@@ -1,1 +1,0 @@
-Fixed conversion of images wrapped in an inline element (e.g. `<b>`, `<strong>`) inside a paragraph — the images are now correctly emitted as Volto image blocks instead of being silently dropped along with the surrounding wrapper. @ericof

@@ -1,1 +1,0 @@
-Normalized whitespace in the Slate `plaintext` attribute — non-breaking spaces and runs of consecutive whitespace are now collapsed into a single space, so search and preview behave consistently. The Slate `value` (node text) is left untouched. @ericof

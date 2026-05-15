@@ -9,6 +9,21 @@
 
 <!-- towncrier release notes start -->
 
+## 1.0.0a4 (2026-05-15)
+
+
+### Feature
+
+- Also publish container images for arm64. @ericof [#20](https://github.com/collective/collective.html2blocks/issues/20)
+
+
+### Bugfix
+
+- Better handling of tables. @ericof [#22](https://github.com/collective/collective.html2blocks/issues/22)
+- Fixed conversion of paragraphs starting with an inline element wrapping only whitespace (e.g. `<b>&nbsp;</b>`) — the rest of the paragraph text was being silently dropped from the Slate value while `plaintext` stayed correct. @ericof [#25](https://github.com/collective/collective.html2blocks/issues/25)
+- Normalized whitespace in the Slate `plaintext` attribute — non-breaking spaces and runs of consecutive whitespace are now collapsed into a single space, so search and preview behave consistently. The Slate `value` (node text) is left untouched. @ericof [#26](https://github.com/collective/collective.html2blocks/issues/26)
+- Fixed conversion of images wrapped in an inline element (e.g. `<b>`, `<strong>`) inside a paragraph — the images are now correctly emitted as Volto image blocks instead of being silently dropped along with the surrounding wrapper. @ericof [#27](https://github.com/collective/collective.html2blocks/issues/27)
+
 ## 1.0.0a3 (2025-10-04)
 
 

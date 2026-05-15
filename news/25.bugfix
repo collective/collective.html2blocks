@@ -1,1 +1,0 @@
-Fixed conversion of paragraphs starting with an inline element wrapping only whitespace (e.g. `<b>&nbsp;</b>`) — the rest of the paragraph text was being silently dropped from the Slate value while `plaintext` stayed correct. @ericof
