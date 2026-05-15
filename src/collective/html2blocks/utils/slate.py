@@ -394,6 +394,25 @@ def table_cell(cell_type: str, value: t.SlateBlockItem) -> t.SlateBlockItem:
     Returns:
         SlateBlockItem: The table cell block.
     """
+    # if isinstance(value, list):
+    #     if len(value) == 1:
+    #         child = value[0]
+    #         if isinstance(child, str):
+    #             child = wrap_text(child)
+    #             value = [wrap_paragraph([child])]
+    #     new_value = []
+    #     for child in value:
+    #         if is_simple_text(child):
+    #             if child.get("text", "").strip() == "":
+    #                 continue
+    #             child = wrap_paragraph([child])
+    #         elif child.get("type") is None and child.get("children") is not None:
+    #             new_value.extend(child.get("children", []))
+    #             continue
+    #         new_value.append(child)
+    #     value = new_value
+    # if value == []:
+    #     value = [wrap_paragraph([wrap_text(" ")])]
     return {
         "key": _get_id(),
         "type": cell_type,
@@ -413,3 +432,23 @@ def invalid_subblock(block: t.SlateBlockItem | t.VoltoBlock) -> bool:
     """
     type_ = block.get("@type", "")
     return bool(type_)
+
+
+def flatten_p_children(
+    block: t.SlateBlockItem,
+) -> t.SlateBlockItem | list[t.SlateBlockItem]:
+    """
+    Flatten the children of a paragraph block.
+
+    Args:
+        block (SlateBlockItem): The slate paragraph item to check;
+
+    Returns:
+        SlateBlockItem | list[SlateBlockItem]: Either the original block or
+            its children.
+    """
+    children = block.get("children", [])
+    has_invalid = any(
+        isinstance(child, dict) and child.get("type", "") == "p" for child in children
+    )
+    return children if has_invalid else block

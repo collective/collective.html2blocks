@@ -423,3 +423,85 @@ params:
         expected: 'ul'
       - path: "len:0/value/0/children/2/children"
         expected: 3
+
+  - name: 'Issue-22: Complex table with images and links'
+    src: |
+      <p>Lorem Ipsum dolor sit amet <a href="">consetetur</a></p>
+      <table class="light basic listing center stripes">
+      <tbody>
+      <tr>
+      <td><img class="image-inline" src="" /></td>
+      <td>
+      <p style="text-align: center; "><span><b>Lorem </b><strong>Ipsum</strong><b><br /></b></span></p>
+      <p style="text-align: center; "><span>Lorem Ipsum<b><br /></b></span></p>
+      </td>
+      <td>
+      <p><span>Lorem </span><span>Ipsum<br />dolor </span><span>sit<br />amet<br /></span><a>consetetur</a></p>
+      </td>
+      </tr>
+      <tr>
+      <td>
+      <div align="center">
+      <div align="center">
+      <div align="center">
+      <div align="center">
+      <div align="center"><img class="image-inline" src="" /></div>
+      </div>
+      </div>
+      </div>
+      </div>
+      </td>
+      <td>
+      <p style="text-align: center; "><span><b>Lorem Ipsum</b></span><span></span></p>
+      <p style="text-align: center; "><span>Lorem Ipsum </span></p>
+      <p>\u00a0</p>
+      </td>
+      <td>
+      <p><span>Lorem<br />Ipsum </span><span>dolor<br /></span><span>sit<br /></span><span><a class="email-link" href="" target="_self" title=""><span class="internal-link">amet</span></a></span><span></span></p>
+      </td>
+      </tr>
+      <tr>
+      <td style="text-align: center; "><img class="image-inline" src="" /></td>
+      <td>
+      <p style="text-align: center; "><b>Lorem Ipsum</b></p>
+      <p style="text-align: center; ">Lorem Ipsum</p>
+      </td>
+      <td>
+      <p><span>Lorem<br />Ipsum<br />dolor<br /><a class="email-link" href="" target="_self" title=""><span>sit amet</span></a></span></p>
+      </td>
+      </tr>
+      <tr>
+      <td><img class="image-inline" src="" /></td>
+      <td style="text-align: center; "><strong>Lorem Ipsum<br /></strong>
+      <p align="center"><span><br />Lorem </span><span>Ipsum<br /></span></p>
+      </td>
+      <td>
+      <p><span>Lorem <br />Ipsum </span>dolor<span></span><span><br />sit<br /></span><a class="email-link" href="" target="_self" title=""><span class="email-link">a</span>met</a></p>
+      </td>
+      </tr>
+      <tr>
+      <td>
+      <div align="center">
+      <div align="center">
+      <div align="center"></div>
+      </div>
+      </div>
+      <img class="image-inline" src="" /></td>
+      <td><span> </span>
+      <p style="text-align: center; "><b>Lorem Ipsum</b></p>
+      <p style="text-align: center; "><span><span><span>Lorem Ipsum</span><br /></span></span></p>
+      <span> </span></td>
+      <td>
+      <p>Lorem<br />Ipsum<br />dolor<br /><a class="mail-link" href="">sit amet</a></p>
+      </td>
+      </tr>
+      </tbody>
+      </table>
+
+    tests:
+      - path: "len:"
+        expected: 7
+      - path: "0/@type"
+        expected: 'slate'
+      - path: "1/@type"
+        expected: 'slateTable'

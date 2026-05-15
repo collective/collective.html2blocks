@@ -11,8 +11,8 @@ wheels/
 .coverage
 
 # Test files
-tmp.json
-tmp.html
+tmp*.json
+tmp*.html
 
 # Virtual environments
 .venv

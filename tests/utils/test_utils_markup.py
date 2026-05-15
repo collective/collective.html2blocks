@@ -80,3 +80,31 @@ def test__remove_empty_tags(soup_from_str, src: str, expected: str):
     tag = soup_from_str(src)
     func(tag)
     assert str(tag) == expected
+
+
+@pytest.mark.parametrize(
+    "src,expected",
+    [
+        [
+            "<p><b>Hello</b> World!</p>",
+            "<p><b>Hello</b> World!</p>",
+        ],
+        [
+            " World!",
+            " World!",
+        ],
+        [
+            """<td><div align='center'><div align='center'><div align='center'><div align='center'><img class='image-inline' src='' /></div></div></div></div></div></td>""",
+            """<td><div align="center"><img class="image-inline" src=""/></div></td>""",
+        ],
+        [
+            """<div align='center'><div align='center'><div align='center'><div align='center'><img class='image-inline' src='' /></div></div></div></div></div>""",
+            """<div align="center"><img class="image-inline" src=""/></div>""",
+        ],
+    ],
+)
+def test__recursively_simplify(soup_from_str, src: str, expected: str):
+    func = markup._recursively_simplify
+    tag = soup_from_str(src)
+    result = func(tag)
+    assert str(result) == expected
