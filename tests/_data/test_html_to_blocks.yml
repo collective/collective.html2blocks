@@ -505,3 +505,17 @@ params:
         expected: 'slate'
       - path: "1/@type"
         expected: 'slateTable'
+
+  - name: "Issue 27: Images wrapped in <b> inside <p>"
+    src: '<p><b><img class="image-inline" src="resolveuid/df143b6cbee14839a786736e4932ce17/@@images/image/preview" /> <img class="image-inline" src="resolveuid/e46200a18ea4408697c073419bc836af/@@images/image/preview" /></b></p>'
+    tests:
+      - path: "len:"
+        expected: 2
+      - path: "0/@type"
+        expected: 'image'
+      - path: "0/url"
+        expected: 'resolveuid/df143b6cbee14839a786736e4932ce17'
+      - path: "1/@type"
+        expected: 'image'
+      - path: "1/url"
+        expected: 'resolveuid/e46200a18ea4408697c073419bc836af'
