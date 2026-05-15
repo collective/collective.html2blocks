@@ -228,8 +228,7 @@ def group_text_blocks(block_children: list[t.SlateBlockItem]) -> list[t.SlateBlo
             # Preserve whitespaces
             if len(text):
                 cur_text = text_block.get("text", "")
-                if cur_text:
-                    text_block["text"] = f"{cur_text}{text}"
+                text_block["text"] = f"{cur_text}{text}"
         elif text_block and not is_text_block:
             blocks.append(text_block)
             text_block = None

@@ -103,7 +103,10 @@ def finalize_slate(block: t.VoltoBlock) -> t.SlateItemGenerator:
     """
     value = []
     plaintext = block.get("plaintext", "")
-    block["plaintext"] = plaintext.strip()
+    # Normalize plaintext for search/preview: collapse runs of whitespace
+    # (including NBSP) into a single space and strip. Slate node text is
+    # left untouched — NBSP can be intentional in body text.
+    block["plaintext"] = " ".join(plaintext.split())
     for raw_item in block.get("value", []):
         if not raw_item:
             continue
@@ -238,6 +241,17 @@ def _strong_(element: t.Tag, tag_name: str) -> t.SlateItemGenerator:
     """Deserialize b and strong tags."""
     gen = deserialize_children(element)
     children = yield from item_generator(gen)
+    # When block-converter children (e.g. <img>) get extracted as separate
+    # Volto blocks, the surviving children may be only whitespace. A bold
+    # wrapping pure whitespace has no semantic value — drop the wrapper so
+    # it doesn't survive as inline residue.
+    if all(
+        isinstance(c, dict)
+        and slate.is_simple_text(c)
+        and not c.get("text", "").strip()
+        for c in children
+    ):
+        return None
     return {"type": tag_name, "children": children}
 
 
@@ -467,7 +481,13 @@ def _deserialize(element: t.Tag) -> t.SlateItemsGenerator:
     Returns:
         Normalized Slate block item(s) or text.
     """
-    if markup.is_inline(element) and not element.text.strip():
+    if (
+        markup.is_inline(element)
+        and not element.text.strip()
+        and not any(
+            registry.get_block_converter(child) for child in element.find_all(True)
+        )
+    ):
         response = slate.wrap_text("")
     elif converter := registry.get_block_converter(element):
         # Hack: We 'believe' only slate would return a list of blocks
