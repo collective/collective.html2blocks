@@ -657,6 +657,76 @@ params:
       - path: "0/value/0/children/7/type"
         expected: 'li'
 
+  - name: Issue 29 - Unordered list with orphan text (no li)
+    src: '<ul type="disc">IBGE https://cidades.ibge.gov.br/brasil/mg/uberlandia/panorama</ul>'
+    tests:
+      - path: "0/@type"
+        expected: 'slate'
+      - path: "0/plaintext"
+        expected: 'IBGE https://cidades.ibge.gov.br/brasil/mg/uberlandia/panorama'
+      - path: "0/value/0/type"
+        expected: 'ul'
+      - path: "len:0/value/0/children"
+        expected: 1
+      - path: "0/value/0/children/0/type"
+        expected: 'li'
+      - path: "0/value/0/children/0/children/0/text"
+        expected: 'IBGE https://cidades.ibge.gov.br/brasil/mg/uberlandia/panorama'
+
+  - name: Issue 29 - Ordered list with orphan text (no li)
+    src: '<ol>Only text, no list items</ol>'
+    tests:
+      - path: "0/@type"
+        expected: 'slate'
+      - path: "0/plaintext"
+        expected: 'Only text, no list items'
+      - path: "0/value/0/type"
+        expected: 'ol'
+      - path: "len:0/value/0/children"
+        expected: 1
+      - path: "0/value/0/children/0/type"
+        expected: 'li'
+      - path: "0/value/0/children/0/children/0/text"
+        expected: 'Only text, no list items'
+
+  - name: Issue 29 - Unordered list mixing orphan text and a real li
+    src: '<ul>orphan text<li>real item</li></ul>'
+    tests:
+      - path: "0/@type"
+        expected: 'slate'
+      - path: "0/plaintext"
+        expected: 'orphan text real item'
+      - path: "0/value/0/type"
+        expected: 'ul'
+      - path: "len:0/value/0/children"
+        expected: 2
+      - path: "0/value/0/children/0/type"
+        expected: 'li'
+      - path: "0/value/0/children/0/children/0/text"
+        expected: 'orphan text'
+      - path: "0/value/0/children/1/type"
+        expected: 'li'
+      - path: "0/value/0/children/1/children/0/text"
+        expected: 'real item'
+
+  - name: Issue 29 - Unordered list with orphan text and inline link
+    src: '<ul>text <a href="http://example.com">link</a></ul>'
+    tests:
+      - path: "0/@type"
+        expected: 'slate'
+      - path: "0/value/0/type"
+        expected: 'ul'
+      - path: "len:0/value/0/children"
+        expected: 1
+      - path: "0/value/0/children/0/type"
+        expected: 'li'
+      - path: "0/value/0/children/0/children/0/text"
+        expected: 'text '
+      - path: "0/value/0/children/0/children/1/type"
+        expected: 'link'
+      - path: "0/value/0/children/0/children/1/children/0/text"
+        expected: 'link'
+
   - name: Processing a sub
     src: <sub>Hello world!</sub>
     tests:

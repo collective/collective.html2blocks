@@ -387,13 +387,31 @@ def _handle_list_(element: t.Tag, tag_name: str) -> t.SlateItemGenerator:
     item = yield from item_generator(gen)
     if not item:
         return
-    children = []
+    children: list[t.SlateBlockItem] = []
     allowed_children = ["li", tag_name]
-    # Remove not valid child
+    orphan_buffer: list[t.SlateBlockItem] = []
+
+    def _flush_orphan() -> None:
+        if orphan_buffer:
+            children.append({"type": "li", "children": list(orphan_buffer)})
+            orphan_buffer.clear()
+
     for child in item.get("children", []):
-        if not (isinstance(child, dict) and child.get("type", "") in allowed_children):
+        if isinstance(child, dict) and child.get("type", "") in allowed_children:
+            _flush_orphan()
+            children.append(child)
             continue
-        children.append(child)
+        # Orphan inline content inside <ul>/<ol>: wrap meaningful runs into a
+        # synthetic <li> so malformed-but-real-world markup survives. Pure
+        # whitespace text nodes (typical between sibling <li>s) are discarded.
+        if isinstance(child, dict) and slate.is_simple_text(child):
+            if child.get("text", "").strip():
+                orphan_buffer.append(child)
+            continue
+        if isinstance(child, dict):
+            orphan_buffer.append(child)
+    _flush_orphan()
+
     if not children:
         return None
     item["children"] = children
