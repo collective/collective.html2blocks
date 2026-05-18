@@ -1,1 +1,0 @@
-Fixed `<ul>` and `<ol>` elements that contain orphan text without `<li>` children: the content is now wrapped into a synthetic `<li>` so it survives conversion instead of being silently dropped. @ericof

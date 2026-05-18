@@ -9,6 +9,13 @@
 
 <!-- towncrier release notes start -->
 
+## 1.0.0a5 (2026-05-18)
+
+
+### Bugfix
+
+- Fixed `<ul>` and `<ol>` elements that contain orphan text without `<li>` children: the content is now wrapped into a synthetic `<li>` so it survives conversion instead of being silently dropped. @ericof [#29](https://github.com/collective/collective.html2blocks/issues/29)
+
 ## 1.0.0a4 (2026-05-15)
 
 
