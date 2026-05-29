@@ -339,18 +339,20 @@ def _span_(element: t.Tag, tag_name: str) -> t.SlateItemGenerator:
         children = yield from item_generator(gen)
         return {"children": children}
     text = element.text
-    if styles.get("font-weight", "") == "bold":
-        # Handle TinyMCE' bold formatting
-        return {"type": "strong", "children": [slate.wrap_text(text)]}
-    elif styles.get("font-style", "") == "italic":
-        # Handle TinyMCE' italic formatting
-        return {"type": "em", "children": [slate.wrap_text(text)]}
-    elif styles.get("vertical-align") == "sub":
-        # Handle Google Docs' <sub> formatting
-        return {"type": "sub", "children": [slate.wrap_text(text)]}
-    elif styles.get("vertical-align") == "sup":
-        # Handle Google Docs' <sup> formatting
-        return {"type": "sup", "children": [slate.wrap_text(text)]}
+    # Map legacy TinyMCE / Google Docs inline styling to slate inline types.
+    text_decoration = styles.get("text-decoration", "")
+    style_checks = (
+        (styles.get("font-weight", "") == "bold", "strong"),
+        (styles.get("font-style", "") == "italic", "em"),
+        ("underline" in text_decoration, "u"),
+        ("line-through" in text_decoration, "s"),
+        (styles.get("vertical-align") in ("sub", "sup"), styles.get("vertical-align")),
+    )
+    style_type = next(
+        (slate_type for matched, slate_type in style_checks if matched), None
+    )
+    if style_type:
+        return {"type": style_type, "children": [slate.wrap_text(text)]}
     elif children:
         gen = _handle_only_child(children[0], styles)
         item = yield from item_generator(gen)

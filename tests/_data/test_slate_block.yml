@@ -167,6 +167,50 @@ params:
       - path: "0/value/0/children/2/text"
         expected: ' more normal text'
 
+  - name: With old TinyMCE settings for underline
+    src: '<p>Normal Text <span style="text-decoration: underline;">Underlined Text</span> more normal text</p>'
+    tests:
+      - path: "0/@type"
+        expected: 'slate'
+      - path: "0/plaintext"
+        expected: 'Normal Text Underlined Text more normal text'
+      - path: "0/value/0/type"
+        expected: 'p'
+      - path: "0/value/0/children/0/text"
+        expected: 'Normal Text '
+      - path: "0/value/0/children/1/type"
+        expected: 'u'
+      - path: "0/value/0/children/1/children/0/text"
+        expected: 'Underlined Text'
+      - path: "0/value/0/children/2/text"
+        expected: ' more normal text'
+
+  - name: With underline declared via text-decoration shorthand
+    src: '<p><span style="text-decoration: underline dotted red;">Underlined Text</span></p>'
+    tests:
+      - path: "0/value/0/children/0/type"
+        expected: 'u'
+      - path: "0/value/0/children/0/children/0/text"
+        expected: 'Underlined Text'
+
+  - name: With strikethrough declared via text-decoration
+    src: '<p>Normal Text <span style="text-decoration: line-through;">Struck Text</span> more normal text</p>'
+    tests:
+      - path: "0/@type"
+        expected: 'slate'
+      - path: "0/plaintext"
+        expected: 'Normal Text Struck Text more normal text'
+      - path: "0/value/0/type"
+        expected: 'p'
+      - path: "0/value/0/children/0/text"
+        expected: 'Normal Text '
+      - path: "0/value/0/children/1/type"
+        expected: 's'
+      - path: "0/value/0/children/1/children/0/text"
+        expected: 'Struck Text'
+      - path: "0/value/0/children/2/text"
+        expected: ' more normal text'
+
   - name: With an empty bold element in the text
     src: <p>Hello world!<b></b></p>
     tests:
