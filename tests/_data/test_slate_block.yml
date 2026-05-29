@@ -905,6 +905,48 @@ params:
       - path: "0/value/0/children/0/text"
         expected: 'Olaa World!'
 
+  - name: Trailing text after consecutive inline elements stays in the paragraph
+    src: <p><strong>A</strong><strong>B</strong> tail</p>
+    tests:
+      - path: "0/@type"
+        expected: 'slate'
+      - path: "0/plaintext"
+        expected: 'AB tail'
+      - path: "len:0/value"
+        expected: 1
+      - path: "0/value/0/type"
+        expected: 'p'
+      - path: "len:0/value/0/children"
+        expected: 3
+      - path: "0/value/0/children/0/type"
+        expected: 'strong'
+      - path: "0/value/0/children/1/type"
+        expected: 'strong'
+      - path: "0/value/0/children/2/text"
+        expected: ' tail'
+
+  - name: Trailing text after a bold run with leading underlined span stays in the paragraph
+    src: '<p><b><span style="text-decoration: underline;">Em tempo</span></b><b>:</b> a próxima reunião.</p>'
+    tests:
+      - path: "0/@type"
+        expected: 'slate'
+      - path: "0/plaintext"
+        expected: 'Em tempo: a próxima reunião.'
+      - path: "len:0/value"
+        expected: 1
+      - path: "0/value/0/type"
+        expected: 'p'
+      - path: "len:0/value/0/children"
+        expected: 3
+      - path: "0/value/0/children/0/type"
+        expected: 'strong'
+      - path: "0/value/0/children/0/children/0/type"
+        expected: 'u'
+      - path: "0/value/0/children/1/type"
+        expected: 'strong'
+      - path: "0/value/0/children/2/text"
+        expected: ' a próxima reunião.'
+
   - name: Defer to other converter
     src: '<img src="https://plone.org/news/item" title="A Picture" alt="Picture of a person" class="lazy-load">'
     tests:

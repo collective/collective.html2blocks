@@ -291,7 +291,10 @@ def group_inline_nodes(block_children: list, tag_name: str = "span") -> list:
     nodes = []
     inline_nodes: t.SlateBlockItem | None = None
     for child in block_children:
-        if is_inline(child):
+        # Plain text nodes are inline content too: they must continue an
+        # inline run rather than break it, otherwise trailing text after a
+        # run of inline elements gets split out of its parent block.
+        if is_inline(child) or is_simple_text(child):
             if inline_nodes is None:
                 inline_nodes = {"type": tag_name, "children": [child]}
             else:
