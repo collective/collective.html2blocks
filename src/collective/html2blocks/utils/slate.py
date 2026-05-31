@@ -103,16 +103,16 @@ def _group_top_level(
     flags = [is_inline(item) or is_simple_text(item) for item in items]
     groups = []
     current_group = [items[0]]
-    last_flag = flags[0]
     for i in range(1, len(items)):
-        last_flag = flags[i - 1]
-        if flags[i] != last_flag:
-            groups.append((current_group, last_flag))
+        if flags[i] != flags[i - 1]:
+            groups.append((current_group, flags[i - 1]))
             current_group = [items[i]]
         else:
             current_group.append(items[i])
-
-    groups.append((current_group, last_flag))
+    # The final group ends at the last item, so it carries the last item's flag --
+    # not the loop's stale ``flags[i - 1]``, which would mis-wrap a trailing block
+    # node (e.g. a <p>) as if it were inline, producing an invalid <p> in <p>.
+    groups.append((current_group, flags[-1]))
     return groups
 
 
@@ -164,6 +164,46 @@ def remove_empty_text(value: list[t.SlateBlockItem]) -> list[t.SlateBlockItem]:
             continue
         new_value.append(item)
     return new_value
+
+
+def is_blank_paragraph(node: t.SlateBlockItem) -> bool:
+    """
+    Check if a node is a ``p`` whose text content is only whitespace.
+
+    :param node: The Slate node to check.
+    :returns: ``True`` for a ``p`` with no non-whitespace text, ``False`` otherwise.
+    """
+    if not isinstance(node, dict) or node.get("type") != "p":
+        return False
+    children = node.get("children", [])
+    return all(
+        is_simple_text(child) and not child.get("text", "").strip()
+        for child in children
+    )
+
+
+def collapse_blank_paragraphs(
+    value: list[t.SlateBlockItem],
+) -> list[t.SlateBlockItem]:
+    """
+    Collapse consecutive whitespace-only paragraphs into a single one.
+
+    Migration sources often carry long runs of empty ``<p>`` spacers (and inter-tag
+    newlines turned into paragraphs). A single blank paragraph is kept per run so the
+    visual gap is preserved without flooding the block with empty nodes.
+
+    :param value: The Slate value (list of nodes) to normalize.
+    :returns: The value with each run of blank paragraphs reduced to one.
+    """
+    result: list[t.SlateBlockItem] = []
+    prev_blank = False
+    for node in value:
+        blank = is_blank_paragraph(node)
+        if blank and prev_blank:
+            continue
+        result.append(node)
+        prev_blank = blank
+    return result
 
 
 def _just_children(data: t.SlateBlockItem) -> bool:

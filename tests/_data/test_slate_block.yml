@@ -947,6 +947,16 @@ params:
       - path: "0/value/0/children/2/text"
         expected: ' a próxima reunião.'
 
+  - name: Runs of empty paragraphs in a block collapse to a single paragraph
+    src: '<div class="home-page"><section><div class="carousel"><div class="inner"><div class="item"><ul class="logos"><li></li></ul></div></div></div></section></div>'
+    tests:
+      - path: "0/@type"
+        expected: 'slate'
+      - path: "len:0/value"
+        expected: 1
+      - path: "0/value/0/type"
+        expected: 'p'
+
   - name: Defer to other converter
     src: '<img src="https://plone.org/news/item" title="A Picture" alt="Picture of a person" class="lazy-load">'
     tests:

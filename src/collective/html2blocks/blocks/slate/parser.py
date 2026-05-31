@@ -114,7 +114,7 @@ def finalize_slate(block: t.VoltoBlock) -> t.SlateItemGenerator:
         item = yield from item_generator(gen)
         if item:
             value.append(item)
-    block["value"] = value
+    block["value"] = slate.collapse_blank_paragraphs(value)
     return block
 
 
@@ -287,7 +287,12 @@ def _div_(element: t.Tag, tag_name: str) -> t.SlateItemGenerator:
                 gen = deserialize(child)
                 child_block = yield from item_generator(gen)
                 block_children.append(child_block)
-        block["children"] = block_children
+        # Flatten before returning: drops empty (``None``) descendants, hoists the
+        # children of nested type-less <div> nodes, and -- because every nested
+        # _div_ flattens its own output -- keeps arbitrarily deep nesting clean.
+        # Without this, empty descendants leak as ``null`` and nested type-less
+        # nodes survive into the Slate value, which Volto cannot render.
+        block["children"] = slate.flatten_children(block_children)
     return block
 
 
