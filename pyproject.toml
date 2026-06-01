@@ -48,6 +48,7 @@ strict-naming = true
 
 [tool.hatch.build.targets.sdist]
 exclude = [
+  "/.claude",
   "/.github",
   "/docs/docs/_build", # Do not include built docs
 ]
