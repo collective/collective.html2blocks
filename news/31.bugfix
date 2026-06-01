@@ -1,0 +1,1 @@
+Kept text following a run of consecutive inline elements (e.g. two adjacent ``<b>`` tags) inside its parent paragraph, instead of splitting it out as a sibling block. @ericof
