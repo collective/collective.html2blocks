@@ -9,6 +9,15 @@
 
 <!-- towncrier release notes start -->
 
+## 1.0.0a6 (2026-06-01)
+
+
+### Bugfix
+
+- Kept text following a run of consecutive inline elements (e.g. two adjacent ``<b>`` tags) inside its parent paragraph, instead of splitting it out as a sibling block. @ericof [#31](https://github.com/collective/collective.html2blocks/issues/31)
+- Preserved underline and strikethrough styling declared on a ``<span>`` via the ``text-decoration`` CSS property, converting them to ``u`` and ``s`` slate elements instead of dropping the formatting. @ericof [#32](https://github.com/collective/collective.html2blocks/issues/32)
+- Fixed deeply-nested ``<div>`` structures producing non-renderable Slate blocks: dropped ``null`` entries and type-less nodes, stopped emitting ``<p>`` inside ``<p>``, and collapsed runs of empty paragraphs into a single one. @ericof [#33](https://github.com/collective/collective.html2blocks/issues/33)
+
 ## 1.0.0a5 (2026-05-18)
 
 

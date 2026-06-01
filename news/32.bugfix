@@ -1,1 +1,0 @@
-Preserved underline and strikethrough styling declared on a ``<span>`` via the ``text-decoration`` CSS property, converting them to ``u`` and ``s`` slate elements instead of dropping the formatting. @ericof

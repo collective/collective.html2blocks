@@ -1,1 +1,0 @@
-Fixed deeply-nested ``<div>`` structures producing non-renderable Slate blocks: dropped ``null`` entries and type-less nodes, stopped emitting ``<p>`` inside ``<p>``, and collapsed runs of empty paragraphs into a single one. @ericof
