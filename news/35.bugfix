@@ -1,1 +1,0 @@
-Kept tables, iframes and images nested in a wrapper element (``<section>``, ``<article>``, or a ``<div>`` with siblings) in document order, instead of placing them before the text around them. @ericof

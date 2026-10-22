@@ -9,6 +9,14 @@
 
 <!-- towncrier release notes start -->
 
+## 1.0.0a7 (2026-10-22)
+
+
+### Bugfix
+
+- Read the height of an iframe from its ``style`` attribute when it has no ``height`` attribute, instead of falling back to ``200px``. @ericof [#35](https://github.com/collective/collective.html2blocks/issues/35)
+- Kept tables, iframes and images nested in a wrapper element (``<section>``, ``<article>``, or a ``<div>`` with siblings) in document order, instead of placing them before the text around them. @ericof [#35](https://github.com/collective/collective.html2blocks/issues/35)
+
 ## 1.0.0a6 (2026-06-01)
 
 
