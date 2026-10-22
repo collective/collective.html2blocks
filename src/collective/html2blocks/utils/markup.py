@@ -24,6 +24,18 @@ from collective.html2blocks._types import Tag
 from urllib import parse
 
 
+CONTAINER_ELEMENTS = (
+    "article",
+    "aside",
+    "div",
+    "footer",
+    "header",
+    "main",
+    "nav",
+    "section",
+)
+
+
 def _group_inline_elements(soup: BeautifulSoup) -> BeautifulSoup:
     """
     Group inline elements into paragraphs in the soup.
@@ -79,6 +91,71 @@ def _filter_children(soup: BeautifulSoup) -> BeautifulSoup:
             new_soup.append(child)
         soup = _filter_children(new_soup)
     return soup
+
+
+def _unwrap_children(element: Tag, block_level_tags: list[str]) -> list[PageElement]:
+    """
+    Return the top-level elements of a container, unwrapping nested containers.
+
+    A container (see ``CONTAINER_ELEMENTS``) is replaced by its children when it
+    has a descendant with a block converter. Whitespace-only strings between
+    unwrapped children are dropped.
+
+    Args:
+        element (Tag): The container to unwrap.
+        block_level_tags (list[str]): Tags with a registered block converter.
+
+    Returns:
+        list[PageElement]: The elements that replace the container.
+    """
+    response: list[PageElement] = []
+    for child in list(element.children):
+        if isinstance(child, Comment) or (
+            isinstance(child, NavigableString) and not child.strip()
+        ):
+            continue
+        if (
+            isinstance(child, Tag)
+            and child.name in CONTAINER_ELEMENTS
+            and child.find(block_level_tags)
+        ):
+            response.extend(_unwrap_children(child, block_level_tags))
+        else:
+            response.append(child)
+    return response
+
+
+def _unwrap_containers(
+    soup: BeautifulSoup, block_level_tags: Iterable[str]
+) -> BeautifulSoup:
+    """
+    Unwrap top-level containers that hold elements converted to their own blocks.
+
+    A ``<table>``, ``<iframe>`` or ``<img>`` nested in a ``<section>`` or ``<div>``
+    becomes its own block. Converting the container as a whole would place
+    those blocks before the text around them, so the container is replaced by
+    its children, preserving the document order.
+
+    Args:
+        soup (BeautifulSoup): The soup to process.
+        block_level_tags (Iterable[str]): Tags with a registered block converter.
+
+    Returns:
+        BeautifulSoup: The soup with those containers unwrapped.
+    """
+    tags = list(block_level_tags)
+    if not tags:
+        return soup
+    children = list(soup.children)
+    if not any(
+        isinstance(child, Tag) and child.name in CONTAINER_ELEMENTS and child.find(tags)
+        for child in children
+    ):
+        return soup
+    new_soup = BeautifulSoup("", features="html.parser")
+    for child in _unwrap_children(soup, tags):
+        new_soup.append(child.extract())
+    return new_soup
 
 
 def _normalize_html(soup: BeautifulSoup, block_level_tags: Iterable[str] = ()):
@@ -352,6 +429,7 @@ def parse_source(
         soup = _normalize_html(soup, block_level_tags)
     if filter_:
         soup = _filter_children(soup)
+        soup = _unwrap_containers(soup, block_level_tags)
     if group:
         soup = _group_inline_elements(soup)
     return soup

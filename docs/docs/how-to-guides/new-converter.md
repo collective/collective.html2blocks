@@ -24,15 +24,15 @@ Here is a sample implementation for a `<code>` block converter:
 ```python
 @registry.block_converter("code")
 def code_block_converter(element: Tag) -> dict:
-  return {
-    "@type": "codeBlock",
-    "code": element.text,
-    "language": "python",
-    "lineNbr": 1,
-    "showLineNumbers": False,
-    "style": "dark",
-    "wrapLongLines": True,
-  }
+    return {
+        "@type": "codeBlock",
+        "code": element.text,
+        "language": "python",
+        "lineNbr": 1,
+        "showLineNumbers": False,
+        "style": "dark",
+        "wrapLongLines": True,
+    }
 ```
 
 This converter will transform a `<code>` HTML element into a Volto code block, preserving the code content and formatting options. You can customize the converter to support other languages or block options as needed. Once registered, the converter will be used automatically during HTML-to-block conversion.

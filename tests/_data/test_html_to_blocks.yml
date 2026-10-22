@@ -297,7 +297,7 @@ params:
       </div>
     tests:
       - path: "len:"
-        expected: 8
+        expected: 41
       - path: "0/@type"
         expected: "slate"
       - path: "1/@type"
@@ -308,11 +308,15 @@ params:
         expected: "video"
       - path: "4/@type"
         expected: "slate"
-      - path: "5/@type"
+      - path: "31/plaintext"
+        expected: "Vídeo Institucional"
+      - path: "32/@type"
         expected: "video"
-      - path: "6/@type"
+      - path: "36/plaintext"
+        expected: "Mary Roberta Meira Marinho"
+      - path: "37/@type"
         expected: "image"
-      - path: "7/@type"
+      - path: "38/@type"
         expected: "slate"
 
   - name: List of link items
@@ -517,3 +521,57 @@ params:
         expected: 'image'
       - path: "1/url"
         expected: 'resolveuid/e46200a18ea4408697c073419bc836af'
+
+  - name: "Issue 35: Table inside a section keeps document order"
+    src: '<section><p>First paragraph</p><table><tr><th>A</th></tr><tr><td>1</td></tr></table><p>Last paragraph</p></section>'
+    tests:
+      - path: "len:"
+        expected: 3
+      - path: "0/@type"
+        expected: 'slate'
+      - path: "0/plaintext"
+        expected: 'First paragraph'
+      - path: "1/@type"
+        expected: 'slateTable'
+      - path: "2/@type"
+        expected: 'slate'
+      - path: "2/plaintext"
+        expected: 'Last paragraph'
+
+  - name: "Issue 35: Table caption inside a nested div stays before the table"
+    src: '<p>Intro</p><div><div>Table caption</div><table><tr><th>A</th></tr><tr><td>1</td></tr></table></div><p>After</p>'
+    tests:
+      - path: "len:"
+        expected: 4
+      - path: "0/plaintext"
+        expected: 'Intro'
+      - path: "1/plaintext"
+        expected: 'Table caption'
+      - path: "2/@type"
+        expected: 'slateTable'
+      - path: "3/plaintext"
+        expected: 'After'
+
+  - name: "Issue 35: iframe inside a div with siblings keeps document order"
+    src: '<div><p>Before</p><iframe src="https://example.org/embed"></iframe><p>After</p></div><p>Tail</p>'
+    tests:
+      - path: "len:"
+        expected: 4
+      - path: "0/plaintext"
+        expected: 'Before'
+      - path: "1/@type"
+        expected: 'iframe'
+      - path: "2/plaintext"
+        expected: 'After'
+      - path: "3/plaintext"
+        expected: 'Tail'
+
+  - name: "Issue 35: Container without block elements is not unwrapped"
+    src: '<section><p>One</p><p>Two</p></section><p>Three</p>'
+    tests:
+      - path: "len:"
+        expected: 2
+      - path: "0/plaintext"
+        expected: 'OneTwo'
+      - path: "1/plaintext"
+        expected: 'Three'
