@@ -95,14 +95,33 @@ print(result)
 Will result in the following.
 
 ```python
-{'blocks': {'835acd72-2184-443f-899b-202ffb1984f9': {'@type': 'slate', 'plaintext': 'Title', 'value': [{'type': 'h1', 'children': [{'text': 'Title'}]}]}, 'b91949ab-b85d-4615-9327-3e7a1084fc51': {'@type': 'slate', 'plaintext': 'Paragraph', 'value': [{'type': 'p', 'children': [{'text': 'Paragraph'}]}]}}, 'blocks_layout': {'items': ['835acd72-2184-443f-899b-202ffb1984f9', 'b91949ab-b85d-4615-9327-3e7a1084fc51']}}
+{
+    "blocks": {
+        "835acd72-2184-443f-899b-202ffb1984f9": {
+            "@type": "slate",
+            "plaintext": "Title",
+            "value": [{"type": "h1", "children": [{"text": "Title"}]}],
+        },
+        "b91949ab-b85d-4615-9327-3e7a1084fc51": {
+            "@type": "slate",
+            "plaintext": "Paragraph",
+            "value": [{"type": "p", "children": [{"text": "Paragraph"}]}],
+        },
+    },
+    "blocks_layout": {
+        "items": [
+            "835acd72-2184-443f-899b-202ffb1984f9",
+            "b91949ab-b85d-4615-9327-3e7a1084fc51",
+        ]
+    },
+}
 ```
 
 To prepend a `title` block to the result, pass it as the `default_blocks` argument.
 
 ```python
 html = "<h1>Title</h1><p>Paragraph</p>"
-default_blocks = [{"@type": "title" }]
+default_blocks = [{"@type": "title"}]
 result = converter.volto_blocks(html, default_blocks=default_blocks)
 print(result)
 ```
@@ -110,7 +129,28 @@ print(result)
 The foregoing code will prepend the title block to the list.
 
 ```python
-{'blocks': {'99c40d97-56e0-488c-a34e-90190ed939c2': {'@type': 'title'}, '835acd72-2184-443f-899b-202ffb1984f9': {'@type': 'slate', 'plaintext': 'Title', 'value': [{'type': 'h1', 'children': [{'text': 'Title'}]}]}, 'b91949ab-b85d-4615-9327-3e7a1084fc51': {'@type': 'slate', 'plaintext': 'Paragraph', 'value': [{'type': 'p', 'children': [{'text': 'Paragraph'}]}]}}, 'blocks_layout': {'items': ['99c40d97-56e0-488c-a34e-90190ed939c2', '835acd72-2184-443f-899b-202ffb1984f9', 'b91949ab-b85d-4615-9327-3e7a1084fc51']}}
+{
+    "blocks": {
+        "99c40d97-56e0-488c-a34e-90190ed939c2": {"@type": "title"},
+        "835acd72-2184-443f-899b-202ffb1984f9": {
+            "@type": "slate",
+            "plaintext": "Title",
+            "value": [{"type": "h1", "children": [{"text": "Title"}]}],
+        },
+        "b91949ab-b85d-4615-9327-3e7a1084fc51": {
+            "@type": "slate",
+            "plaintext": "Paragraph",
+            "value": [{"type": "p", "children": [{"text": "Paragraph"}]}],
+        },
+    },
+    "blocks_layout": {
+        "items": [
+            "99c40d97-56e0-488c-a34e-90190ed939c2",
+            "835acd72-2184-443f-899b-202ffb1984f9",
+            "b91949ab-b85d-4615-9327-3e7a1084fc51",
+        ]
+    },
+}
 ```
 
 To append blocks to the result, use the `additional_blocks` parameter.
@@ -126,5 +166,28 @@ print(result)
 The foregoing code will result in the following.
 
 ```python
-{'blocks': {'99c40d97-56e0-488c-a34e-90190ed939c2': {'@type': 'title'}, '835acd72-2184-443f-899b-202ffb1984f9': {'@type': 'slate', 'plaintext': 'Title', 'value': [{'type': 'h1', 'children': [{'text': 'Title'}]}]}, 'b91949ab-b85d-4615-9327-3e7a1084fc51': {'@type': 'slate', 'plaintext': 'Paragraph', 'value': [{'type': 'p', 'children': [{'text': 'Paragraph'}]}]}, 'd34b4273-d288-46c3-bd19-f3e7caea3c93': {'@type': 'title'}}, 'blocks_layout': {'items': ['99c40d97-56e0-488c-a34e-90190ed939c2', '835acd72-2184-443f-899b-202ffb1984f9', 'b91949ab-b85d-4615-9327-3e7a1084fc51', 'd34b4273-d288-46c3-bd19-f3e7caea3c93']}}
+{
+    "blocks": {
+        "99c40d97-56e0-488c-a34e-90190ed939c2": {"@type": "title"},
+        "835acd72-2184-443f-899b-202ffb1984f9": {
+            "@type": "slate",
+            "plaintext": "Title",
+            "value": [{"type": "h1", "children": [{"text": "Title"}]}],
+        },
+        "b91949ab-b85d-4615-9327-3e7a1084fc51": {
+            "@type": "slate",
+            "plaintext": "Paragraph",
+            "value": [{"type": "p", "children": [{"text": "Paragraph"}]}],
+        },
+        "d34b4273-d288-46c3-bd19-f3e7caea3c93": {"@type": "title"},
+    },
+    "blocks_layout": {
+        "items": [
+            "99c40d97-56e0-488c-a34e-90190ed939c2",
+            "835acd72-2184-443f-899b-202ffb1984f9",
+            "b91949ab-b85d-4615-9327-3e7a1084fc51",
+            "d34b4273-d288-46c3-bd19-f3e7caea3c93",
+        ]
+    },
+}
 ```

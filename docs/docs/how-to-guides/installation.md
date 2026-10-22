@@ -33,9 +33,12 @@ You can install `collective.html2blocks` in your project using several supported
     Add `collective.html2blocks` to the `install_requires` list in your {file}`setup.py` file. This is common for legacy or projects based on {term}`setuptools`.
     
     ```python
-    install_requires=[
-        "collective.html2blocks"
-    ],
+    setup(
+        # ...
+        install_requires=[
+            "collective.html2blocks",
+        ],
+    )
     ```
 
 
