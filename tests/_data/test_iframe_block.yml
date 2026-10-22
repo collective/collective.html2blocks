@@ -85,3 +85,17 @@ params:
         expected: https://anchor.fm/oassuntoe/embed/episodes/O-Assunto----Agrotxicos-enm3en
       - path: "0/height"
         expected: '270'
+
+  - name: "Issue 35: iframe height from style"
+    src: '<iframe src="https://example.org/embed" style="width: 100%; height: 800px"></iframe>'
+    tests:
+      - path: "0/@type"
+        expected: 'iframe'
+      - path: "0/height"
+        expected: '800px'
+
+  - name: iframe without height
+    src: '<iframe src="https://example.org/embed"></iframe>'
+    tests:
+      - path: "0/height"
+        expected: '200px'

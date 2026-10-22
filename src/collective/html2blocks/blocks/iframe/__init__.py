@@ -3,6 +3,7 @@ from .youtube import youtube_block
 from collections.abc import Generator
 from collective.html2blocks import _types as t
 from collective.html2blocks import registry
+from collective.html2blocks.utils.markup import styles
 from collective.html2blocks.utils.markup import url_from_iframe
 
 
@@ -19,7 +20,7 @@ def iframe_default_block(
     element: t.Tag, src: str, provider_id: str
 ) -> Generator[t.VoltoBlock, None, None]:
     """Implemented by @kitconcept/volto-iframe-block."""
-    height = element.get("height", "200px")
+    height = element.get("height") or styles(element).get("height") or "200px"
     yield {"@type": "iframe", "src": src, "width": "full", "height": height}
 
 
