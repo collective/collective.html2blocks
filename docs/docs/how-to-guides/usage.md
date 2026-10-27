@@ -14,7 +14,8 @@ This guide provides step-by-step instructions for running the HTML to Volto bloc
 
 ## HTTP server
 
-`collective.html2blocks` provides a simple HTTP server that can be used to convert HTML to Volto blocks.
+`collective.html2blocks` provides a simple HTTP server that can be used to convert HTML or Markdown to Volto blocks.
+The `/html` and `/markdown` endpoints take a JSON body with the content, and `/volto` returns the full blocks layout. `/volto` reads the `html` field as HTML by default; set `"format": "markdown"` to read it as Markdown.
 
 
 ### Container image
@@ -80,10 +81,28 @@ result = converter.html_to_blocks(html)
 ```
 
 
+### `converter.markdown_to_blocks`
+
+Converts Markdown to a list of Volto blocks. The Markdown is rendered to HTML with [markdown-it-py](https://github.com/executablebooks/markdown-it-py), following CommonMark with tables and strikethrough enabled, and the HTML then goes through the same conversion as `html_to_blocks`.
+
+```python
+markdown = "# Title\n\nParagraph"
+
+result = converter.markdown_to_blocks(markdown)
+```
+
+
 ### `converter.volto_blocks`
 
 Converts HTML to a dictionary containing both `blocks` and `blocks_layout` keys, suitable for direct use in Volto.
 This function also supports prepending or appending blocks to the result for advanced layout control.
+To convert Markdown instead of HTML, pass `source_format="markdown"`; the default is `"html"`.
+
+```python
+markdown = "# Title\n\nParagraph"
+
+result = converter.volto_blocks(markdown, source_format="markdown")
+```
 
 ```python
 html = "<h1>Title</h1><p>Paragraph</p>"

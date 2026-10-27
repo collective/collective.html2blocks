@@ -40,7 +40,7 @@ Usage: html2blocks [OPTIONS] COMMAND [ARGS]...
 │ --help                        Show this message and exit.                                                           │
 ╰─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
 ╭─ Commands ──────────────────────────────────────────────────────────────────────────────────────────────────────────╮
-│ convert   Convert a HTML file to Volto blocks JSON.                                                                 │
+│ convert   Convert an HTML or Markdown file to Volto blocks JSON.                                                    │
 │ info      Show information about the collective.html2blocks tool and its registrations.                             │
 │ server    Run the HTML to Blocks API service.                                                                       │
 ╰─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
@@ -110,7 +110,7 @@ Of course, if in your project you did register additional converters, they shoul
 
 ## `convert`
 
-This command reads the HTML file at `SRC`, converts its contents to a JSON representing Volto block information (containing the `{term}`blocks` and `{term}`blocks_layout` keys) using the package's {term}`Converter`, and writes the result as JSON to `DST`.
+This command reads the HTML or Markdown file at `SRC`, converts its contents to a JSON representing Volto block information (containing the `{term}`blocks` and `{term}`blocks_layout` keys) using the package's {term}`Converter`, and writes the result as JSON to `DST`.
 
 Example usage, having a file named {file}`input.html`:
 
@@ -122,6 +122,18 @@ you can run this command with:
 
 ```shell
 uv run html2blocks convert input.html output.json
+```
+
+Files with a `.md` or `.markdown` suffix are read as Markdown. For example, a file named {file}`input.md` containing `Hello **World!**` is converted with:
+
+```shell
+uv run html2blocks convert input.md output.json
+```
+
+Use the `--format` option (`html` or `markdown`) to override the format detected from the suffix, for instance to read a Markdown file that has a different suffix:
+
+```shell
+uv run html2blocks convert --format markdown notes.txt output.json
 ```
 
 This will create a new file named {file}`output.json` with the following contents:

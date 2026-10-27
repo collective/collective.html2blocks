@@ -1,0 +1,1 @@
+Added support for Markdown as an input format: ``markdown_to_blocks()`` and ``source_format="markdown"`` in the Python API, ``.md``/``.markdown`` files and ``--format`` in the ``convert`` command, and a ``POST /markdown`` endpoint with a ``format`` field on ``POST /volto``. @ericof [#37](https://github.com/collective/collective.html2blocks/issues/37)
