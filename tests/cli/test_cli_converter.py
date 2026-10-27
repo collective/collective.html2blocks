@@ -88,3 +88,27 @@ def test_cli_converter(html_dir, src: str, dst: str, exit_code: int, msg: str):
     result = runner.invoke(app, payload)
     assert result.exit_code == exit_code
     assert msg in result.stdout
+
+
+def test_cli_converter_missing_source_exits_cleanly(html_dir):
+    """
+    A missing source file stops the command at the path check.
+
+    The error is reported and the command exits with code 1 without reaching
+    the read step, so no FileNotFoundError traceback is raised and no output
+    file is written.
+
+    :param html_dir: Directory with the sample HTML files, as a Path.
+    """
+    dst = html_dir / "missing.json"
+    payload = [
+        "convert",
+        f"{html_dir}/missing.html",
+        f"{dst}",
+    ]
+    result = runner.invoke(app, payload)
+    assert result.exit_code == 1
+    assert "missing.html does not exist" in result.stdout
+    assert isinstance(result.exception, SystemExit)
+    assert not isinstance(result.exception, FileNotFoundError)
+    assert not dst.exists()

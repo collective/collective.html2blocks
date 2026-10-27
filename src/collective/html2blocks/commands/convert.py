@@ -136,7 +136,7 @@ def convert(
     dst = dst.resolve()
     folder = dst.parent
     if not check_paths(src, folder):
-        typer.Exit(1)
+        raise typer.Exit(1)
     if input_format is None:
         is_markdown = detect_format(src) == "markdown"
     else:
