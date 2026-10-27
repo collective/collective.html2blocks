@@ -8,10 +8,23 @@ environment without the extra.
 
 from pathlib import Path
 
+import os
 import pytest
 import subprocess
 import sys
 import textwrap
+
+
+def _child_env() -> dict[str, str]:
+    """
+    Return the environment for a child interpreter that must not start coverage.
+
+    pytest-cov exports ``COV_CORE_*`` variables, and a child started with them
+    writes its own coverage data file, which breaks the combined report.
+
+    :returns: A copy of the environment without the ``COV_CORE_*`` variables.
+    """
+    return {k: v for k, v in os.environ.items() if not k.startswith("COV_CORE_")}
 
 
 def _run_cli(blocked: tuple[str, ...], argv: list[str]) -> subprocess.CompletedProcess:
@@ -39,6 +52,7 @@ def _run_cli(blocked: tuple[str, ...], argv: list[str]) -> subprocess.CompletedP
         text=True,
         check=False,
         cwd=Path(__file__).parent,
+        env=_child_env(),
     )
 
 
