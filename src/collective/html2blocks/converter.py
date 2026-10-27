@@ -19,7 +19,12 @@ from collective.html2blocks import _types as t
 from collective.html2blocks import registry
 from collective.html2blocks._types import VoltoBlocksInfo
 from collective.html2blocks.utils import blocks
+from collective.html2blocks.utils import markdown
 from collective.html2blocks.utils import markup
+from typing import Literal
+
+
+SourceFormat = Literal["html", "markdown"]
 
 
 def html_to_blocks(source: str) -> list[t.VoltoBlock]:
@@ -54,27 +59,45 @@ def html_to_blocks(source: str) -> list[t.VoltoBlock]:
     return response
 
 
+def markdown_to_blocks(source: str) -> list[t.VoltoBlock]:
+    """
+    Convert Markdown source into a list of Volto blocks.
+
+    The Markdown is rendered to HTML, and the HTML is then converted with
+    :func:`html_to_blocks`, so every block converter applies unchanged.
+
+    :param source: The Markdown content to convert.
+    :returns: List of Volto blocks extracted from the Markdown.
+
+    Example::
+
+        >>> markdown_to_blocks("# Title\\n\\nParagraph")
+        [{"@type": "slate", ...}, ...]
+
+    """
+    return html_to_blocks(markdown.markdown_to_html(source))
+
+
 def volto_blocks(
     source: str,
     default_blocks: list[t.VoltoBlock] | None = None,
     additional_blocks: list[t.VoltoBlock] | None = None,
+    source_format: SourceFormat = "html",
 ) -> VoltoBlocksInfo:
     """
-    Convert HTML source into a Volto blocks info structure with layout.
+    Convert HTML or Markdown source into a Volto blocks info structure with layout.
 
-    This function parses the HTML, converts it to Volto blocks, and assembles
+    This function parses the source, converts it to Volto blocks, and assembles
     the result into a VoltoBlocksInfo dictionary containing both the blocks and
     their layout order. Optionally, you can prepend or append blocks to the result.
 
-    Args:
-        source (str): The HTML content to convert.
-        default_blocks (list[VoltoBlock], optional): Blocks to include before
-                                                     the converted blocks.
-        additional_blocks (list[VoltoBlock], optional): Blocks to include after
-                                                        the converted blocks.
-
-    Returns:
-        VoltoBlocksInfo: Dictionary with 'blocks' and 'blocks_layout' keys.
+    :param source: The HTML or Markdown content to convert.
+    :param default_blocks: Blocks to include before the converted blocks.
+    :param additional_blocks: Blocks to include after the converted blocks.
+    :param source_format: Format of ``source``, either ``"html"`` (default) or
+        ``"markdown"``.
+    :returns: Dictionary with ``blocks`` and ``blocks_layout`` keys.
+    :raises ValueError: If ``source_format`` is not ``"html"`` or ``"markdown"``.
 
     Example::
 
@@ -85,8 +108,15 @@ def volto_blocks(
             "blocks_layout": {"items": ["block-id-1", ...]}
         }
     """
+    match source_format:
+        case "html":
+            converted = html_to_blocks(source)
+        case "markdown":
+            converted = markdown_to_blocks(source)
+        case _:
+            raise ValueError(f"Unsupported source format: {source_format}")
     blocks_ = default_blocks.copy() if default_blocks else []
-    for block in html_to_blocks(source):
+    for block in converted:
         blocks_.append(block)
     if additional_blocks:
         blocks_.extend(additional_blocks)

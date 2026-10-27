@@ -163,3 +163,23 @@ def traverse():
         return value
 
     return func
+
+
+@pytest.fixture(scope="session")
+def strip_keys():
+    """
+    Returns a function that removes the random ``key`` identifiers from converted data.
+
+    Table converters assign random keys to rows and cells, so two conversions of the
+    same content never carry identical keys. The keys hold no content, and dropping
+    them lets tests compare the rest of the structure.
+    """
+
+    def func(value: Any) -> Any:
+        if isinstance(value, dict):
+            return {k: func(v) for k, v in value.items() if k != "key"}
+        if isinstance(value, list):
+            return [func(item) for item in value]
+        return value
+
+    return func

@@ -2,3 +2,4 @@ prepending
 Repo
 setuptools
 Transmogrifier
+strikethrough

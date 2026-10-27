@@ -29,6 +29,13 @@ myst:
     :members:
 ```
 
+## `collective.html2blocks.utils.markdown`
+
+```{eval-rst}
+.. automodule:: collective.html2blocks.utils.markdown
+    :members:
+```
+
 ## `collective.html2blocks.utils.markup`
 
 ```{eval-rst}
