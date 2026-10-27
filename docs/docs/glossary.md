@@ -7,12 +7,7 @@ myst:
     "keywords": "Plone, documentation, glossary, term, definition"
 ---
 
-This glossary provides example terms and definitions relevant to **collective.html2blocks**.
-Technical documentation for the `collective.html2blocks` package
-
-```{note}
-This is an example glossary demonstrating MyST Markdown’s `{glossary}` directive. You can adapt it for your project’s appendix by editing or replacing these entries with your own terms and definitions.
-```
+This glossary defines the terms that the **collective.html2blocks** documentation uses.
 
 (glossary-label)=
 
@@ -41,7 +36,7 @@ add-on
 Plone Sphinx Theme
 plone-sphinx-theme
     [Plone Sphinx Theme](https://plone-sphinx-theme.readthedocs.io/) is a Sphinx theme for [Plone 6 Documentation](https://6.docs.plone.org/), [Plone Conference Training](https://training.plone.org/), and documentation of various Plone packages.
-    This scaffold uses Plone Sphinx Theme.
+    This documentation uses Plone Sphinx Theme.
 
 Markedly Structured Text
 MyST
@@ -52,7 +47,7 @@ Sphinx
     [Sphinx](https://www.sphinx-doc.org/en/master/) is a tool that makes it easy to create intelligent and beautiful documentation.
     It was originally created for Python documentation, and it has excellent facilities for the documentation of software projects in a range of languages.
     It can generate multiple output formats, including HTML and PDF, from a single source.
-    This scaffold uses Sphinx to generate documentation in HTML format.
+    This documentation uses Sphinx to generate HTML pages.
 
 blocks
     Blocks are the fundamental components of a page layout in {term}`Volto`.
@@ -83,10 +78,10 @@ collective.transmute
     [collective.transmute](https://github.com/collective/collective.transmute) is a package to convert data from collective.exportimport to plone.exportimport
 
 pytest
-    [pytest](https://docs.pytest.org/) is a Python test framework that makes it easy to write small, readable tests, and can scale to support complex functional testing for applications and libraries.
+    [pytest](https://docs.pytest.org/en/stable/) is a Python test framework that makes it easy to write small, readable tests, and can scale to support complex functional testing for applications and libraries.
 
 setuptools
-    [setuptools](https://setuptools.pypa.io/) is a Python package development and distribution library. It is commonly used to build, package, and install Python projects, especially those using a `setup.py` file.
+    [setuptools](https://setuptools.pypa.io/en/latest/) is a Python package development and distribution library. It is commonly used to build, package, and install Python projects, especially those using a `setup.py` file.
 
 PEP 621
     [PEP 621](https://peps.python.org/pep-0621/) is a Python Enhancement Proposal that standardizes how project metadata is specified in `pyproject.toml` files for Python packages.
@@ -113,8 +108,31 @@ blocks_layout
     The structure that defines the order and arrangement of blocks within a Volto page or content item. It is usually represented as a JSON object.
 
 Uvicorn
-    [Uvicorn](https://www.uvicorn.org/) is a lightning-fast ASGI server implementation for Python, commonly used to run FastAPI applications.
+    [Uvicorn](https://github.com/Kludex/uvicorn) is a lightning-fast ASGI server implementation for Python, commonly used to run FastAPI applications.
 
 OpenAPI
     [OpenAPI](https://www.openapis.org/) is a specification for describing RESTful APIs, enabling automatic documentation, client generation, and validation.
+
+FastAPI
+    [FastAPI](https://fastapi.tiangolo.com/) is a Python web framework for building APIs.
+    The HTTP service of this package is a FastAPI application.
+
+Markdown
+    Markdown is a lightweight markup language for formatting plain text.
+    The package converts Markdown to HTML before it converts the content to blocks.
+
+CommonMark
+    [CommonMark](https://commonmark.org/) is a specification of the Markdown syntax.
+    The package renders Markdown with the CommonMark rules, with tables and strikethrough enabled.
+
+HTML
+    HyperText Markup Language, the markup language of web pages.
+    HTML is the main input format of the package.
+
+BeautifulSoup
+    [Beautiful Soup](https://www.crummy.com/software/BeautifulSoup/) is a Python library for parsing HTML.
+    The package uses it to find the block-level elements in the source.
+
+Diátaxis
+    [Diátaxis](https://diataxis.fr/) is a framework that organizes documentation into four kinds of content: tutorials, how-to guides, reference and explanation.
 ```

@@ -9,7 +9,7 @@ keywords = [
 ]
 version="1.0.0"
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.12,<3.15"
 license = { file = "LICENSE" }
 maintainers = [
     { name = "Érico Andrei", email = "collective@plone.org" },
@@ -24,6 +24,7 @@ classifiers = [
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
 ]
 dependencies = [
     "collective-html2blocks",

@@ -96,7 +96,7 @@ linkcheck_ignore = [
     # Ignore file downloads
     r"^/_static/",
     # Ignore pages that require authentication
-    r"https://github.com/collective/collectivehtml2blocksdocumentation/issues/new",
+    r"https://github.com/collective/collective.html2blocks/issues/new",
     # Ignore github.com pages with anchors
     r"https://github.com/.*#.*",
     # Ignore other specific anchors
@@ -145,10 +145,7 @@ html_sidebars = {
 html_theme_options = {
     "article_header_start": ["toggle-primary-sidebar"],
     # "extra_footer": """<p>Example `extra_footer` content. License info. Trademark info
-    # and usage.</p>
-    # <p>Pull request previews by
-    # a href="https://readthedocs.org/">Read the Docs</a>.
-    # </p>""",
+    # and usage.</p>""",
     "footer_content_items": [
         "author",
         "copyright",
@@ -161,7 +158,7 @@ html_theme_options = {
     "icon_links": [
         {
             "name": "GitHub",
-            "url": "https://github.com/collective/collectivehtml2blocksdocumentation",
+            "url": "https://github.com/collective/collective.html2blocks",
             "icon": "fa-brands fa-square-github",
             "type": "fontawesome",
             "attributes": {
@@ -186,9 +183,9 @@ html_theme_options = {
         "text": "collective.html2blocks",
     },
     "navigation_with_keys": True,
-    "path_to_docs": "docs/collective.collectivehtml2blocksdocumentation",
+    "path_to_docs": "docs/docs",
     "repository_branch": "main",
-    "repository_url": "https://github.com/collective/collectivehtml2blocksdocumentation",
+    "repository_url": "https://github.com/collective/collective.html2blocks",
     "search_bar_text": "Search",
     "show_toc_level": 2,
     "use_edit_page_button": True,
@@ -198,12 +195,12 @@ html_theme_options = {
 # suggest edit link
 # remark:  is mandatory in "edit_page_url_template"
 # html_context = {
-#     "edit_page_url_template": "https://github.com/collective/collectivehtml2blocksdocumentation/edit/main/docs/",
+#     "edit_page_url_template": "https://github.com/collective/collective.html2blocks/edit/main/docs/",
 # }
 
 # Announce that we have an opensearch plugin
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-html_use_opensearch
-html_use_opensearch = "https://MY_READTHEDOCS_PROJECT_SLUG.readthedocs.io"
+html_use_opensearch = "https://collective.github.io/collective.html2blocks/"
 
 # The name for this set of Sphinx documents.  If None, it defaults to
 # "<project> v<release> documentation".

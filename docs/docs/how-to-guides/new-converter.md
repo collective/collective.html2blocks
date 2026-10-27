@@ -9,19 +9,27 @@ myst:
 
 # Register a new converter
 
-To implement a new block converter in `collective.html2blocks`, you typically register a function using the `@registry.block_converter` or `@registry.element_converter` decorator.
+This guide shows you how to register a converter for an HTML element.
+Use a block converter when the element must become a specific Volto block.
+Use an element converter when the element becomes Slate content inside a block.
 
-The `@registry.block_converter` decorator is used for functions that return a Volto block—an object with an `@type` key and other properties expected by Volto editors. These blocks are inserted directly into the output and can represent custom or third-party block types.
+A block converter is a function that receives a BeautifulSoup element and returns a Volto block.
+A Volto block is a dictionary with an `@type` key and the other properties that the Volto editor expects.
+Register the function with the `@registry.block_converter` decorator.
 
-The `@registry.element_converter` decorator is used for functions that return internal Slate-compatible elements, such as paragraphs, headings, or inline formatting. These elements are further processed and may be nested within other blocks before being converted to Volto blocks if needed.
+An element converter returns Slate-compatible elements, such as paragraphs, headings, or inline formatting.
+Those elements can be nested inside other blocks.
+Register the function with the `@registry.element_converter` decorator.
 
-## A new block converter for the `<code>` element
+## Create a block converter for the `code` element
 
-This function receives a BeautifulSoup element and returns a dictionary in the Volto block format. For example, to handle the `<code>` element and produce a code block compatible with `@plonegovbr/volto-code-block`, you would define a converter that extracts the code content and returns the required JSON structure.
-
-Here is a sample implementation for a `<code>` block converter:
+This example converts a `<code>` element to a code block for `@plonegovbr/volto-code-block`.
 
 ```python
+from bs4 import Tag
+from collective.html2blocks import registry
+
+
 @registry.block_converter("code")
 def code_block_converter(element: Tag) -> dict:
     return {
@@ -35,4 +43,16 @@ def code_block_converter(element: Tag) -> dict:
     }
 ```
 
-This converter will transform a `<code>` HTML element into a Volto code block, preserving the code content and formatting options. You can customize the converter to support other languages or block options as needed. Once registered, the converter will be used automatically during HTML-to-block conversion.
+The decorator registers the function as soon as Python imports the module.
+Import the module before you call the converter, so that the registration takes effect.
+
+## Check the registration
+
+Run the `info` command to confirm that the converter is registered.
+
+```shell
+uv run html2blocks info
+```
+
+The new tag appears in the list of block converters.
+For the decorator's full signature, read the {doc}`/reference/api`.

@@ -26,10 +26,22 @@ myst:
 
 </div>
 
-**collective.html2blocks** is an open-source Python package designed to facilitate the migration of content from legacy {term}`Plone` sites and other {term}`CMS`s to {term}`Volto`. It provides robust tools for converting HTML and Markdown content into Volto blocks, making it easier to modernize and restructure existing websites without manual reformatting.
+**collective.html2blocks** is an open-source Python package for migrating content from legacy {term}`Plone` sites and other {term}`CMS`s to {term}`Volto`.
+It converts HTML and Markdown into Volto blocks, so you do not have to reformat legacy content by hand.
+The package provides a registry of converters that you can extend, and it exposes the conversion through Python, a command-line tool and an HTTP service.
 
-The package offers a flexible registry and converter system for parsing HTML, handling complex content structures, and generating Volto-compatible JSON. It supports CLI and REST API, enabling batch processing, automation, and integration into existing migration workflows. With `collective.html2blocks`, developers can streamline migrations, preserve rich content, and take advantage of Volto's block-based editing experience.
+This documentation follows the Diátaxis framework.
+If you are new to the package, start with the {doc}`/tutorials/index`.
+Use the {doc}`/how-to-guides/index` for specific tasks, the {doc}`/concepts/index` for background, and the {doc}`/reference/index` for the complete API, command-line and HTTP service details.
 
+
+```{toctree}
+:caption: Tutorials
+:maxdepth: 2
+:hidden: true
+
+tutorials/index
+```
 
 ```{toctree}
 :caption: Concepts
@@ -40,15 +52,11 @@ concepts/index
 ```
 
 ```{toctree}
-:caption: How to guides
+:caption: How-to guides
 :maxdepth: 2
 :hidden: true
 
-how-to-guides/installation
-how-to-guides/usage
-how-to-guides/cli
-how-to-guides/new-converter
-how-to-guides/add-tests
+how-to-guides/index
 ```
 
 ```{toctree}
@@ -56,7 +64,7 @@ how-to-guides/add-tests
 :maxdepth: 2
 :hidden: true
 
-reference/api
+reference/index
 ```
 
 ```{toctree}

@@ -17,7 +17,7 @@ PAPEROPT_letter = -D latex_paper_size=letter
 ALLSPHINXOPTS   = -d $(BUILDDIR)/doctrees $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) $(DOCS_DIR)
 VALEFILES       := $(shell find $(DOCS_DIR) -type f -name "*.md" -print)
 VALEOPTS        ?=
-PYTHONVERSION   = >=3.11,<3.14
+PYTHONVERSION   = >=3.12,<3.15
 
 # Add the following 'help' target to your Makefile
 # And add help text after each target name starting with '\#\#'
@@ -83,7 +83,7 @@ singlehtml: changelog
 	@echo "Build finished. The HTML page is in $(BUILDDIR)/singlehtml."
 
 .PHONY: text
-text: .changelog
+text: changelog
 	@uv run sphinx-build -b text $(ALLSPHINXOPTS) $(BUILDDIR)/text
 	@echo
 	@echo "Build finished. The text files are in $(BUILDDIR)/text."
@@ -93,16 +93,6 @@ changes: changelog
 	@uv run sphinx-build -b changes $(ALLSPHINXOPTS) $(BUILDDIR)/changes
 	@echo
 	@echo "The overview file is in $(BUILDDIR)/changes."
-
-.PHONY: rtd-prepare
-rtd-prepare:  ## Prepare environment on Read the Docs
-	asdf plugin add uv
-	asdf install uv latest
-	asdf global uv latest
-
-.PHONY: rtd-pr-preview  ## Build pull request previews on Read the Docs
-rtd-pr-preview: rtd-prepare .venv/bin/python ## Build pull request preview on Read the Docs
-	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) ${READTHEDOCS_OUTPUT}/html/
 
 .PHONY: build
 build: html  ## Build documentation in HTML format
