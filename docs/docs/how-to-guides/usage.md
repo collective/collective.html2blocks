@@ -83,7 +83,7 @@ result = converter.html_to_blocks(html)
 
 ### `converter.markdown_to_blocks`
 
-Converts Markdown to a list of Volto blocks. The Markdown is rendered to HTML with [markdown-it-py](https://github.com/executablebooks/markdown-it-py), following CommonMark with tables and strikethrough enabled, and the HTML then goes through the same conversion as `html_to_blocks`.
+Converts Markdown to a list of Volto blocks. The Markdown is rendered to HTML with [markdown-it-py](https://github.com/executablebooks/markdown-it-py), following CommonMark with tables and `strikethrough` enabled, and the HTML then goes through the same conversion as `html_to_blocks`.
 
 ```python
 markdown = "# Title\n\nParagraph"
