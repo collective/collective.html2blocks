@@ -9,6 +9,24 @@
 
 <!-- towncrier release notes start -->
 
+## 1.0.0a8 (2026-10-26)
+
+
+### Feature
+
+- Added support for Markdown as an input format: ``markdown_to_blocks()`` and ``source_format="markdown"`` in the Python API, ``.md``/``.markdown`` files and ``--format`` in the ``convert`` command, and a ``POST /markdown`` endpoint with a ``format`` field on ``POST /volto``. @ericof [#37](https://github.com/collective/collective.html2blocks/issues/37) [#37](https://github.com/collective/collective.html2blocks/issues/37)
+- Declared Python 3.14 support in the package classifiers and added a Python 3.14 job to the test matrix, so the supported versions are now tested. @ericof [#40](https://github.com/collective/collective.html2blocks/issues/40)
+
+
+### Bugfix
+
+- Exit cleanly when the source file given to ``html2blocks convert`` is missing: the command now stops right after reporting the problem, with exit code 1 and no traceback. @ericof [#39](https://github.com/collective/collective.html2blocks/issues/39) [#39](https://github.com/collective/collective.html2blocks/issues/39)
+
+
+### Documentation
+
+- Revised the documentation to the current Plone documentation standard, organized by Diátaxis section, and documented HTML and Markdown input for the Python API, the command line and the HTTP service. Replaced the Read the Docs configuration with the GitHub Pages site. @ericof [#43](https://github.com/collective/collective.html2blocks/issues/43) [#43](https://github.com/collective/collective.html2blocks/issues/43)
+
 ## 1.0.0a7 (2026-10-22)
 
 
