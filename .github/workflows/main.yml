@@ -15,7 +15,7 @@ jobs:
     needs:
       - config
     with:
-      python-version: ${{ needs.config.outputs.python-version }}
+      python-version: "3.14"
       working-directory: "docs"
       check-links: true
       check-vale: true
@@ -76,7 +76,7 @@ jobs:
       - config
       - docs
     with:
-      python-version: ${{ needs.config.outputs.python-version }}
+      python-version: "3.14"
       working-directory: "docs"
   report:
     name: "Final report"

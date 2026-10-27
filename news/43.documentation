@@ -1,0 +1,1 @@
+Revised the documentation to the current Plone documentation standard, organized by Diátaxis section, and documented HTML and Markdown input for the Python API, the command line and the HTTP service. Replaced the Read the Docs configuration with the GitHub Pages site. @ericof [#43](https://github.com/collective/collective.html2blocks/issues/43)

@@ -1,203 +1,60 @@
 ---
 myst:
   html_meta:
-    "description": "How to use the {term}`CLI` for collective.html2blocks, including commands, options, and server endpoints."
-    "property=og:description": "Guide to using the {term}`CLI` and block converters in collective.html2blocks."
-    "property=og:title": "How to use the CLI | collective.html2blocks"
-    "keywords": "Plone, collective.html2blocks, {term}`CLI`, {term}`Typer`, {term}`Uvicorn`, {term}`OpenAPI`, block converter, Volto, migration, guide"
+    "description": "How to convert HTML and Markdown files to Volto blocks JSON with the html2blocks command line tool."
+    "property=og:description": "Guide to converting files from the collective.html2blocks command line."
+    "property=og:title": "Convert files from the command line | collective.html2blocks"
+    "keywords": "Plone, collective.html2blocks, CLI, Typer, Volto, blocks, converter, guide"
 ---
 
-# `html2blocks` command line application
+# Convert files from the command line
 
-Installing `collective.html2blocks` in your project will provide you with a new {term}`CLI` application named `html2blocks`.
+This guide shows you how to convert HTML and Markdown files to Volto blocks JSON with the `html2blocks` command.
+For every option and default value, read the {doc}`/reference/cli`.
 
-You can either:
+If your project uses uv, run the command with `uv run html2blocks`.
+Otherwise, run `.venv/bin/html2blocks` from the virtual environment of your project.
 
-1.  locate the Python virtual environment used by your project (usually present in the `.venv` folder of your backend codebase) and run `.venv/bin/html2blocks`, or
-1.  if your project uses `uv`, then run `uv run html2blocks`, and `uv` will correctly initiate this {term}`CLI` application.
+## Convert a source file
 
-All examples here will showcase `uv run html2blocks` for the sake of simplicity.
-
-
-## Application help
-
-After running `uv run html2blocks`, you'll be presented with a list of options and commands available in the tool, powered by {term}`Typer`:
-
-```console
-Usage: html2blocks [OPTIONS] COMMAND [ARGS]...
-
- Main CLI callback for collective.html2blocks.
-
- This function is invoked when the CLI is run without a subcommand. It displays a welcome message and help information
- for available commands.
- Args:     ctx (typer.Context): Typer context object.
- Example::
- $ uv run html2blocks     Welcome to collective.html2blocks.
-
-╭─ Options ───────────────────────────────────────────────────────────────────────────────────────────────────────────╮
-│ --install-completion          Install completion for the current shell.                                             │
-│ --show-completion             Show completion for the current shell, to copy it or customize the installation.      │
-│ --help                        Show this message and exit.                                                           │
-╰─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
-╭─ Commands ──────────────────────────────────────────────────────────────────────────────────────────────────────────╮
-│ convert   Convert an HTML or Markdown file to Volto blocks JSON.                                                    │
-│ info      Show information about the collective.html2blocks tool and its registrations.                             │
-│ server    Run the HTML to Blocks API service.                                                                       │
-╰─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
-```
-
-## Commands
-
-The `html2blocks` application provides three commands: `info`, `convert`, and `server`.
-
-
-### `info`
-
-This command displays information about the `collective.html2blocks` package and all converter {term}`Registration`.
-
-```shell
-uv run html2blocks info
-```
-
-will display:
-
-```console
-# collective.html2blocks - 1.0.0a0
-
-## Block Converters
- - iframe: collective.html2blocks.blocks.iframe.iframe_block
- - img: collective.html2blocks.blocks.image.image_block
- - table: collective.html2blocks.blocks.table.table_block
- - video: collective.html2blocks.blocks.video.video_block
- - *: collective.html2blocks.blocks.slate.slate_block
-
-## Element Converters
- - br: collective.html2blocks.blocks.slate.parser._br_
- - hr: collective.html2blocks.blocks.slate.parser._hr_
- - body: collective.html2blocks.blocks.slate.parser._body_
- - h1: collective.html2blocks.blocks.slate.parser._header_
- - h2: collective.html2blocks.blocks.slate.parser._header_
- - h3: collective.html2blocks.blocks.slate.parser._header_
- - h4: collective.html2blocks.blocks.slate.parser._header_
- - h5: collective.html2blocks.blocks.slate.parser._header_
- - h6: collective.html2blocks.blocks.slate.parser._header_
- - b: collective.html2blocks.blocks.slate.parser._strong_
- - strong: collective.html2blocks.blocks.slate.parser._strong_
- - code: collective.html2blocks.blocks.slate.parser._code_
- - div: collective.html2blocks.blocks.slate.parser._div_
- - pre: collective.html2blocks.blocks.slate.parser._pre_
- - a: collective.html2blocks.blocks.slate.parser._link_
- - span: collective.html2blocks.blocks.slate.parser._span_
- - blockquote: collective.html2blocks.blocks.slate.parser._block_
- - p: collective.html2blocks.blocks.slate.parser._block_
- - sub: collective.html2blocks.blocks.slate.parser._block_
- - sup: collective.html2blocks.blocks.slate.parser._block_
- - u: collective.html2blocks.blocks.slate.parser._block_
- - ol: collective.html2blocks.blocks.slate.parser._ol_
- - li: collective.html2blocks.blocks.slate.parser._block_
- - dt: collective.html2blocks.blocks.slate.parser._block_
- - dd: collective.html2blocks.blocks.slate.parser._block_
- - ul: collective.html2blocks.blocks.slate.parser._ul_
- - dl: collective.html2blocks.blocks.slate.parser._dl_
- - del: collective.html2blocks.blocks.slate.parser._s_
- - s: collective.html2blocks.blocks.slate.parser._s_
- - em: collective.html2blocks.blocks.slate.parser._em_
- - i: collective.html2blocks.blocks.slate.parser._em_
-```
-
-Of course, if in your project you did register additional converters, they should be displayed in here as well.
-
-
-## `convert`
-
-This command reads the HTML or Markdown file at `SRC`, converts its contents to a JSON representing Volto block information (containing the `{term}`blocks` and `{term}`blocks_layout` keys) using the package's {term}`Converter`, and writes the result as JSON to `DST`.
-
-Example usage, having a file named {file}`input.html`:
-
-```html
-<div><p>Hello <strong>World!</strong></p></div>
-```
-
-you can run this command with:
+Pass the source file and the destination JSON file to `convert`.
 
 ```shell
 uv run html2blocks convert input.html output.json
 ```
 
-Files with a `.md` or `.markdown` suffix are read as Markdown. For example, a file named {file}`input.md` containing `Hello **World!**` is converted with:
+The command writes the blocks and their layout to `output.json`.
+The destination folder must already exist.
+
+## Convert a Markdown file
+
+The command reads files with a `.md` or `.markdown` suffix as Markdown.
 
 ```shell
 uv run html2blocks convert input.md output.json
 ```
 
-Use the `--format` option (`html` or `markdown`) to override the format detected from the suffix, for instance to read a Markdown file that has a different suffix:
+If your Markdown file has a different suffix, pass `--format markdown` to override the detection.
 
 ```shell
 uv run html2blocks convert --format markdown notes.txt output.json
 ```
 
-This will create a new file named {file}`output.json` with the following contents:
+Use `--format html` to read a file with a Markdown suffix as HTML.
 
-```json
-{
-  "blocks": {
-    "bc1eaf92-05f9-4dba-b28d-1996373f0076": {
-      "@type": "slate",
-      "plaintext": "Hello World!",
-      "value": [
-        {
-          "type": "p",
-          "children": [
-            {
-              "text": "Hello "
-            },
-            {
-              "type": "strong",
-              "children": [
-                {
-                  "text": "World!"
-                }
-              ]
-            }
-          ]
-        }
-      ]
-    }
-  },
-  "blocks_layout": {
-    "items": [
-      "bc1eaf92-05f9-4dba-b28d-1996373f0076"
-    ]
-  }
-}
-```
+## Check the registered converters
 
-
-## `server`
-
-This command starts a {term}`Uvicorn` server hosting the FastAPI app for converting HTML to Volto blocks. You can customize the host, port, and enable reload for development.
-
-| Option | Description | Default Value |
-| --- | --- | --- |
-| `--host` | Address to run the server | `127.0.0.1` |
-| `--port` | Port number to be used | `8000` |
-| `--reload` or `--no-reload` | Used during development, indicates if the server should look for changes in its codebase.  | `--no-reload` |
-| `--help` | Show the help for the command | |
-
-So, to run the server on a specific port, for example `8090`, you should run:
+To see which converters the command uses, run `info`.
+It lists the block converters and the element converters that are registered.
+If your project registers its own converters, they appear in this list.
 
 ```shell
-uv run html2blocks server --port 8090
+uv run html2blocks info
 ```
 
-and you should see:
+To add a converter, read {doc}`/how-to-guides/new-converter`.
 
-```console
-Starting HTML to Blocks service at http://127.0.0.1:8090
-INFO:     Started server process [94408]
-INFO:     Waiting for application startup.
-INFO:     Application startup complete.
-INFO:     Uvicorn running on http://127.0.0.1:8090 (Press CTRL+C to quit)
-```
+## Start the web service
 
-The server provides an {term}`OpenAPI` documentation endpoint located at `http://<address>:<port>/docs` where you can check all available endpoints, and even try it out.
+The same command starts the HTTP service.
+Read {doc}`/how-to-guides/run-http-service`.

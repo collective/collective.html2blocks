@@ -10,15 +10,22 @@ myst:
 
 # Add tests
 
-This guide explains how to add new tests to the `collective.html2blocks` codebase, covering test parametrization, the use of the `traverse` fixture, and the organization of test cases for converters and API endpoints. The codebase uses {term}`pytest` and YAML-based parametrization for flexible, maintainable testing.
+This guide shows you how to add tests to the `collective.html2blocks` codebase.
+The tests use {term}`pytest` and YAML files for parametrization.
+Run the whole suite with `make test` from the repository root.
 
 ## Introduction: Test parametrization and the `traverse` fixture
 
-Tests in `collective.html2blocks` are parametrized using YAML files, which define input data and expected results. The `traverse` fixture is a utility that allows you to extract and assert values from deeply nested dictionaries and lists using a path-like syntax. You can also apply simple functions (like `len`, `type`, or `keys`) to the traversed value by appending a colon and function name, for example `foo/bar:baz:len`. This makes it easy to write concise, readable assertions in your test cases.
+Tests in `collective.html2blocks` are parametrized with YAML files that define the input and the expected results.
+The `traverse` fixture extracts values from nested dictionaries and lists with a path-like syntax.
+To apply a function to the traversed value, append a colon and the function name, for example `foo/bar:baz:len`.
+Functions such as `len`, `type` and `keys` are supported by the fixture.
 
 ## Testing the converter
 
-This section covers how to test the main converter functions, such as `collective.html2blocks.converter.html_to_blocks` and `collective.html2blocks.converter.volto_blocks`. These functions are responsible for transforming HTML input into Volto blocks or internal representations. Tests should verify that the conversion logic produces the expected block structures for a variety of input scenarios.
+This section covers how to test the main converter functions, `collective.html2blocks.converter.html_to_blocks` and `collective.html2blocks.converter.volto_blocks`.
+These functions transform HTML input into Volto blocks.
+Tests verify that the conversion produces the expected block structure for each input scenario.
 
 
 ### `html_to_blocks` function
@@ -62,9 +69,10 @@ params:
         expected: 5
 ```
 
-## Testing the HTTP-based API
+## Test the web service endpoints
 
-This section describes how to test the FastAPI endpoints provided by `collective.html2blocks`. These endpoints expose conversion logic over HTTP, allowing integration with external tools and migration workflows.
+This section describes how to test the FastAPI endpoints of `collective.html2blocks`.
+The endpoints expose the conversion over HTTP.
 
 
 ### `/html` endpoint
@@ -113,7 +121,9 @@ params:
 
 ## Testing blocks converters
 
-This section explains how to test individual block converters, such as those for iframe, image, slate, and table blocks. Each converter should be tested with representative input and expected output, using YAML files for parametrization and the `traverse` fixture for assertions.
+This section explains how to test the block converters for iframe, image, slate and table blocks.
+Test each converter with representative input and the expected output.
+Use YAML files for parametrization and the `traverse` fixture for assertions.
 
 
 ### iframe
@@ -123,7 +133,7 @@ To add a test for the iframe block converter, edit {file}`tests/_data/test_ifram
 ```yaml
 params:
   - name: soundcloud
-    src: '<iframe width="480" hfor examplet="270" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/1275507478&amp;color=%23ff5500&amp;auto_play=false&amp;hide_related=false&amp;show_comments=true&amp;show_user=true&amp;show_reposts=false&amp;show_teaser=true&amp;visual=true" allowfullscreen></iframe>'
+    src: '<iframe width="480" height="270" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/1275507478&amp;color=%23ff5500&amp;auto_play=false&amp;hide_related=false&amp;show_comments=true&amp;show_user=true&amp;show_reposts=false&amp;show_teaser=true&amp;visual=true" allowfullscreen></iframe>'
     tests:
       - path: "0/@type"
         expected: 'soundcloudBlock'

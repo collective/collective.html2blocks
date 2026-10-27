@@ -7,7 +7,7 @@ myst:
     "keywords": "Plone, collective.html2blocks, API"
 ---
 
-# API
+# Python reference
 
 ```{toctree}
 :maxdepth: 1
