@@ -66,11 +66,8 @@ def markdown_to_blocks(source: str) -> list[t.VoltoBlock]:
     The Markdown is rendered to HTML, and the HTML is then converted with
     :func:`html_to_blocks`, so every block converter applies unchanged.
 
-    Args:
-        source (str): The Markdown content to convert.
-
-    Returns:
-        list[VoltoBlock]: List of Volto blocks extracted from the Markdown.
+    :param source: The Markdown content to convert.
+    :returns: List of Volto blocks extracted from the Markdown.
 
     Example::
 
@@ -94,20 +91,13 @@ def volto_blocks(
     the result into a VoltoBlocksInfo dictionary containing both the blocks and
     their layout order. Optionally, you can prepend or append blocks to the result.
 
-    Args:
-        source (str): The HTML or Markdown content to convert.
-        default_blocks (list[VoltoBlock], optional): Blocks to include before
-                                                     the converted blocks.
-        additional_blocks (list[VoltoBlock], optional): Blocks to include after
-                                                        the converted blocks.
-        source_format (str, optional): Format of ``source``, either ``"html"``
-                                       (default) or ``"markdown"``.
-
-    Returns:
-        VoltoBlocksInfo: Dictionary with 'blocks' and 'blocks_layout' keys.
-
-    Raises:
-        ValueError: If ``source_format`` is not ``"html"`` or ``"markdown"``.
+    :param source: The HTML or Markdown content to convert.
+    :param default_blocks: Blocks to include before the converted blocks.
+    :param additional_blocks: Blocks to include after the converted blocks.
+    :param source_format: Format of ``source``, either ``"html"`` (default) or
+        ``"markdown"``.
+    :returns: Dictionary with ``blocks`` and ``blocks_layout`` keys.
+    :raises ValueError: If ``source_format`` is not ``"html"`` or ``"markdown"``.
 
     Example::
 

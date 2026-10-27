@@ -22,11 +22,8 @@ def markdown_to_html(source: str) -> str:
     """
     Render Markdown source as HTML.
 
-    Args:
-        source (str): The Markdown content to render.
-
-    Returns:
-        str: The HTML rendered from the Markdown source.
+    :param source: The Markdown content to render.
+    :returns: The HTML rendered from the Markdown source.
 
     Example:
         >>> markdown_to_html("**bold**")

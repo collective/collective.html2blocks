@@ -74,9 +74,8 @@ class MarkdownBody(BaseModel):
     """
     Request body model for Markdown to blocks conversion.
 
-    Attributes:
-        markdown (str): The Markdown content to convert.
-        converter (str): The type of conversion to perform (default is ``slate``).
+    :ivar markdown: The Markdown content to convert.
+    :ivar converter: The type of conversion to perform (default is ``slate``).
     """
 
     markdown: str
@@ -91,14 +90,9 @@ async def convert_markdown(body: MarkdownBody) -> list[t.VoltoBlock]:
     Converts the provided Markdown content to a list of Volto blocks using the
     specified converter.
 
-    Args:
-        body (MarkdownBody): Request body containing Markdown and converter type.
-
-    Returns:
-        list[VoltoBlock]: The converted blocks.
-
-    Raises:
-        HTTPException: If an unsupported converter is specified.
+    :param body: Request body containing Markdown and converter type.
+    :returns: The converted blocks.
+    :raises HTTPException: If an unsupported converter is specified.
 
     Example:
         .. code-block:: shell
@@ -118,11 +112,10 @@ class VoltoBody(BaseModel):
     """
     Request body model for HTML or Markdown to Volto blocks conversion with layout.
 
-    Attributes:
-        html (str): The HTML or Markdown content to convert.
-        format (str): The format of ``html``, ``html`` (default) or ``markdown``.
-        default_blocks (list[VoltoBlock] | None): Default blocks to include.
-        additional_blocks (list[VoltoBlock] | None): Additional blocks to include.
+    :ivar html: The HTML or Markdown content to convert.
+    :ivar format: The format of ``html``, either ``html`` (default) or ``markdown``.
+    :ivar default_blocks: Default blocks to include.
+    :ivar additional_blocks: Additional blocks to include.
     """
 
     html: str
@@ -139,12 +132,8 @@ def convert_to_volto(body: VoltoBody) -> t.VoltoBlocksInfo:
     Converts the provided content to a Volto blocks structure, including block
     layout. The ``format`` field tells whether the content is HTML or Markdown.
 
-    Args:
-        body (VoltoBody): Request body containing the content, its format and
-            block lists.
-
-    Returns:
-        VoltoBlocksInfo: Information about the converted Volto blocks and layout.
+    :param body: Request body containing the content, its format and block lists.
+    :returns: Information about the converted Volto blocks and layout.
 
     Example:
         .. code-block:: shell
