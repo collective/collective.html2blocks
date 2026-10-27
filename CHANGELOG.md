@@ -9,6 +9,13 @@
 
 <!-- towncrier release notes start -->
 
+## 1.0.0a9 (2026-10-27)
+
+
+### Breaking changes:
+
+- Moved the command line and the HTTP service dependencies into extras, so a plain install no longer includes ``typer`` or ``fastapi``. Install ``collective.html2blocks[cli]`` for the ``html2blocks`` command, or ``collective.html2blocks[server]`` for ``html2blocks server`` and the HTTP service. Use ``collective.html2blocks[all]`` to install both. @ericof [#45](https://github.com/collective/collective.html2blocks/issues/45)
+
 ## 1.0.0a8 (2026-10-26)
 
 

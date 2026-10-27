@@ -1,1 +1,0 @@
-Moved the command line and the HTTP service dependencies into extras, so a plain install no longer includes ``typer`` or ``fastapi``. Install ``collective.html2blocks[cli]`` for the ``html2blocks`` command, or ``collective.html2blocks[server]`` for ``html2blocks server`` and the HTTP service. Use ``collective.html2blocks[all]`` to install both. @ericof
