@@ -1,8 +1,9 @@
 """
 CLI entry point for ``collective.html2blocks``.
 
-This module provides the Typer-based command-line interface for converting HTML
-content to Volto blocks, inspecting conversion info, and running the API server.
+The ``html2blocks`` script loads this module. The Typer application lives in
+:mod:`collective.html2blocks.cli_app` and needs the ``cli`` extra. When that extra
+is missing, :func:`cli` prints one line naming it and exits with status 1.
 
 Example:
     .. code-block:: shell
@@ -12,39 +13,8 @@ Example:
         uv run html2blocks server
 """
 
-from collective.html2blocks.commands.convert import app as app_convert
-from collective.html2blocks.commands.info import app as app_info
-from collective.html2blocks.commands.server import app as app_server
-
-import typer
-
-
-app = typer.Typer(no_args_is_help=True)
-
-
-@app.callback(invoke_without_command=True)
-def main(ctx: typer.Context):
-    """
-    Main CLI callback for ``collective.html2blocks``.
-
-    This function is invoked when the CLI is run without a subcommand. It displays
-    a welcome message and help information for available commands.
-
-    Args:
-        ctx (typer.Context): Typer context object.
-
-    Example:
-        .. code-block:: shell
-
-            $ uv run html2blocks
-            Welcome to collective.html2blocks.
-    """
-    pass
-
-
-app.add_typer(app_convert)
-app.add_typer(app_info)
-app.add_typer(app_server)
+from collective.html2blocks.extras import exit_missing_extra
+from typing import Any
 
 
 def cli():
@@ -59,7 +29,28 @@ def cli():
             >>> cli()
             # Launches the CLI
     """
+    try:
+        from collective.html2blocks.cli_app import app
+    except ModuleNotFoundError as exc:
+        if exc.name != "typer":
+            raise
+        exit_missing_extra("typer", "cli")
     app()
+
+
+def __getattr__(name: str) -> Any:
+    """
+    Return the Typer application for code that imports ``app`` from this module.
+
+    :param name: Attribute name requested from the module.
+    :returns: The Typer application when ``name`` is ``app``.
+    :raises AttributeError: When the module has no attribute called ``name``.
+    """
+    if name == "app":
+        from collective.html2blocks.cli_app import app
+
+        return app
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 
 __all__ = ["cli"]

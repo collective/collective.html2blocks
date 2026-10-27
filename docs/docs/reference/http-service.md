@@ -11,6 +11,7 @@ myst:
 
 The HTTP service is a FastAPI application.
 Start it with the `server` command, as described in the {doc}`/reference/cli`.
+The service needs the `server` extra: install `collective.html2blocks[server]`.
 The interactive API documentation is available at `/docs`.
 
 Every response includes the `X-Process-Time` header, which holds the processing time in seconds.

@@ -13,5 +13,8 @@ myst:
 .. automodule:: collective.html2blocks.cli
     :members:
 
-.. autofunction:: collective.html2blocks.cli.main
+.. automodule:: collective.html2blocks.cli_app
+    :members:
+
+.. autofunction:: collective.html2blocks.cli_app.main
 ```

@@ -149,20 +149,28 @@ name = "collective-html2blocks"
 source = { editable = "../" }
 dependencies = [
     { name = "beautifulsoup4" },
-    { name = "fastapi", extra = ["standard"] },
     { name = "markdown-it-py" },
     { name = "python-slugify" },
+]
+
+[package.optional-dependencies]
+server = [
+    { name = "fastapi", extra = ["standard"] },
     { name = "typer" },
 ]
 
 [package.metadata]
 requires-dist = [
     { name = "beautifulsoup4", specifier = ">=4.13.3" },
-    { name = "fastapi", extras = ["standard"], specifier = ">=0.116.1" },
+    { name = "fastapi", extras = ["standard"], marker = "extra == 'all'", specifier = ">=0.116.1" },
+    { name = "fastapi", extras = ["standard"], marker = "extra == 'server'", specifier = ">=0.116.1" },
     { name = "markdown-it-py", specifier = ">=4.2.0" },
     { name = "python-slugify", specifier = ">=8.0.4" },
-    { name = "typer", specifier = ">=0.15.1" },
+    { name = "typer", marker = "extra == 'all'", specifier = ">=0.15.1" },
+    { name = "typer", marker = "extra == 'cli'", specifier = ">=0.15.1" },
+    { name = "typer", marker = "extra == 'server'", specifier = ">=0.15.1" },
 ]
+provides-extras = ["all", "cli", "server"]
 
 [package.metadata.requires-dev]
 test = [
@@ -179,7 +187,7 @@ name = "collective-html2blocks-docs"
 version = "1.0.0"
 source = { editable = "." }
 dependencies = [
-    { name = "collective-html2blocks" },
+    { name = "collective-html2blocks", extra = ["server"] },
 ]
 
 [package.dev-dependencies]
@@ -207,7 +215,7 @@ dev = [
 ]
 
 [package.metadata]
-requires-dist = [{ name = "collective-html2blocks", editable = "../" }]
+requires-dist = [{ name = "collective-html2blocks", extras = ["server"], editable = "../" }]
 
 [package.metadata.requires-dev]
 dev = [

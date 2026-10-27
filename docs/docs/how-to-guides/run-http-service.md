@@ -14,7 +14,8 @@ The request and response formats are listed in the {doc}`/reference/http-service
 
 ## Run the service from a project
 
-If you installed `collective.html2blocks` in your project, start the service with the `server` command.
+If you installed `collective.html2blocks[server]` in your project, start the service with the `server` command.
+The `server` extra provides the web framework and the server, so a plain `collective.html2blocks` install does not include it.
 
 ```shell
 uv run html2blocks server --port 8090
@@ -31,7 +32,7 @@ To run the latest released version without installing the package in your projec
 This command works only with released versions of the package.
 
 ```shell
-uvx --from collective.html2blocks html2blocks server --port 8090
+uvx --from "collective.html2blocks[server]" html2blocks server --port 8090
 ```
 
 ## Run the container image

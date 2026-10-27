@@ -10,11 +10,11 @@ Example:
         uv run html2blocks server --host 0.0.0.0 --port 8080 --reload
 """
 
+from collective.html2blocks.extras import exit_missing_extra
 from collective.html2blocks.logger import console_logging
 from collective.html2blocks.logger import logger
 
 import typer
-import uvicorn
 
 
 app = typer.Typer()
@@ -43,6 +43,14 @@ def serve(host: str = "127.0.0.1", port: int = 8000, reload: bool = False):
 
             Starting HTML to Blocks service at http://0.0.0.0:8080
     """  # noqa: E501
+    # fastapi and uvicorn come with the ``server`` extra, not with ``cli``.
+    try:
+        import fastapi  # noqa: F401
+        import uvicorn
+    except ModuleNotFoundError as exc:
+        if exc.name not in ("fastapi", "uvicorn"):
+            raise
+        exit_missing_extra(str(exc.name), "server")
     with console_logging(logger) as log:
         log.info(f"Starting HTML to Blocks service at http://{host}:{port}")
         uvicorn.run(
