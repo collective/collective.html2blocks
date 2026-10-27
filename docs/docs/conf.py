@@ -362,7 +362,7 @@ def source_replace(app, docname, source):
 
 # Dict of replacements.
 source_replacements = {
-    "{SUPPORTED_PYTHON_VERSIONS}": "3.10, 3.11, 3.12, or 3.13",
+    "{SUPPORTED_PYTHON_VERSIONS}": "3.12, 3.13, or 3.14",
 }
 
 
