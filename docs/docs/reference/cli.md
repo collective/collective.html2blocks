@@ -9,7 +9,10 @@ myst:
 
 # Command line reference
 
-The `html2blocks` command is installed with `collective.html2blocks`.
+The `html2blocks` command is installed with `collective.html2blocks`, but it needs an extra to run.
+Install `collective.html2blocks[cli]` for the `convert` and `info` commands.
+Install `collective.html2blocks[server]` for the `server` command.
+The `all` extra installs both sets.
 Run `html2blocks --help` to list the commands.
 Run `html2blocks COMMAND --help` to see the options of a command.
 

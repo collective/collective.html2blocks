@@ -23,10 +23,21 @@ requires-python = ">=3.12"
 dependencies = [
     "beautifulsoup4>=4.13.3",
     "python-slugify>=8.0.4",
-    "typer>=0.15.1",
-    "fastapi[standard]>=0.116.1",
     "markdown-it-py>=4.2.0",
 ]
+
+[project.optional-dependencies]
+cli = [
+    "typer>=0.15.1",
+]
+server = [
+    "typer>=0.15.1",
+    "fastapi[standard]>=0.116.1",
+]
+all = [
+    "collective.html2blocks[cli,server]",
+]
+
 [project.scripts]
 html2blocks = "collective.html2blocks.cli:cli"
 

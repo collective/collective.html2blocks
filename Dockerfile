@@ -32,6 +32,7 @@ RUN --mount=type=cache,target=/root/.cache \
         --locked \
         --no-dev \
         --no-group test \
+        --extra server \
         --no-install-project
 
 COPY . /src
@@ -43,6 +44,7 @@ RUN --mount=type=cache,target=/root/.cache \
         --locked \
         --no-dev \
         --no-group test \
+        --extra server \
         --no-editable
 
 FROM ubuntu:noble

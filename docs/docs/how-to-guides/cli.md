@@ -12,6 +12,9 @@ myst:
 This guide shows you how to convert HTML and Markdown files to Volto blocks JSON with the `html2blocks` command.
 For every option and default value, read the {doc}`/reference/cli`.
 
+The command needs the `cli` extra.
+Install `collective.html2blocks[cli]` for `convert` and `info`, or `collective.html2blocks[server]` if you also run the `server` command.
+
 If your project uses uv, run the command with `uv run html2blocks`.
 Otherwise, run `.venv/bin/html2blocks` from the virtual environment of your project.
 

@@ -13,6 +13,20 @@ This guide shows you how to add `collective.html2blocks` to your Python project.
 The package requires Python 3.12 or later.
 Choose the method that matches your project.
 
+## Choose the extras you need
+
+The base package installs the converter only: the functions `html_to_blocks()`, `markdown_to_blocks()` and `volto_blocks()`.
+Install an extra to add the command line or the HTTP service:
+
+| Extra | Installs | Needed for |
+| --- | --- | --- |
+| `cli` | `typer` | The `html2blocks` command, with the `convert` and `info` commands |
+| `server` | `typer`, `fastapi[standard]` | The `server` command and the HTTP service |
+| `all` | Both sets | The command and the service together |
+
+Write the extra in square brackets after the package name, for example `collective.html2blocks[server]`.
+If you run `html2blocks` without its extra, the command prints the name of the extra to install and exits.
+
 1.  `pyproject.toml`
 
     Use this method for modern Python projects.

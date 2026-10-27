@@ -19,4 +19,13 @@
 **collective.html2blocks** helps with migrations from old Plone versions -- and other CMS -- to Volto.
 It converts HTML and Markdown content into Volto blocks.
 
+## Installation
+
+Install the converter as a library with `pip install collective.html2blocks`.
+It needs only the converter's own dependencies.
+
+To use the `html2blocks` command, install the `cli` extra: `pip install "collective.html2blocks[cli]"`.
+To run the HTTP service, install the `server` extra: `pip install "collective.html2blocks[server]"`.
+The `all` extra installs both.
+
 Read the [documentation](https://collective.github.io/collective.html2blocks).

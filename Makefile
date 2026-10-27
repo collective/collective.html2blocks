@@ -47,7 +47,7 @@ help: ## This help message
 
 $(BIN_FOLDER)/pytest: ## Install dependencies
 	@echo "$(GREEN)==> Install environment$(RESET)"
-	@uv sync
+	@uv sync --all-extras
 
  $(BIN_FOLDER)/ruff: $(BIN_FOLDER)/pytest
 
