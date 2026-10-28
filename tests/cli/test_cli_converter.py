@@ -112,3 +112,71 @@ def test_cli_converter_missing_source_exits_cleanly(html_dir):
     assert isinstance(result.exception, SystemExit)
     assert not isinstance(result.exception, FileNotFoundError)
     assert not dst.exists()
+
+
+def test_cli_convert_code_block_option(test_dir, strip_keys):
+    (test_dir / "page.md").write_text(MARKDOWN_SOURCE + "\n```py\nx = 1\n```\n")
+    result = runner.invoke(app, ["convert", "--code-block", "page.md", "page.json"])
+    assert result.exit_code == 0, result.stdout
+    data = json.loads((test_dir / "page.json").read_text())
+    expected = converter.volto_blocks(
+        MARKDOWN_SOURCE + "\n```py\nx = 1\n```\n",
+        source_format="markdown",
+        code_block={},
+    )
+    assert _ordered_blocks(data, strip_keys) == _ordered_blocks(expected, strip_keys)
+    code = [b for b in _ordered_blocks(data, strip_keys) if b["@type"] == "codeBlock"]
+    assert code == [
+        {
+            "@type": "codeBlock",
+            "code": "x = 1",
+            "language": "python",
+            "showLineNumbers": False,
+            "lineNbr": 1,
+            "style": "dark",
+            "wrapLongLines": True,
+        }
+    ]
+
+
+def test_cli_convert_code_block_overrides(test_dir):
+    (test_dir / "page.md").write_text("```sh\nls\n```\n")
+    result = runner.invoke(
+        app,
+        [
+            "convert",
+            "--code-block",
+            "--code-style",
+            "light",
+            "--no-wrap-long-lines",
+            "--show-line-numbers",
+            "page.md",
+            "page.json",
+        ],
+    )
+    assert result.exit_code == 0, result.stdout
+    data = json.loads((test_dir / "page.json").read_text())
+    block = next(iter(data["blocks"].values()))
+    assert block["style"] == "light"
+    assert block["wrapLongLines"] is False
+    assert block["showLineNumbers"] is True
+    assert block["language"] == "bash"
+
+
+def test_cli_convert_code_block_off_by_default(test_dir):
+    (test_dir / "page.md").write_text("```sh\nls\n```\n")
+    result = runner.invoke(app, ["convert", "page.md", "page.json"])
+    assert result.exit_code == 0, result.stdout
+    data = json.loads((test_dir / "page.json").read_text())
+    types = {block["@type"] for block in data["blocks"].values()}
+    assert "codeBlock" not in types
+
+
+def test_cli_convert_code_options_require_code_block(test_dir):
+    (test_dir / "page.md").write_text("```sh\nls\n```\n")
+    result = runner.invoke(
+        app, ["convert", "--code-style", "light", "page.md", "page.json"]
+    )
+    assert result.exit_code == 2
+    assert "require --code-block" in result.stdout
+    assert not (test_dir / "page.json").exists()

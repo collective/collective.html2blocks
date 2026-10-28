@@ -8,6 +8,7 @@ into Volto blocks for use in Plone/Volto content management systems.
 
 Each converter implements a specific strategy for handling its corresponding HTML tag:
 
+- `pre_block`: Converts <pre> elements to Volto codeBlock blocks (opt-in).
 - `iframe_block`: Converts <iframe> elements to Volto embed blocks,
   handling provider-specific logic.
 - `image_block`: Converts <img> elements to Volto image blocks,
@@ -40,6 +41,7 @@ For custom converters, use the registry decorators:
 __all__ lists the available block converters for import and reference.
 """
 
+from .code import pre_block
 from .iframe import iframe_block
 from .image import image_block
 from .slate import slate_block
@@ -50,6 +52,7 @@ from .video import video_block
 __all__ = [
     "iframe_block",
     "image_block",
+    "pre_block",
     "slate_block",
     "table_block",
     "video_block",
