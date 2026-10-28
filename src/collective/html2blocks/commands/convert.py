@@ -107,6 +107,38 @@ def convert(
             "(.md and .markdown are Markdown, anything else is HTML).",
         ),
     ] = None,
+    code_block: Annotated[
+        bool,
+        typer.Option(
+            "--code-block",
+            help="Convert code (<pre> and Markdown fences) to codeBlock blocks. "
+            "Off by default, as the codeBlock type comes from an add-on.",
+        ),
+    ] = False,
+    code_style: Annotated[
+        str | None,
+        typer.Option(
+            "--code-style",
+            help="Style of the codeBlock blocks (default: dark). "
+            "Requires --code-block.",
+        ),
+    ] = None,
+    wrap_long_lines: Annotated[
+        bool | None,
+        typer.Option(
+            "--wrap-long-lines/--no-wrap-long-lines",
+            help="Wrap long lines in the codeBlock blocks (default: wrap). "
+            "Requires --code-block.",
+        ),
+    ] = None,
+    show_line_numbers: Annotated[
+        bool | None,
+        typer.Option(
+            "--show-line-numbers/--no-show-line-numbers",
+            help="Show line numbers in the codeBlock blocks (default: hide). "
+            "Requires --code-block.",
+        ),
+    ] = None,
 ):
     """
     Convert an HTML or Markdown file to Volto blocks JSON.
@@ -116,9 +148,17 @@ def convert(
     result as JSON to ``dst``. The input format is detected from the suffix of
     ``src`` unless ``--format`` is given.
 
+    With ``--code-block``, code (``<pre>`` and Markdown fences) becomes
+    ``codeBlock`` blocks, and the ``--code-style``, ``--wrap-long-lines`` and
+    ``--show-line-numbers`` options override the block defaults.
+
     :param src: Path to the HTML or Markdown file to convert.
     :param dst: Path to write the JSON output.
     :param input_format: Input format, overriding the suffix detection.
+    :param code_block: Convert code into ``codeBlock`` blocks.
+    :param code_style: Style of the ``codeBlock`` blocks.
+    :param wrap_long_lines: Wrap long lines in the ``codeBlock`` blocks.
+    :param show_line_numbers: Show line numbers in the ``codeBlock`` blocks.
 
     Example:
         .. code-block:: shell
@@ -126,24 +166,43 @@ def convert(
             uv run html2blocks convert input.html output.json
             uv run html2blocks convert input.md output.json
             uv run html2blocks convert --format markdown notes.txt output.json
+            uv run html2blocks convert --code-block --code-style light input.md out.json
 
         .. code-block:: console
 
             Converted input.html contents into file output.json
     """
     from collective.html2blocks import converter
+    from collective.html2blocks.blocks.code import CodeBlockOptions
 
     dst = dst.resolve()
     folder = dst.parent
     if not check_paths(src, folder):
         raise typer.Exit(1)
+    code_options: CodeBlockOptions = {}
+    if code_style is not None:
+        code_options["style"] = code_style
+    if wrap_long_lines is not None:
+        code_options["wrapLongLines"] = wrap_long_lines
+    if show_line_numbers is not None:
+        code_options["showLineNumbers"] = show_line_numbers
+    if code_options and not code_block:
+        typer.echo(
+            "--code-style, --wrap-long-lines and --show-line-numbers "
+            "require --code-block"
+        )
+        raise typer.Exit(2)
     if input_format is None:
         is_markdown = detect_format(src) == "markdown"
     else:
         is_markdown = input_format is FormatChoice.markdown
     source_format: converter.SourceFormat = "markdown" if is_markdown else "html"
     source = src.read_text()
-    result = converter.volto_blocks(source, source_format=source_format)
+    result = converter.volto_blocks(
+        source,
+        source_format=source_format,
+        code_block=code_options if code_block else None,
+    )
     with open(dst, "w") as fout:
         json.dump(result, fout, indent=2)
     typer.echo(f"Converted {src} contents into file {dst}")

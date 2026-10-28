@@ -1,0 +1,1 @@
+Added opt-in conversion of ``<pre>`` and Markdown code fences to ``codeBlock`` blocks of ``@plonegovbr/volto-code-block``, with the language taken from the ``language-*`` class. Enable it with ``code_block`` in ``volto_blocks()`` or with ``--code-block`` in the ``convert`` command. @ericof [#47](https://github.com/collective/collective.html2blocks/issues/47)

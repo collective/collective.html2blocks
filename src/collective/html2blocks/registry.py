@@ -29,6 +29,9 @@ from . import _types as t
 from .logger import logger
 from .utils.markup import cleanse_url
 from collections.abc import Callable
+from collections.abc import Generator
+from contextlib import contextmanager
+from contextvars import ContextVar
 from functools import wraps
 from typing import cast
 
@@ -36,6 +39,37 @@ import re
 
 
 _REGISTRY = t.Registry({}, {}, {})
+
+# Tags whose block converters are hidden during a conversion, see
+# :func:`hidden_block_converters`.
+_HIDDEN_TAGS: ContextVar[frozenset[str]] = ContextVar(
+    "hidden_block_tags", default=frozenset()
+)
+
+
+@contextmanager
+def hidden_block_converters(*tag_names: str) -> Generator[None, None, None]:
+    """
+    Hide the block converters of some tags while the context is active.
+
+    A hidden tag is left out of :func:`elements_with_block_converters`, and
+    :func:`get_block_converter` returns ``None`` for it, so the element goes
+    through the element converters or the default converter, as if no block
+    converter were registered for it.
+
+    :param tag_names: The tag names whose block converters are hidden.
+
+    Example:
+        .. code-block:: python
+
+            with hidden_block_converters("pre"):
+                ...
+    """
+    token = _HIDDEN_TAGS.set(_HIDDEN_TAGS.get() | frozenset(tag_names))
+    try:
+        yield
+    finally:
+        _HIDDEN_TAGS.reset(token)
 
 
 class block_converter:
@@ -172,7 +206,8 @@ def elements_with_block_converters() -> list[str]:
     """
     if not _REGISTRY:
         return []
-    return list(_REGISTRY.block_converters.keys())
+    hidden = _HIDDEN_TAGS.get()
+    return [tag for tag in _REGISTRY.block_converters if tag not in hidden]
 
 
 def get_block_converter(
@@ -200,7 +235,10 @@ def get_block_converter(
         raise RuntimeError("Should provide an element or a tag_name")
     if not tag_name and element:
         tag_name = element.name
-    converter = _REGISTRY.block_converters.get(tag_name)
+    if tag_name in _HIDDEN_TAGS.get():
+        converter = None
+    else:
+        converter = _REGISTRY.block_converters.get(tag_name)
     if not converter and not strict and _REGISTRY.default:
         converter = _REGISTRY.default
     return converter
