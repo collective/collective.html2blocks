@@ -1,1 +1,0 @@
-Added opt-in conversion of ``<pre>`` and Markdown code fences to ``codeBlock`` blocks of ``@plonegovbr/volto-code-block``, with the language taken from the ``language-*`` class. Enable it with ``blocks={"codeBlock": True}`` in ``volto_blocks()``, or with ``--enable codeBlock`` in the ``convert`` command. @ericof

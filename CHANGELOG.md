@@ -9,6 +9,23 @@
 
 <!-- towncrier release notes start -->
 
+## 1.0.0b1 (2026-10-28)
+
+
+### Feature
+
+- Added opt-in conversion of ``<pre>`` and Markdown code fences to ``codeBlock`` blocks of ``@plonegovbr/volto-code-block``, with the language taken from the ``language-*`` class. Enable it with ``blocks={"codeBlock": True}`` in ``volto_blocks()``, or with ``--enable codeBlock`` in the ``convert`` command. @ericof [#47](https://github.com/collective/collective.html2blocks/issues/47)
+- Added the ``blocks`` setting to enable, disable and configure each Volto block type: ``blocks={"codeBlock": {"style": "light"}, "slateTable": False}`` in ``html_to_blocks()``, ``markdown_to_blocks()`` and ``volto_blocks()``, ``--enable``, ``--disable`` and ``--option`` in the ``convert`` command, and a ``blocks`` field on ``POST /html``, ``POST /markdown`` and ``POST /volto``. Each block type now names the frontend package that provides it, and the new ``html2blocks blocks`` command, the ``GET /blocks`` endpoint and the "Supported blocks" documentation page list them all with their default state and options. @ericof [#49](https://github.com/collective/collective.html2blocks/issues/49)
+- Added conversion of Google Maps and Vimeo embeds: a Google Maps ``<iframe>`` becomes a ``maps`` block, and a Vimeo ``<iframe>`` becomes a ``video`` block with the ``https://vimeo.com/<id>`` URL that the block expects. Both blocks come from Volto core. @ericof [#49](https://github.com/collective/collective.html2blocks/issues/49)
+
+
+### Bugfix
+
+- Fixed a ``<video>`` with a YouTube URL producing two ``video`` blocks instead of one. @ericof [#49](https://github.com/collective/collective.html2blocks/issues/49)
+- Fixed the HTTP service dropping the keys specific to each block type from its responses, such as the ``table`` of a ``slateTable``, the ``src`` of an ``iframe``, and the ``alt`` and ``title`` of an ``image``. @ericof [#49](https://github.com/collective/collective.html2blocks/issues/49)
+- Fixed the order of a code block found inside a table: like images and videos, it now comes after the table, instead of before it. @ericof [#49](https://github.com/collective/collective.html2blocks/issues/49)
+- Fixed a ``<video>`` with a YouTube URL keeping its original URL: it now gets the same ``https://youtu.be/<id>`` URL as a YouTube ``<iframe>``. @ericof [#49](https://github.com/collective/collective.html2blocks/issues/49)
+
 ## 1.0.0a9 (2026-10-27)
 
 
