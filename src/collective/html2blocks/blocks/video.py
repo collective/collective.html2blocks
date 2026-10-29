@@ -47,4 +47,5 @@ def video_block(element: t.Tag) -> Generator[t.VoltoBlock, None, None]:
         src = str(source.get("src", "")) if source else ""
     if youtube.get_youtube_video_id(src):
         yield from youtube._youtube_block(src)
+        return
     yield {"@type": "video", "url": src}

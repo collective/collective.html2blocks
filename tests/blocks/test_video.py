@@ -32,3 +32,12 @@ def test_video_block(tag_from_str, source: str, key: str, expected: str):
     result = results[0]
     assert isinstance(result, dict)
     assert result[key] == expected
+
+
+@pytest.mark.parametrize(
+    "source",
+    [VIDEO_INTERNAL, VIDEO_EXTERNAL, VIDEO_YOUTUBE, VIDEO_YOUTUBE_SOURCE],
+)
+def test_video_block_yields_one_block(tag_from_str, source: str):
+    results = list(video.video_block(tag_from_str(source)))
+    assert len(results) == 1
