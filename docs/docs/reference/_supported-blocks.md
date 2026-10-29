@@ -3,10 +3,11 @@
 | `codeBlock` | `@plonegovbr/volto-code-block` | off | `<pre>` |
 | `iframe` | `@kitconcept/volto-iframe-block` | on | `<iframe>` |
 | `image` | `@plone/volto` | on | `<img>` |
+| `maps` | `@plone/volto` | on | `<iframe> (googlemaps)` |
 | `slate` | `@plone/volto` | always | — |
 | `slateTable` | `@plone/volto` | on | `<table>` |
 | `soundcloudBlock` | `@kitconcept/volto-social-blocks` | on | `<iframe> (soundcloud)` |
-| `video` | `@plone/volto` | on | `<video>`, `<iframe> (youtube)` |
+| `video` | `@plone/volto` | on | `<video>`, `<iframe> (vimeo)`, `<iframe> (youtube)` |
 
 ### `codeBlock` options
 

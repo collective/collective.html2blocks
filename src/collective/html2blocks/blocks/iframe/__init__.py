@@ -1,4 +1,6 @@
+from .maps import google_maps_block
 from .soundcloud import soundcloud_block
+from .vimeo import vimeo_block
 from .youtube import youtube_block
 from collections.abc import Generator
 from collective.html2blocks import _types as t
@@ -8,9 +10,11 @@ from collective.html2blocks.utils.markup import url_from_iframe
 
 
 __all__ = [
+    "google_maps_block",
     "iframe_block",
     "iframe_default_block",
     "soundcloud_block",
+    "vimeo_block",
     "youtube_block",
 ]
 

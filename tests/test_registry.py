@@ -96,6 +96,7 @@ def _report() -> dict[str, dict]:
         ["codeBlock", "@plonegovbr/volto-code-block", False, False, ["pre"], []],
         ["iframe", "@kitconcept/volto-iframe-block", True, False, [], ["iframe"]],
         ["image", "@plone/volto", True, False, ["img"], []],
+        ["maps", "@plone/volto", True, False, [], ["googlemaps"]],
         ["slate", "@plone/volto", True, True, [], []],
         ["slateTable", "@plone/volto", True, False, ["table"], []],
         [
@@ -106,7 +107,7 @@ def _report() -> dict[str, dict]:
             [],
             ["soundcloud"],
         ],
-        ["video", "@plone/volto", True, False, ["video"], ["youtube"]],
+        ["video", "@plone/volto", True, False, ["video"], ["vimeo", "youtube"]],
     ],
 )
 def test_report_blocks(
@@ -131,6 +132,7 @@ def test_report_blocks_lists_every_block_type():
         "codeBlock",
         "iframe",
         "image",
+        "maps",
         "slate",
         "slateTable",
         "soundcloudBlock",
@@ -153,6 +155,7 @@ def test_resolve_blocks_defaults():
     assert resolved.enabled == {
         "iframe",
         "image",
+        "maps",
         "slate",
         "slateTable",
         "soundcloudBlock",
@@ -209,6 +212,8 @@ SOUNDCLOUD = (
     'api.soundcloud.com/tracks/123456&color=ff5500"></iframe>'
 )
 OTHER_IFRAME = '<iframe src="https://example.org/embed"></iframe>'
+MAPS = '<iframe src="https://www.google.com/maps/embed?pb=1"></iframe>'
+VIMEO = '<iframe src="https://player.vimeo.com/video/76979871"></iframe>'
 
 
 @pytest.mark.parametrize(
@@ -224,6 +229,10 @@ OTHER_IFRAME = '<iframe src="https://example.org/embed"></iframe>'
         [OTHER_IFRAME, None, ["iframe"]],
         [OTHER_IFRAME, {"iframe": False}, []],
         [OTHER_IFRAME, {"soundcloudBlock": False}, ["iframe"]],
+        [MAPS, None, ["maps"]],
+        [MAPS, {"maps": False}, ["iframe"]],
+        [VIMEO, None, ["video"]],
+        [VIMEO, {"video": False}, ["iframe"]],
     ],
 )
 def test_disabled_block_types(source: str, blocks: dict | None, expected: list):

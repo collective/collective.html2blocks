@@ -29,7 +29,9 @@ def test_cli_blocks_json():
         '  option style (str, default "dark")',
         "slate [always] @plone/volto",
         "soundcloudBlock [on] @kitconcept/volto-social-blocks",
-        "  from: <video>, <iframe> (youtube)",
+        "  from: <video>, <iframe> (vimeo), <iframe> (youtube)",
+        "maps [on] @plone/volto",
+        "  from: <iframe> (googlemaps)",
     ],
 )
 def test_cli_blocks_text(line: str):
@@ -43,7 +45,9 @@ def test_cli_blocks_text(line: str):
     [
         "| `codeBlock` | `@plonegovbr/volto-code-block` | off | `<pre>` |",
         "| `iframe` | `@kitconcept/volto-iframe-block` | on | `<iframe>` |",
-        "| `video` | `@plone/volto` | on | `<video>`, `<iframe> (youtube)` |",
+        "| `video` | `@plone/volto` | on "
+        "| `<video>`, `<iframe> (vimeo)`, `<iframe> (youtube)` |",
+        "| `maps` | `@plone/volto` | on | `<iframe> (googlemaps)` |",
         "| `slate` | `@plone/volto` | always | — |",
         "| `wrapLongLines` | `bool` | `true` |",
     ],

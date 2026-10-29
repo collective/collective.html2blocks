@@ -26,7 +26,7 @@ from collective.html2blocks.blocks.iframe import youtube
     "video",
     block_type="video",
     package="@plone/volto",
-    description="Videos: <video>, and YouTube <iframe>.",
+    description="Videos: <video>, and YouTube and Vimeo <iframe>.",
 )
 def video_block(element: t.Tag) -> Generator[t.VoltoBlock, None, None]:
     """
