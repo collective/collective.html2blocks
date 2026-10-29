@@ -22,9 +22,17 @@ Every response includes the `X-Process-Time` header, which holds the processing 
 | --- | --- | --- | --- |
 | `GET` | `/` | None | An object with the `title`, `description` and `version` keys. |
 | `GET` | `/ok` | None | `{"status": "up"}` |
-| `POST` | `/html` | `html` and `converter` | A list of blocks. |
-| `POST` | `/markdown` | `markdown` and `converter` | A list of blocks. |
-| `POST` | `/volto` | `html`, `format`, `default_blocks` and `additional_blocks` | An object with the `blocks` and `blocks_layout` keys. |
+| `GET` | `/blocks` | None | A list with one object per supported block type. |
+| `POST` | `/html` | `html`, `converter` and `blocks` | A list of blocks. |
+| `POST` | `/markdown` | `markdown`, `converter` and `blocks` | A list of blocks. |
+| `POST` | `/volto` | `html`, `format`, `default_blocks`, `additional_blocks` and `blocks` | An object with the `blocks` and `blocks_layout` keys. |
+
+## `GET /blocks`
+
+List the Volto block types the converters can produce.
+Each object has the `block_type`, `package`, `description`, `enabled`, `required`, `tags`, `providers`, `options` and `fallback` keys.
+`enabled` is the default state of the block type, and `required` is `true` for a block type that can't be disabled.
+Each entry of `options` has the `name`, `type` and `default` keys.
 
 ## `POST /html`
 
@@ -34,6 +42,7 @@ Convert HTML to a list of blocks.
 | --- | --- | --- | --- | --- |
 | `html` | string | Yes | None | The HTML to convert. |
 | `converter` | string | No | `"slate"` | The converter to use. Only `"slate"` is accepted. |
+| `blocks` | object | No | `null` | Enables, disables and configures block types. See {ref}`http-service-blocks-field`. |
 
 If `converter` has any other value, the service responds with status 400.
 
@@ -45,6 +54,7 @@ Convert Markdown to a list of blocks.
 | --- | --- | --- | --- | --- |
 | `markdown` | string | Yes | None | The Markdown to convert. |
 | `converter` | string | No | `"slate"` | The converter to use. Only `"slate"` is accepted. |
+| `blocks` | object | No | `null` | Enables, disables and configures block types. See {ref}`http-service-blocks-field`. |
 
 If `converter` has any other value, the service responds with status 400.
 
@@ -58,8 +68,24 @@ Convert HTML or Markdown to the structure that Volto uses for a content item.
 | `format` | string | No | `"html"` | The format of `html`, either `"html"` or `"markdown"`. |
 | `default_blocks` | list of objects | No | `null` | Blocks to place before the converted blocks. |
 | `additional_blocks` | list of objects | No | `null` | Blocks to place after the converted blocks. |
+| `blocks` | object | No | `null` | Enables, disables and configures block types. See {ref}`http-service-blocks-field`. |
 
 If `format` has any other value, the service responds with status 422, the validation error status of FastAPI.
+
+(http-service-blocks-field)=
+
+## The `blocks` field
+
+The keys of `blocks` are Volto block types, as listed by `GET /blocks` and in {doc}`/reference/supported-blocks`.
+`true`, or an object of options, enables a block type, and `false` disables it.
+Block types left out keep their default state.
+
+```json
+{"html": "<pre>ls</pre>", "blocks": {"codeBlock": {"style": "light"}, "slateTable": false}}
+```
+
+For an unknown block type or option, a value of the wrong type, or a block type that can't be disabled, the service responds with status 400.
+The `detail` key of the response says what is wrong.
 
 ## Example
 

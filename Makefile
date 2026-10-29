@@ -96,6 +96,13 @@ test-coverage: $(BIN_FOLDER)/pytest ## run tests
 	@uv run pytest --cov=collective.html2blocks --cov-report term-missing
 
 ############################################
+# Documentation
+############################################
+.PHONY: docs-blocks
+docs-blocks: $(BIN_FOLDER)/pytest ## Regenerate the supported blocks table of the docs
+	@uv run html2blocks blocks --format markdown > docs/docs/reference/_supported-blocks.md
+
+############################################
 # Container
 ############################################
 .PHONY: image-build

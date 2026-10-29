@@ -78,7 +78,12 @@ def _scale_from_src(src: str) -> str:
     return scale
 
 
-@registry.block_converter("img")
+@registry.block_converter(
+    "img",
+    block_type="image",
+    package="@plone/volto",
+    description="Images: <img>.",
+)
 def image_block(element: t.Tag) -> Generator[t.VoltoBlock, None, None]:
     """
     Convert an <img> element to a Volto image block.

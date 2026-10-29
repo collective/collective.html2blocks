@@ -22,7 +22,12 @@ from collective.html2blocks import registry
 from collective.html2blocks.blocks.iframe import youtube
 
 
-@registry.block_converter("video")
+@registry.block_converter(
+    "video",
+    block_type="video",
+    package="@plone/volto",
+    description="Videos: <video>, and YouTube <iframe>.",
+)
 def video_block(element: t.Tag) -> Generator[t.VoltoBlock, None, None]:
     """
     Convert a <video> element to a Volto video block.

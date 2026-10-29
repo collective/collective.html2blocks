@@ -95,6 +95,48 @@ def check_paths(src: Path, dst: Path) -> bool:
     return True
 
 
+def blocks_setting(
+    enable: list[str], disable: list[str], options: list[str]
+) -> dict[str, bool | dict]:
+    """
+    Build a ``blocks`` setting from the ``--enable``, ``--disable`` and ``--option``
+    values of the command line.
+
+    :param enable: Block types to enable.
+    :param disable: Block types to disable.
+    :param options: Block options, as ``BLOCK_TYPE.KEY=VALUE``.
+    :returns: The ``blocks`` setting, validated against the registry. An option
+        enables its block type, as a dict of options does in the setting.
+    :raises ValueError: For a malformed option, a block type both enabled and
+        disabled, an option of a disabled block type, or anything
+        :func:`~collective.html2blocks.registry.resolve_blocks` rejects.
+
+    Example:
+        .. code-block:: pycon
+
+            >>> blocks_setting(["codeBlock"], [], ["codeBlock.style=light"])
+            {'codeBlock': {'style': 'light'}}
+    """
+    from collective.html2blocks import registry
+
+    if both := sorted(set(enable) & set(disable)):
+        raise ValueError(f"Block types both enabled and disabled: {', '.join(both)}")
+    setting: dict[str, bool | dict] = dict.fromkeys(enable, True)
+    setting.update(dict.fromkeys(disable, False))
+    for item in options:
+        name, dot, rest = item.partition(".")
+        key, equal, raw = rest.partition("=")
+        if not (dot and equal and name and key):
+            raise ValueError(f"Option {item} must be BLOCK_TYPE.KEY=VALUE")
+        value = registry.coerce_option_value(name, key, raw)
+        current = setting.get(name)
+        if current is False:
+            raise ValueError(f"Option {item} is for a disabled block type")
+        setting[name] = {**(current if isinstance(current, dict) else {}), key: value}
+    registry.resolve_blocks(setting)
+    return setting
+
+
 @app.command(name="convert")
 def convert(
     src: Annotated[Path, typer.Argument(help="Path to the HTML or Markdown file")],
@@ -107,36 +149,30 @@ def convert(
             "(.md and .markdown are Markdown, anything else is HTML).",
         ),
     ] = None,
-    code_block: Annotated[
-        bool,
+    enable: Annotated[
+        list[str] | None,
         typer.Option(
-            "--code-block",
-            help="Convert code (<pre> and Markdown fences) to codeBlock blocks. "
-            "Off by default, as the codeBlock type comes from an add-on.",
-        ),
-    ] = False,
-    code_style: Annotated[
-        str | None,
-        typer.Option(
-            "--code-style",
-            help="Style of the codeBlock blocks (default: dark). "
-            "Requires --code-block.",
+            "--enable",
+            metavar="BLOCK_TYPE",
+            help="Enable a block type, such as codeBlock. Repeat for more. "
+            "Run 'html2blocks blocks' to list the block types.",
         ),
     ] = None,
-    wrap_long_lines: Annotated[
-        bool | None,
+    disable: Annotated[
+        list[str] | None,
         typer.Option(
-            "--wrap-long-lines/--no-wrap-long-lines",
-            help="Wrap long lines in the codeBlock blocks (default: wrap). "
-            "Requires --code-block.",
+            "--disable",
+            metavar="BLOCK_TYPE",
+            help="Disable a block type, such as slateTable. Repeat for more.",
         ),
     ] = None,
-    show_line_numbers: Annotated[
-        bool | None,
+    option: Annotated[
+        list[str] | None,
         typer.Option(
-            "--show-line-numbers/--no-show-line-numbers",
-            help="Show line numbers in the codeBlock blocks (default: hide). "
-            "Requires --code-block.",
+            "--option",
+            metavar="BLOCK_TYPE.KEY=VALUE",
+            help="Set an option of a block type, such as codeBlock.style=light. "
+            "The option also enables the block type. Repeat for more.",
         ),
     ] = None,
 ):
@@ -148,17 +184,16 @@ def convert(
     result as JSON to ``dst``. The input format is detected from the suffix of
     ``src`` unless ``--format`` is given.
 
-    With ``--code-block``, code (``<pre>`` and Markdown fences) becomes
-    ``codeBlock`` blocks, and the ``--code-style``, ``--wrap-long-lines`` and
-    ``--show-line-numbers`` options override the block defaults.
+    ``--enable`` and ``--disable`` turn block types on and off, and ``--option``
+    overrides an option of a block type, enabling it. ``html2blocks blocks`` lists
+    the block types with their default state and options.
 
     :param src: Path to the HTML or Markdown file to convert.
     :param dst: Path to write the JSON output.
     :param input_format: Input format, overriding the suffix detection.
-    :param code_block: Convert code into ``codeBlock`` blocks.
-    :param code_style: Style of the ``codeBlock`` blocks.
-    :param wrap_long_lines: Wrap long lines in the ``codeBlock`` blocks.
-    :param show_line_numbers: Show line numbers in the ``codeBlock`` blocks.
+    :param enable: Block types to enable.
+    :param disable: Block types to disable.
+    :param option: Block options, as ``BLOCK_TYPE.KEY=VALUE``.
 
     Example:
         .. code-block:: shell
@@ -166,32 +201,27 @@ def convert(
             uv run html2blocks convert input.html output.json
             uv run html2blocks convert input.md output.json
             uv run html2blocks convert --format markdown notes.txt output.json
-            uv run html2blocks convert --code-block --code-style light input.md out.json
+            uv run html2blocks convert --enable codeBlock \\
+                --option codeBlock.style=light input.md out.json
+            uv run html2blocks convert --disable slateTable input.html out.json
 
         .. code-block:: console
 
             Converted input.html contents into file output.json
     """
     from collective.html2blocks import converter
-    from collective.html2blocks.blocks.code import CodeBlockOptions
 
     dst = dst.resolve()
     folder = dst.parent
     if not check_paths(src, folder):
         raise typer.Exit(1)
-    code_options: CodeBlockOptions = {}
-    if code_style is not None:
-        code_options["style"] = code_style
-    if wrap_long_lines is not None:
-        code_options["wrapLongLines"] = wrap_long_lines
-    if show_line_numbers is not None:
-        code_options["showLineNumbers"] = show_line_numbers
-    if code_options and not code_block:
-        typer.echo(
-            "--code-style, --wrap-long-lines and --show-line-numbers "
-            "require --code-block"
+    try:
+        blocks = blocks_setting(
+            list(enable or []), list(disable or []), list(option or [])
         )
-        raise typer.Exit(2)
+    except ValueError as exc:
+        typer.echo(str(exc))
+        raise typer.Exit(2) from None
     if input_format is None:
         is_markdown = detect_format(src) == "markdown"
     else:
@@ -201,7 +231,7 @@ def convert(
     result = converter.volto_blocks(
         source,
         source_format=source_format,
-        code_block=code_options if code_block else None,
+        blocks=blocks,
     )
     with open(dst, "w") as fout:
         json.dump(result, fout, indent=2)

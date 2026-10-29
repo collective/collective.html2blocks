@@ -20,10 +20,20 @@ from collective.html2blocks.converter import volto_blocks
 from fastapi import APIRouter
 from fastapi import HTTPException
 from pydantic import BaseModel
+from typing import Any
 from typing import Literal
 
 
 router = APIRouter()
+
+# The ``blocks`` setting of a request, see
+# :func:`~collective.html2blocks.registry.resolve_blocks`.
+BlocksField = dict[str, bool | dict[str, Any]] | None
+
+
+def _bad_request(exc: ValueError) -> HTTPException:
+    """Return the 400 response for an invalid ``blocks`` setting."""
+    return HTTPException(status_code=400, detail=str(exc))
 
 
 class HtmlBody(BaseModel):
@@ -33,10 +43,12 @@ class HtmlBody(BaseModel):
     Attributes:
         html (str): The HTML content to convert.
         converter (str): The type of conversion to perform (default is ``slate``).
+        blocks (dict, optional): Enables, disables and configures block types.
     """
 
     html: str
     converter: str = "slate"
+    blocks: BlocksField = None
 
 
 @router.post("/html")
@@ -67,7 +79,10 @@ async def convert_html(body: HtmlBody) -> list[t.VoltoBlock]:
         raise HTTPException(
             status_code=400, detail=f"Unsupported converter: {converter}"
         )
-    return html_to_blocks(html)
+    try:
+        return html_to_blocks(html, blocks=body.blocks)
+    except ValueError as exc:
+        raise _bad_request(exc) from None
 
 
 class MarkdownBody(BaseModel):
@@ -76,10 +91,12 @@ class MarkdownBody(BaseModel):
 
     :ivar markdown: The Markdown content to convert.
     :ivar converter: The type of conversion to perform (default is ``slate``).
+    :ivar blocks: Enables, disables and configures block types.
     """
 
     markdown: str
     converter: str = "slate"
+    blocks: BlocksField = None
 
 
 @router.post("/markdown")
@@ -105,7 +122,10 @@ async def convert_markdown(body: MarkdownBody) -> list[t.VoltoBlock]:
         raise HTTPException(
             status_code=400, detail=f"Unsupported converter: {converter}"
         )
-    return markdown_to_blocks(markdown)
+    try:
+        return markdown_to_blocks(markdown, blocks=body.blocks)
+    except ValueError as exc:
+        raise _bad_request(exc) from None
 
 
 class VoltoBody(BaseModel):
@@ -116,12 +136,16 @@ class VoltoBody(BaseModel):
     :ivar format: The format of ``html``, either ``html`` (default) or ``markdown``.
     :ivar default_blocks: Default blocks to include.
     :ivar additional_blocks: Additional blocks to include.
+    :ivar blocks: Enables, disables and configures block types, keyed by
+        their Volto ``@type``: ``true`` or an object of options enables a
+        block, ``false`` disables it.
     """
 
     html: str
     format: Literal["html", "markdown"] = "html"
     default_blocks: list[t.VoltoBlock] | None = None
     additional_blocks: list[t.VoltoBlock] | None = None
+    blocks: BlocksField = None
 
 
 @router.post("/volto")
@@ -140,10 +164,19 @@ def convert_to_volto(body: VoltoBody) -> t.VoltoBlocksInfo:
 
             curl -X POST /volto -d '{"html": "<p>Hello</p>"}'
             curl -X POST /volto -d '{"html": "# Hello", "format": "markdown"}'
+            curl -X POST /volto -d '{"html": "<pre>ls</pre>",
+                                     "blocks": {"codeBlock": true}}'
     """
     html = body.html
     default_blocks = body.default_blocks or []
     additional_blocks = body.additional_blocks or []
-    return volto_blocks(
-        html, default_blocks, additional_blocks, source_format=body.format
-    )
+    try:
+        return volto_blocks(
+            html,
+            default_blocks,
+            additional_blocks,
+            source_format=body.format,
+            blocks=body.blocks,
+        )
+    except ValueError as exc:
+        raise _bad_request(exc) from None

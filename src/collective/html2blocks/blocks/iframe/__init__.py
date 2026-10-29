@@ -15,7 +15,12 @@ __all__ = [
 ]
 
 
-@registry.iframe_converter("iframe")
+@registry.iframe_converter(
+    "iframe",
+    block_type="iframe",
+    package="@kitconcept/volto-iframe-block",
+    description="Embeds: <iframe> without a more specific provider.",
+)
 def iframe_default_block(
     element: t.Tag, src: str, provider_id: str
 ) -> Generator[t.VoltoBlock, None, None]:
@@ -26,7 +31,12 @@ def iframe_default_block(
 
 @registry.block_converter("iframe")
 def iframe_block(element: t.Tag) -> Generator[t.VoltoBlock, None, None]:
-    """Variations of the iframe block."""
+    """
+    Variations of the iframe block.
+
+    The block type comes from the iframe provider that matches the ``src``, so
+    this converter declares none itself.
+    """
     src = url_from_iframe(element)
     embed_info = registry.get_iframe_converter(src)
     yield from embed_info.converter(element, embed_info.url, embed_info.provider_id)

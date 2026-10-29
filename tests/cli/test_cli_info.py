@@ -19,5 +19,16 @@ def test_cli_info_converters(caplog):
     levels = {record.levelname for record in caplog.records}
     assert levels == {"INFO"}
     messages = [record.message for record in caplog.records]
+    assert "## Block Types" in messages
     assert "## Block Converters" in messages
     assert "## Element Converters" in messages
+
+
+def test_cli_info_block_types(caplog):
+    caplog.clear()
+    result = runner.invoke(app, ["info"])
+    assert result.exit_code == 0
+    messages = [record.message for record in caplog.records]
+    assert " - codeBlock [off]: @plonegovbr/volto-code-block" in messages
+    assert " - slate [always]: @plone/volto" in messages
+    assert " - video [on]: @plone/volto" in messages
