@@ -16,6 +16,12 @@ BaseVoltoBlock = TypedDict("BaseVoltoBlock", {"@type": str})
 class VoltoBlock(BaseVoltoBlock, total=False):
     """Volto Block type with optional fields."""
 
+    # Each block type has its own keys (``table``, ``src``, ``code``...). Without
+    # this, pydantic (in the HTTP service) drops every key not declared here.
+    # A plain dict, so pydantic stays an optional dependency. Not annotated: in a
+    # TypedDict, an annotation (even ClassVar) would declare a key.
+    __pydantic_config__ = {"extra": "allow"}  # type: ignore[misc]  # noqa: RUF012
+
     value: NotRequired[list]
     align: NotRequired[str]
     size: NotRequired[str]
