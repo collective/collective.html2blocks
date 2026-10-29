@@ -7,7 +7,8 @@ iframe converter for YouTube URLs, otherwise yielding a standard video block.
 
 Implementation details:
 - Extracts video src from the element or its source child.
-- Detects YouTube videos and uses the YouTube block converter if applicable.
+- Detects YouTube videos and uses the YouTube block converter if applicable,
+  with the same ``https://youtu.be/<id>`` URL as a YouTube <iframe>.
 - Yields a Volto video block with the video URL.
 
 Example usage::
@@ -50,7 +51,8 @@ def video_block(element: t.Tag) -> Generator[t.VoltoBlock, None, None]:
     if not (src := element.get("src", "")):
         source: t.Tag | None = element.source
         src = str(source.get("src", "")) if source else ""
-    if youtube.get_youtube_video_id(src):
-        yield from youtube._youtube_block(src)
+    if video_id := youtube.get_youtube_video_id(src):
+        # Same URL as a YouTube <iframe>, see youtube.youtube_block.
+        yield from youtube._youtube_block(f"https://youtu.be/{video_id}")
         return
     yield {"@type": "video", "url": src}
