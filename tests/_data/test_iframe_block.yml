@@ -99,3 +99,55 @@ params:
     tests:
       - path: "0/height"
         expected: '200px'
+
+  - name: Google Maps embed
+    src: '<iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3769.6&amp;hl=pt-BR" width="600" height="450" title="Sede" allowfullscreen loading="lazy"></iframe>'
+    tests:
+      - path: "0/@type"
+        expected: 'maps'
+      - path: "0/url"
+        expected: https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3769.6&hl=pt-BR
+      - path: "0/title"
+        expected: 'Sede'
+
+  - name: Google Maps classic embed
+    src: '<iframe src="https://maps.google.com/maps?q=Uberl%C3%A2ndia&amp;output=embed"></iframe>'
+    tests:
+      - path: "0/@type"
+        expected: 'maps'
+      - path: "0/url"
+        expected: https://maps.google.com/maps?q=Uberl%C3%A2ndia&output=embed
+
+  - name: Google Maps place page is not an embed of another host
+    src: '<iframe src="https://www.google.com.evil.example/maps/embed?pb=1"></iframe>'
+    tests:
+      - path: "0/@type"
+        expected: 'iframe'
+
+  - name: Vimeo player
+    src: '<iframe src="https://player.vimeo.com/video/76979871?h=8272103f6e&amp;title=0" width="640" height="360" allowfullscreen></iframe>'
+    tests:
+      - path: "0/@type"
+        expected: 'video'
+      - path: "0/url"
+        expected: https://vimeo.com/76979871
+
+  - name: Vimeo page
+    src: '<iframe src="https://vimeo.com/76979871"></iframe>'
+    tests:
+      - path: "0/@type"
+        expected: 'video'
+      - path: "0/url"
+        expected: https://vimeo.com/76979871
+
+  - name: Vimeo protocol-relative
+    src: '<iframe src="//player.vimeo.com/video/76979871"></iframe>'
+    tests:
+      - path: "0/url"
+        expected: https://vimeo.com/76979871
+
+  - name: Vimeo showcase is not a video
+    src: '<iframe src="https://vimeo.com/showcase/123"></iframe>'
+    tests:
+      - path: "0/@type"
+        expected: 'iframe'

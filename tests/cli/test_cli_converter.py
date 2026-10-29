@@ -114,15 +114,17 @@ def test_cli_converter_missing_source_exits_cleanly(html_dir):
     assert not dst.exists()
 
 
-def test_cli_convert_code_block_option(test_dir, strip_keys):
+def test_cli_convert_enable_code_block(test_dir, strip_keys):
     (test_dir / "page.md").write_text(MARKDOWN_SOURCE + "\n```py\nx = 1\n```\n")
-    result = runner.invoke(app, ["convert", "--code-block", "page.md", "page.json"])
+    result = runner.invoke(
+        app, ["convert", "--enable", "codeBlock", "page.md", "page.json"]
+    )
     assert result.exit_code == 0, result.stdout
     data = json.loads((test_dir / "page.json").read_text())
     expected = converter.volto_blocks(
         MARKDOWN_SOURCE + "\n```py\nx = 1\n```\n",
         source_format="markdown",
-        code_block={},
+        blocks={"codeBlock": True},
     )
     assert _ordered_blocks(data, strip_keys) == _ordered_blocks(expected, strip_keys)
     code = [b for b in _ordered_blocks(data, strip_keys) if b["@type"] == "codeBlock"]
@@ -139,30 +141,6 @@ def test_cli_convert_code_block_option(test_dir, strip_keys):
     ]
 
 
-def test_cli_convert_code_block_overrides(test_dir):
-    (test_dir / "page.md").write_text("```sh\nls\n```\n")
-    result = runner.invoke(
-        app,
-        [
-            "convert",
-            "--code-block",
-            "--code-style",
-            "light",
-            "--no-wrap-long-lines",
-            "--show-line-numbers",
-            "page.md",
-            "page.json",
-        ],
-    )
-    assert result.exit_code == 0, result.stdout
-    data = json.loads((test_dir / "page.json").read_text())
-    block = next(iter(data["blocks"].values()))
-    assert block["style"] == "light"
-    assert block["wrapLongLines"] is False
-    assert block["showLineNumbers"] is True
-    assert block["language"] == "bash"
-
-
 def test_cli_convert_code_block_off_by_default(test_dir):
     (test_dir / "page.md").write_text("```sh\nls\n```\n")
     result = runner.invoke(app, ["convert", "page.md", "page.json"])
@@ -172,11 +150,96 @@ def test_cli_convert_code_block_off_by_default(test_dir):
     assert "codeBlock" not in types
 
 
-def test_cli_convert_code_options_require_code_block(test_dir):
+def test_cli_convert_option_keeps_value_case(test_dir):
     (test_dir / "page.md").write_text("```sh\nls\n```\n")
     result = runner.invoke(
-        app, ["convert", "--code-style", "light", "page.md", "page.json"]
+        app, ["convert", "--option", "codeBlock.style=Light", "page.md", "page.json"]
     )
+    assert result.exit_code == 0, result.output
+    block = next(
+        iter(json.loads((test_dir / "page.json").read_text())["blocks"].values())
+    )
+    assert block["style"] == "Light"
+
+
+@pytest.mark.parametrize(
+    "flag",
+    ["--code-block", "--code-style", "--wrap-long-lines", "--show-line-numbers"],
+)
+def test_cli_convert_code_block_flags_removed(test_dir, flag: str):
+    (test_dir / "page.md").write_text("```sh\nls\n```\n")
+    result = runner.invoke(app, ["convert", flag, "page.md", "page.json"])
     assert result.exit_code == 2
-    assert "require --code-block" in result.stdout
+    assert not (test_dir / "page.json").exists()
+
+
+def _convert(test_dir, source: str, *args: str) -> list[dict]:
+    """Run ``convert`` on a Markdown source and return the blocks in layout order."""
+    (test_dir / "page.md").write_text(source)
+    result = runner.invoke(app, ["convert", *args, "page.md", "page.json"])
+    assert result.exit_code == 0, result.output
+    data = json.loads((test_dir / "page.json").read_text())
+    return [data["blocks"][item] for item in data["blocks_layout"]["items"]]
+
+
+FENCE_AND_TABLE = "```sh\nls\n```\n\n| a | b |\n|---|---|\n| 1 | 2 |\n"
+
+
+@pytest.mark.parametrize(
+    "args,expected",
+    [
+        [[], ["slate", "slateTable"]],
+        [["--enable", "codeBlock"], ["codeBlock", "slateTable"]],
+        [["--disable", "slateTable"], ["slate", "slate"]],
+        [
+            ["--enable", "codeBlock", "--disable", "slateTable"],
+            ["codeBlock", "slate"],
+        ],
+        [["--option", "codeBlock.style=light"], ["codeBlock", "slateTable"]],
+    ],
+)
+def test_cli_convert_enable_disable(test_dir, args: list, expected: list):
+    blocks = _convert(test_dir, FENCE_AND_TABLE, *args)
+    assert [block["@type"] for block in blocks] == expected
+
+
+def test_cli_convert_options(test_dir):
+    blocks = _convert(
+        test_dir,
+        "```sh\nls\n```\n",
+        "--enable",
+        "codeBlock",
+        "--option",
+        "codeBlock.style=light",
+        "--option",
+        "codeBlock.showLineNumbers=true",
+        "--option",
+        "codeBlock.wrapLongLines=no",
+    )
+    assert blocks[0]["style"] == "light"
+    assert blocks[0]["showLineNumbers"] is True
+    assert blocks[0]["wrapLongLines"] is False
+
+
+@pytest.mark.parametrize(
+    "args,msg",
+    [
+        [["--enable", "accordion"], "Unknown block type accordion"],
+        [["--disable", "slate"], "slate cannot be disabled"],
+        [["--enable", "video", "--disable", "video"], "both enabled and disabled"],
+        [["--option", "codeBlock.style"], "must be BLOCK_TYPE.KEY=VALUE"],
+        [["--option", "style=light"], "must be BLOCK_TYPE.KEY=VALUE"],
+        [["--option", "codeBlock.theme=x"], "Unknown option theme"],
+        [["--option", "codeBlock.wrapLongLines=maybe"], "must be a boolean"],
+        [
+            ["--disable", "codeBlock", "--option", "codeBlock.style=light"],
+            "for a disabled block type",
+        ],
+    ],
+)
+def test_cli_convert_invalid_blocks(test_dir, args: list, msg: str):
+    (test_dir / "page.md").write_text("```sh\nls\n```\n")
+    result = runner.invoke(app, ["convert", *args, "page.md", "page.json"])
+    assert result.exit_code == 2
+    assert msg in result.stdout
     assert not (test_dir / "page.json").exists()

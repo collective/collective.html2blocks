@@ -35,6 +35,9 @@ def tool_information():
         .. code-block:: console
 
             # collective.html2blocks - 1.0.0
+            ## Block Types
+             - codeBlock [off]: @plonegovbr/volto-code-block
+             - slate [always]: @plone/volto
             ## Block Converters
              - p: module.convert_paragraph
              - div: module.convert_div
@@ -43,11 +46,18 @@ def tool_information():
     """
     from collective.html2blocks import PACKAGE_NAME
     from collective.html2blocks import __version__
+    from collective.html2blocks.commands.blocks import block_state
+    from collective.html2blocks.registry import report_blocks
     from collective.html2blocks.registry import report_registrations
 
     registrations = report_registrations()
     with console_logging(logger) as log:
         log.info(f"# {PACKAGE_NAME} - {__version__}")
+        log.info("")
+        log.info("## Block Types")
+        for item in report_blocks():
+            state = block_state(item)
+            log.info(f" - {item['block_type']} [{state}]: {item['package']}")
         log.info("")
         log.info("## Block Converters")
         for tag_name, converter in registrations["block"].items():

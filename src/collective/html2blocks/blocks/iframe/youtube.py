@@ -26,6 +26,8 @@ def _youtube_block(src: str) -> list[t.VoltoBlock]:
     "youtube",
     src_pattern=YOUTUBE_REGEX,
     url_pattern=r"https://youtu.be/\g<provider_id>",
+    block_type="video",
+    package="@plone/volto",
 )
 def youtube_block(element: t.Tag, src: str, provider_id: str) -> list[t.VoltoBlock]:
     """Implemented by @plone/volto."""

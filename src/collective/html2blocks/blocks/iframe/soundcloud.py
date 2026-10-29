@@ -13,6 +13,9 @@ SOUNDCLOUD_REGEX = re.compile(
     "soundcloud",
     src_pattern=SOUNDCLOUD_REGEX,
     url_pattern=r"https://api.soundcloud.com/tracks/\g<provider_id>\2",
+    block_type="soundcloudBlock",
+    package="@kitconcept/volto-social-blocks",
+    description="SoundCloud tracks: SoundCloud player <iframe>.",
 )
 def soundcloud_block(element: t.Tag, src: str, provider_id: str) -> list[t.VoltoBlock]:
     """Implemented by @kitconcept/volto-social-blocks."""

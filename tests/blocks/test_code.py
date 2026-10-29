@@ -1,5 +1,6 @@
 from collective.html2blocks import converter
 from collective.html2blocks import registry
+from collective.html2blocks.blocks.code import pre_block
 
 import pytest
 
@@ -32,7 +33,9 @@ def _code_blocks(info: dict) -> list:
 def test_code_block_converted(
     source: str, source_format: str, expected_code: str, expected_language: str
 ):
-    info = converter.volto_blocks(source, source_format=source_format, code_block={})
+    info = converter.volto_blocks(
+        source, source_format=source_format, blocks={"codeBlock": True}
+    )
     blocks = _code_blocks(info)
     assert len(blocks) == 1
     assert blocks[0] == {
@@ -47,7 +50,7 @@ def test_code_block_converted(
 
 
 def test_code_block_keeps_surrounding_blocks():
-    info = converter.volto_blocks(HTML_PRE, code_block={})
+    info = converter.volto_blocks(HTML_PRE, blocks={"codeBlock": True})
     types = [block["@type"] for block in _blocks(info)]
     assert types == ["slate", "codeBlock", "slate"]
     assert _blocks(info)[0]["plaintext"] == "Before"
@@ -71,7 +74,7 @@ def test_code_block_keeps_surrounding_blocks():
     ],
 )
 def test_code_block_language(source: str, expected: str):
-    info = converter.volto_blocks(source, code_block={})
+    info = converter.volto_blocks(source, blocks={"codeBlock": True})
     assert _code_blocks(info)[0]["language"] == expected
 
 
@@ -85,14 +88,20 @@ def test_code_block_language(source: str, expected: str):
     ],
 )
 def test_code_block_trailing_newline(source: str, expected: str):
-    info = converter.volto_blocks(source, code_block={})
+    info = converter.volto_blocks(source, blocks={"codeBlock": True})
     assert _code_blocks(info)[0]["code"] == expected
 
 
 def test_code_block_options_override_defaults():
     info = converter.volto_blocks(
         HTML_PRE,
-        code_block={"style": "light", "wrapLongLines": False, "showLineNumbers": True},
+        blocks={
+            "codeBlock": {
+                "style": "light",
+                "wrapLongLines": False,
+                "showLineNumbers": True,
+            }
+        },
     )
     block = _code_blocks(info)[0]
     assert block["style"] == "light"
@@ -101,7 +110,7 @@ def test_code_block_options_override_defaults():
 
 
 def test_code_block_partial_options_keep_other_defaults():
-    info = converter.volto_blocks(HTML_PRE, code_block={"style": "light"})
+    info = converter.volto_blocks(HTML_PRE, blocks={"codeBlock": {"style": "light"}})
     block = _code_blocks(info)[0]
     assert block["style"] == "light"
     assert block["wrapLongLines"] is True
@@ -173,24 +182,76 @@ def test_default_output_pins_html_pre_slate_shape():
     ]
 
 
-def test_default_output_equals_explicit_none(strip_keys):
+@pytest.mark.parametrize("setting", [None, {}, {"codeBlock": False}])
+def test_default_output_equals_explicit_disabled(strip_keys, setting):
     default = converter.volto_blocks(HTML_PRE)
-    explicit = converter.volto_blocks(HTML_PRE, code_block=None)
+    explicit = converter.volto_blocks(HTML_PRE, blocks=setting)
     assert strip_keys(_blocks(default)) == strip_keys(_blocks(explicit))
 
 
-def test_pre_converter_hidden_only_during_default_conversion():
-    """The converter stays registered; hiding it lasts for one conversion only."""
-    converter.volto_blocks(HTML_PRE)
-    assert registry.get_block_converter(tag_name="pre") is not None
-    assert "pre" in registry.elements_with_block_converters()
+def test_pre_converter_follows_the_setting():
+    """The converter stays registered; the setting decides whether it is used."""
+    converter.volto_blocks(HTML_PRE, blocks={"codeBlock": True})
+    assert registry.get_block_converter(tag_name="pre") is None
+    assert "pre" not in registry.elements_with_block_converters()
+    with registry.conversion({"codeBlock": True}):
+        assert registry.get_block_converter(tag_name="pre") is pre_block
+        assert "pre" in registry.elements_with_block_converters()
+    assert "pre" in registry.report_registrations()["block"]
 
 
-def test_html_to_blocks_accepts_code_block():
-    blocks = converter.html_to_blocks(HTML_PRE, code_block={})
+def test_html_to_blocks_accepts_blocks():
+    blocks = converter.html_to_blocks(HTML_PRE, blocks={"codeBlock": True})
     assert [block["@type"] for block in blocks] == ["slate", "codeBlock", "slate"]
     assert [block["@type"] for block in converter.html_to_blocks(HTML_PRE)] == [
         "slate",
         "slate",
         "slate",
     ]
+
+
+def test_pre_in_table_comes_after_the_table():
+    """Like images, code cannot live in a table cell, and follows the table."""
+    source = "<table><tr><td><pre><code>x = 1</code></pre></td></tr></table>"
+    blocks = converter.html_to_blocks(source, blocks={"codeBlock": True})
+    assert [block["@type"] for block in blocks] == ["slateTable", "codeBlock"]
+    assert blocks[1]["code"] == "x = 1"
+
+
+@pytest.mark.parametrize(
+    "func,source,kwargs",
+    [
+        [converter.html_to_blocks, HTML_PRE, {}],
+        [converter.markdown_to_blocks, MARKDOWN_FENCE, {}],
+        [converter.volto_blocks, HTML_PRE, {}],
+        [converter.volto_blocks, MARKDOWN_FENCE, {"source_format": "markdown"}],
+    ],
+)
+def test_blocks_options_in_every_entry_point(func, source: str, kwargs: dict):
+    result = func(source, blocks={"codeBlock": {"style": "light"}}, **kwargs)
+    blocks = _blocks(result) if func is converter.volto_blocks else result
+    assert [block["style"] for block in blocks if block["@type"] == "codeBlock"] == [
+        "light"
+    ]
+
+
+@pytest.mark.parametrize(
+    "func", [converter.html_to_blocks, converter.markdown_to_blocks]
+)
+def test_code_block_argument_removed(func):
+    with pytest.raises(TypeError, match="code_block"):
+        func(HTML_PRE, code_block={})
+
+
+@pytest.mark.parametrize(
+    "setting,match",
+    [
+        [{"codeBlock": {"wrap_long_lines": False}}, "Unknown option wrap_long_lines"],
+        [{"codeBlock": {"style": 1}}, "must be str, not int"],
+        [{"codeBlock": {"showLineNumbers": "yes"}}, "must be bool, not str"],
+        [{"codeBlock": "on"}, "must be true, false or a dict"],
+    ],
+)
+def test_invalid_code_block_options(setting: dict, match: str):
+    with pytest.raises(ValueError, match=match):
+        converter.html_to_blocks(HTML_PRE, blocks=setting)

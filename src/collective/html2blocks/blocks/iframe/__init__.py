@@ -1,4 +1,6 @@
+from .maps import google_maps_block
 from .soundcloud import soundcloud_block
+from .vimeo import vimeo_block
 from .youtube import youtube_block
 from collections.abc import Generator
 from collective.html2blocks import _types as t
@@ -8,14 +10,21 @@ from collective.html2blocks.utils.markup import url_from_iframe
 
 
 __all__ = [
+    "google_maps_block",
     "iframe_block",
     "iframe_default_block",
     "soundcloud_block",
+    "vimeo_block",
     "youtube_block",
 ]
 
 
-@registry.iframe_converter("iframe")
+@registry.iframe_converter(
+    "iframe",
+    block_type="iframe",
+    package="@kitconcept/volto-iframe-block",
+    description="Embeds: <iframe> without a more specific provider.",
+)
 def iframe_default_block(
     element: t.Tag, src: str, provider_id: str
 ) -> Generator[t.VoltoBlock, None, None]:
@@ -26,7 +35,12 @@ def iframe_default_block(
 
 @registry.block_converter("iframe")
 def iframe_block(element: t.Tag) -> Generator[t.VoltoBlock, None, None]:
-    """Variations of the iframe block."""
+    """
+    Variations of the iframe block.
+
+    The block type comes from the iframe provider that matches the ``src``, so
+    this converter declares none itself.
+    """
     src = url_from_iframe(element)
     embed_info = registry.get_iframe_converter(src)
     yield from embed_info.converter(element, embed_info.url, embed_info.provider_id)

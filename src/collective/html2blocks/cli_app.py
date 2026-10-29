@@ -14,6 +14,7 @@ Example:
         uv run html2blocks server
 """
 
+from collective.html2blocks.commands.blocks import app as app_blocks
 from collective.html2blocks.commands.convert import app as app_convert
 from collective.html2blocks.commands.info import app as app_info
 from collective.html2blocks.commands.server import app as app_server
@@ -44,6 +45,7 @@ def main(ctx: typer.Context):
     pass
 
 
+app.add_typer(app_blocks)
 app.add_typer(app_convert)
 app.add_typer(app_info)
 app.add_typer(app_server)

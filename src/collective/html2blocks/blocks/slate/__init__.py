@@ -25,6 +25,14 @@ from collective.html2blocks.utils import markup
 from collective.html2blocks.utils import slate as utils
 
 
+registry.register_block_type(
+    "slate",
+    package="@plone/volto",
+    required=True,
+    description="Rich text: every element without a more specific block.",
+)
+
+
 @registry.default_converter
 def slate_block(
     element: t.Tag,

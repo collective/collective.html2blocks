@@ -6,6 +6,9 @@ into Volto table blocks. It handles header detection, row and cell extraction,
 cell type assignment, and supports nested blocks within table cells.
 
 Implementation details:
+- Elements with an active block converter (images, videos, iframes, nested
+  tables, and code while ``codeBlock`` is enabled) are taken out of the cells
+  and converted after the table.
 - Detects header rows and can hide headers if the table lacks explicit <th> cells.
 - Extracts and normalizes cell values, supporting both text and nested blocks.
 - Uses helper functions for cell value processing and row extraction.
@@ -25,13 +28,6 @@ from collective.html2blocks.utils import markup
 from collective.html2blocks.utils import slate
 from collective.html2blocks.utils.generator import item_generator
 
-
-INVALID_TABLE_CELL_TAGS = (
-    "iframe",
-    "img",
-    "table",
-    "video",
-)
 
 VALID_TABLE_CELL_TAGS = (
     "td",
@@ -60,7 +56,12 @@ def _process_cell_value(
     return cell_value
 
 
-@registry.block_converter("table")
+@registry.block_converter(
+    "table",
+    block_type="slateTable",
+    package="@plone/volto",
+    description="Tables: <table>, and Markdown tables.",
+)
 def table_block(element: t.Tag) -> Generator[t.VoltoBlock, None, None]:
     """
     Convert a <table> element to a Volto table block.
@@ -86,8 +87,10 @@ def table_block(element: t.Tag) -> Generator[t.VoltoBlock, None, None]:
     css_classes: list[str] = element.get("class", [])
     hide_headers = False
     is_first_row = True
+    # Elements with an active block converter cannot live in a cell: they are
+    # taken out and converted after the table.
     table_rows, possible_blocks = markup.extract_rows_and_possible_blocks(
-        element, list(INVALID_TABLE_CELL_TAGS)
+        element, registry.elements_with_block_converters()
     )
     for row, is_header in table_rows:
         row_cells = [
