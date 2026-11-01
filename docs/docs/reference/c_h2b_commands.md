@@ -28,6 +28,13 @@ myst:
     :members:
 ```
 
+## `collective.html2blocks.commands.slate2plate`
+
+```{eval-rst}
+.. automodule:: collective.html2blocks.commands.slate2plate
+    :members:
+```
+
 ## `collective.html2blocks.commands.server`
 
 ```{eval-rst}

@@ -18,5 +18,6 @@ They list every option, endpoint and function, and they state the defaults.
 cli
 http-service
 supported-blocks
+plate
 api
 ```

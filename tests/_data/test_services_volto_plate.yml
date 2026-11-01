@@ -1,0 +1,28 @@
+---
+setup:
+  argnames: ["name", "src", "default_blocks", "title", "path", "expected"]
+  test_args: ["path", "expected"]
+params:
+  - name: Title and text
+    src: <p>Hello <strong>world</strong></p>
+    default_blocks: [{"@type": "title"}]
+    title: Welcome
+    tests:
+      - path: "blocks_layout/items"
+        expected: []
+      - path: "blocks/__somersault__/value/0"
+        expected: {type: title, children: [{text: Welcome}], blockWidth: default}
+      - path: "blocks/__somersault__/value/1/children/1"
+        expected: {text: world, bold: true}
+
+  - name: Keys of wrapped blocks survive the response model
+    src: <img src="/i.jpg" alt="An image" title="A title">
+    default_blocks: []
+    title: ""
+    tests:
+      - path: "blocks/__somersault__/value/0/@type"
+        expected: image
+      - path: "blocks/__somersault__/value/0/alt"
+        expected: An image
+      - path: "blocks/__somersault__/value/0/title"
+        expected: A title

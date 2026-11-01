@@ -131,7 +131,7 @@ def traverse():
     """
     Returns a function to traverse nested dicts/lists using a path string.
     Supports optional function modifiers (e.g., 'len', 'type', 'is_uuid4', 'keys') via colon syntax.
-    Example: traverse(data, 'foo/bar:baz')
+    Example: traverse(data, 'len:foo/bar')
     Session-scoped for reuse in multiple tests.
     """
     pattern = re.compile(r"'([^']+)'|([^/]+)")

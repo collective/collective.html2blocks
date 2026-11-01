@@ -116,6 +116,12 @@ result = converter.volto_blocks(
 
 The `blocks_layout` list keeps the order: the default blocks come first, then the converted blocks, and then the additional blocks.
 
+## Produce content for Plone Aurora
+
+The functions above use the Slate converter.
+To produce content for the unified editor of {term}`Plone Aurora`, pass `converter="plate"`.
+Read {doc}`/how-to-guides/convert-to-plate`.
+
 ## Use the web service instead
 
 If your migration runs in another language or in a separate process, call the HTTP service instead.

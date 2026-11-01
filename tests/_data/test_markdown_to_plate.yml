@@ -1,0 +1,40 @@
+---
+setup:
+  argnames: ["name", "src", "path", "expected"]
+  test_args: ["path", "expected"]
+params:
+  - name: Heading and bold
+    src: "# Hi\n\nHello **world**\n"
+    tests:
+      - path: "0"
+        expected: {type: h1, children: [{text: Hi}], blockWidth: default}
+      - path: "1/children/1"
+        expected: {text: world, bold: true}
+
+  - name: Code fence
+    src: "```py\nx = 1\ny = 2\n```\n"
+    tests:
+      - path: "0"
+        expected:
+          type: code_block
+          lang: python
+          blockWidth: default
+          children:
+            - {type: code_line, children: [{text: x = 1}]}
+            - {type: code_line, children: [{text: y = 2}]}
+
+  - name: Code fence without a language
+    src: "```\nls\n```\n"
+    tests:
+      - path: "keys:0"
+        expected: [type, children, blockWidth]
+
+  - name: Table
+    src: "| a |\n|---|\n| 1 |\n"
+    tests:
+      - path: "0/type"
+        expected: table
+      - path: "0/children/0/children/0/type"
+        expected: th
+      - path: "0/children/1/children/0/type"
+        expected: td

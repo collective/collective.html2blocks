@@ -45,6 +45,17 @@ uv run html2blocks convert --format markdown notes.txt output.json
 
 Use `--format html` to read a file with a Markdown suffix as HTML.
 
+## Convert for Plone Aurora
+
+The command writes Volto blocks unless you ask for Plate.
+To write the single `__somersault__` block of {term}`Plone Aurora`, pass `--converter plate`.
+
+```shell
+uv run html2blocks convert --converter plate input.html output.json
+```
+
+To migrate a JSON file with existing content, read {doc}`/how-to-guides/convert-to-plate`.
+
 ## Check the registered converters
 
 To see which converters the command uses, run `info`.

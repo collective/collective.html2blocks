@@ -27,3 +27,17 @@ params:
         expected: "p"
       - path: "0/value/0/children/0/text"
         expected: "Hello World!"
+
+  - name: Plate
+    src: |
+      <p>Hello <strong>world</strong></p>
+    converter: plate
+    tests:
+      - path: "len:"
+        expected: 1
+      - path: "0/@type"
+        expected: "__somersault__"
+      - path: "0/value/0/type"
+        expected: "p"
+      - path: "0/value/0/children/1"
+        expected: {text: world, bold: true}

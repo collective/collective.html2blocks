@@ -45,3 +45,8 @@ Markdown is convenient for authors who write content by hand, while HTML is what
 Although support for DraftJS, the previous default block editor for Volto, is technically possible, `collective.html2blocks` focuses on {term}`volto-slate`.
 {term}`volto-slate` has been the default rich-text editor since Volto 16.
 It is built on top of {term}`Slate`, and it provides advanced {term}`WYSIWYG` capabilities for content editing in Plone.
+
+{term}`Plone Aurora` replaces the per-block editors of Volto with one {term}`Plate` editor that holds the whole page.
+Plate shares the data model of Slate, so the output for Aurora is a migration of the Slate output, not a second parser.
+Every converter applies to both editors.
+Slate stays the default, and you ask for Plate explicitly, as described in {doc}`/how-to-guides/convert-to-plate`.

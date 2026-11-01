@@ -1,7 +1,7 @@
 ---
 myst:
   html_meta:
-    "description": "Reference for the html2blocks command line tool: the convert, info and server commands, their arguments, options and defaults."
+    "description": "Reference for the html2blocks command line tool: the convert, slate2plate, blocks, info and server commands, their arguments, options and defaults."
     "property=og:description": "Reference for the collective.html2blocks command line tool."
     "property=og:title": "Command line reference | collective.html2blocks"
     "keywords": "Plone, collective.html2blocks, CLI, Typer, reference"
@@ -10,7 +10,7 @@ myst:
 # Command line reference
 
 The `html2blocks` command is installed with `collective.html2blocks`, but it needs an extra to run.
-Install `collective.html2blocks[cli]` for the `convert` and `info` commands.
+Install `collective.html2blocks[cli]` for the `convert`, `slate2plate` and `info` commands.
 Install `collective.html2blocks[server]` for the `server` command.
 The `all` extra installs both sets.
 Run `html2blocks --help` to list the commands.
@@ -27,6 +27,8 @@ Usage: `html2blocks convert [OPTIONS] SRC DST`
 | `SRC` | Path to the HTML or Markdown file to read. | Required |
 | `DST` | Path of the JSON file to write. Its parent folder must exist. | Required |
 | `--format` | Input format, `html` or `markdown`. | Detected from the suffix of `SRC` |
+| `--converter` | Output: `slate` for Volto blocks, or `plate` for the single `__somersault__` block of Plone Aurora. | `slate` |
+| `--title` | Start the page with a `title` node with this text. Only for `--converter plate`. | No title |
 | `--enable BLOCK_TYPE` | Enable a block type, such as `codeBlock`. Repeat the option to enable more. | The default state of each block type |
 | `--disable BLOCK_TYPE` | Disable a block type, such as `slateTable`. Repeat the option to disable more. | The default state of each block type |
 | `--option BLOCK_TYPE.KEY=VALUE` | Set an option of a block type, such as `codeBlock.style=light`. The option also enables the block type. Repeat the option to set more. | The defaults of the block type |
@@ -43,6 +45,26 @@ An unknown block type or option, a value of the wrong type, or a block type both
 
 The output is JSON, written with an indentation of two spaces.
 It has the `blocks` and `blocks_layout` keys.
+With `--converter plate`, the `__somersault__` block is its only block, as described in {doc}`/reference/plate`.
+Passing `--title` without `--converter plate` makes the command print a message and exit with status 2.
+
+## `slate2plate`
+
+Add the `__somersault__` block of Plone Aurora to a JSON file with a content item.
+
+Usage: `html2blocks slate2plate [OPTIONS] SRC DST`
+
+| Argument or option | Description | Default |
+| --- | --- | --- |
+| `SRC` | Path to the JSON file with the `blocks` and `blocks_layout` keys. | Required |
+| `DST` | Path of the JSON file to write. Its parent folder must exist. | Required |
+| `--title` | Text of the `title` node. | The `title` key of the content item |
+
+The existing blocks stay in the output.
+A content item that already has the `__somersault__` block is written unchanged.
+
+If `SRC` does not exist, or if the parent folder of `DST` does not exist, the command prints a message and exits with status 1.
+If `SRC` does not hold a JSON object, the command prints a message and exits with status 2.
 
 ## `blocks`
 

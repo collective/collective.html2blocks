@@ -12,6 +12,7 @@ Example:
 
         uv run html2blocks convert input.html output.json
         uv run html2blocks convert input.md output.json
+        uv run html2blocks convert --converter plate input.html output.json
 """
 
 from enum import StrEnum
@@ -32,6 +33,13 @@ class FormatChoice(StrEnum):
 
     html = "html"
     markdown = "markdown"
+
+
+class ConverterChoice(StrEnum):
+    """Output converters accepted by the ``--converter`` option."""
+
+    slate = "slate"
+    plate = "plate"
 
 
 def detect_format(path: Path) -> str:
@@ -149,6 +157,22 @@ def convert(
             "(.md and .markdown are Markdown, anything else is HTML).",
         ),
     ] = None,
+    output_converter: Annotated[
+        ConverterChoice,
+        typer.Option(
+            "--converter",
+            help="Output: slate for Volto blocks, or plate for the single "
+            "__somersault__ block of Plone Aurora.",
+        ),
+    ] = ConverterChoice.slate,
+    title: Annotated[
+        str | None,
+        typer.Option(
+            "--title",
+            help="Start the page with a title block with this text. "
+            "Only for --converter plate.",
+        ),
+    ] = None,
     enable: Annotated[
         list[str] | None,
         typer.Option(
@@ -191,6 +215,8 @@ def convert(
     :param src: Path to the HTML or Markdown file to convert.
     :param dst: Path to write the JSON output.
     :param input_format: Input format, overriding the suffix detection.
+    :param output_converter: ``slate`` (default), or ``plate`` for Plone Aurora.
+    :param title: Text of a title block at the start of the page, with ``plate``.
     :param enable: Block types to enable.
     :param disable: Block types to disable.
     :param option: Block options, as ``BLOCK_TYPE.KEY=VALUE``.
@@ -204,6 +230,8 @@ def convert(
             uv run html2blocks convert --enable codeBlock \\
                 --option codeBlock.style=light input.md out.json
             uv run html2blocks convert --disable slateTable input.html out.json
+            uv run html2blocks convert --converter plate --title Welcome \\
+                input.html out.json
 
         .. code-block:: console
 
@@ -215,6 +243,10 @@ def convert(
     folder = dst.parent
     if not check_paths(src, folder):
         raise typer.Exit(1)
+    is_plate = output_converter is ConverterChoice.plate
+    if title is not None and not is_plate:
+        typer.echo("--title needs --converter plate")
+        raise typer.Exit(2)
     try:
         blocks = blocks_setting(
             list(enable or []), list(disable or []), list(option or [])
@@ -230,8 +262,11 @@ def convert(
     source = src.read_text()
     result = converter.volto_blocks(
         source,
+        [{"@type": "title"}] if title is not None else None,
         source_format=source_format,
         blocks=blocks,
+        converter="plate" if is_plate else "slate",
+        title=title or "",
     )
     with open(dst, "w") as fout:
         json.dump(result, fout, indent=2)

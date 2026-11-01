@@ -1,0 +1,115 @@
+---
+setup:
+  argnames: ["name", "block", "title", "path", "expected"]
+  test_args: ["path", "expected"]
+params:
+  - name: Title
+    block: {"@type": "title"}
+    title: Page title
+    tests:
+      - path: "0"
+        expected: {type: title, children: [{text: Page title}]}
+
+  - name: Block with a value
+    block:
+      "@type": slate
+      plaintext: First
+      value: [{type: p, children: [{text: First}]}]
+    title: ""
+    tests:
+      - path: "len:"
+        expected: 1
+      - path: "0"
+        expected: {type: p, children: [{text: First}]}
+
+  - name: Aurora wraps a block
+    block: {"@type": "image", "url": "/image", "alt": "Example image"}
+    title: ""
+    tests:
+      - path: "0"
+        expected:
+          "@type": image
+          alt: Example image
+          blockWidth: default
+          children: [{text: ""}]
+          type: ploneBlock
+          url: /image
+
+  - name: Wrapped block keeps its width
+    block: {"@type": "listing", "blockWidth": "full"}
+    title: ""
+    tests:
+      - path: "0/blockWidth"
+        expected: full
+
+  - name: Block Aurora would drop stays
+    block: {"@type": "custom-unregistered", "foo": "bar"}
+    title: ""
+    tests:
+      - path: "0/type"
+        expected: ploneBlock
+      - path: "0/foo"
+        expected: bar
+
+  - name: Table with visible header and migrated cells
+    block:
+      "@type": slateTable
+      table:
+        hideHeaders: false
+        rows:
+          - key: r1
+            cells:
+              - {key: c1, type: header, value: [{type: strong, children: [{text: h}]}]}
+              - {key: c2, type: header, value: []}
+          - key: r2
+            cells:
+              - {key: c3, type: data, value: [{text: c}]}
+              - key: c4
+                type: data
+                value: [{type: ul, children: [{type: li, children: [{text: a}]}]}]
+    title: ""
+    tests:
+      - path: "0/type"
+        expected: table
+      - path: "0/children/0/children"
+        expected:
+          - {type: th, children: [{type: p, children: [{text: h, bold: true}]}]}
+          - {type: th, children: [{type: p, children: [{text: ""}]}]}
+      - path: "0/children/1/children"
+        expected:
+          - {type: td, children: [{type: p, children: [{text: c}]}]}
+          - {type: td, children: [{type: p, children: [{text: a}], indent: 1, listStyleType: disc}]}
+
+  - name: Table with hidden header
+    block:
+      "@type": slateTable
+      table:
+        hideHeaders: true
+        rows:
+          - {key: r1, cells: [{key: c1, type: header, value: [""]}]}
+          - {key: r2, cells: [{key: c2, type: data, value: [{text: c}]}]}
+    title: ""
+    tests:
+      - path: "len:0/children"
+        expected: 1
+      - path: "0/children/0/children/0/type"
+        expected: td
+
+  - name: Code block with a language
+    block: {"@type": "codeBlock", "code": "a\nb", "language": "python"}
+    title: ""
+    tests:
+      - path: "0"
+        expected:
+          type: code_block
+          lang: python
+          children:
+            - {type: code_line, children: [{text: a}]}
+            - {type: code_line, children: [{text: b}]}
+
+  - name: Code block in plain text
+    block: {"@type": "codeBlock", "code": "a", "language": "text"}
+    title: ""
+    tests:
+      - path: "keys:0"
+        expected: [type, children]

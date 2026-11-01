@@ -1,0 +1,90 @@
+---
+setup:
+  argnames: ["name", "content", "title", "path", "expected"]
+  test_args: ["path", "expected"]
+params:
+  - name: Aurora title and value blocks follow the layout
+    content:
+      title: Page title
+      blocks:
+        text: {"@type": "slate", value: [{type: p, children: [{text: First block}]}]}
+        titleBlock: {"@type": "title"}
+      blocks_layout: {items: [text, titleBlock]}
+    title: null
+    tests:
+      - path: "blocks/__somersault__"
+        expected:
+          "@type": __somersault__
+          value:
+            - {type: p, children: [{text: First block}], blockWidth: default}
+            - {type: title, children: [{text: Page title}], blockWidth: default}
+      - path: "keys:blocks"
+        expected: [text, titleBlock, __somersault__]
+      - path: "blocks_layout/items"
+        expected: [text, titleBlock]
+
+  - name: Title argument wins
+    content:
+      title: Page title
+      blocks: {a: {"@type": "title"}}
+      blocks_layout: {items: [a]}
+    title: Other
+    tests:
+      - path: "blocks/__somersault__/value/0/children"
+        expected: [{text: Other}]
+
+  - name: Title that is not a string
+    content:
+      title: null
+      blocks: {a: {"@type": "title"}}
+      blocks_layout: {items: [a]}
+    title: null
+    tests:
+      - path: "blocks/__somersault__/value/0/children"
+        expected: [{text: ""}]
+
+  - name: Layout item without a block
+    content:
+      blocks: {a: {"@type": "title"}}
+      blocks_layout: {items: [missing, a]}
+    title: null
+    tests:
+      - path: "len:blocks/__somersault__/value"
+        expected: 1
+
+  - name: Already migrated
+    content:
+      blocks: {a: {"@type": "title"}, __somersault__: {"@type": "__somersault__", value: []}}
+      blocks_layout: {items: [a]}
+    title: null
+    tests:
+      - path: "blocks/__somersault__/value"
+        expected: []
+
+  - name: No blocks
+    content: {title: No blocks}
+    title: null
+    tests:
+      - path: "keys:"
+        expected: [title]
+
+  - name: Empty blocks
+    content: {blocks: {}, blocks_layout: {items: []}}
+    title: null
+    tests:
+      - path: "blocks"
+        expected: {}
+
+  - name: No layout
+    content: {blocks: {a: {"@type": "title"}}}
+    title: null
+    tests:
+      - path: "keys:blocks"
+        expected: [a]
+
+  - name: Layout items that are not a list
+    content: {blocks: {a: {"@type": "title"}}, blocks_layout: {items: a}}
+    title: null
+    tests:
+      - path: "keys:blocks"
+        expected: [a]
