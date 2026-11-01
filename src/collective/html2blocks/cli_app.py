@@ -10,6 +10,7 @@ Example:
     .. code-block:: shell
 
         uv run html2blocks convert input.html
+        uv run html2blocks slate2plate page.json plate.json
         uv run html2blocks info
         uv run html2blocks server
 """
@@ -18,6 +19,7 @@ from collective.html2blocks.commands.blocks import app as app_blocks
 from collective.html2blocks.commands.convert import app as app_convert
 from collective.html2blocks.commands.info import app as app_info
 from collective.html2blocks.commands.server import app as app_server
+from collective.html2blocks.commands.slate2plate import app as app_slate2plate
 
 import typer
 
@@ -49,6 +51,7 @@ app.add_typer(app_blocks)
 app.add_typer(app_convert)
 app.add_typer(app_info)
 app.add_typer(app_server)
+app.add_typer(app_slate2plate)
 
 
 __all__ = ["app"]

@@ -23,9 +23,10 @@ Every response includes the `X-Process-Time` header, which holds the processing 
 | `GET` | `/` | None | An object with the `title`, `description` and `version` keys. |
 | `GET` | `/ok` | None | `{"status": "up"}` |
 | `GET` | `/blocks` | None | A list with one object per supported block type. |
-| `POST` | `/html` | `html`, `converter` and `blocks` | A list of blocks. |
-| `POST` | `/markdown` | `markdown`, `converter` and `blocks` | A list of blocks. |
-| `POST` | `/volto` | `html`, `format`, `default_blocks`, `additional_blocks` and `blocks` | An object with the `blocks` and `blocks_layout` keys. |
+| `POST` | `/html` | `html`, `converter`, `title` and `blocks` | A list of blocks. |
+| `POST` | `/markdown` | `markdown`, `converter`, `title` and `blocks` | A list of blocks. |
+| `POST` | `/volto` | `html`, `format`, `default_blocks`, `additional_blocks`, `blocks`, `converter` and `title` | An object with the `blocks` and `blocks_layout` keys. |
+| `POST` | `/slate2plate` | A content item with the `blocks` and `blocks_layout` keys | The content item with the `__somersault__` block. |
 
 ## `GET /blocks`
 
@@ -41,7 +42,8 @@ Convert HTML to a list of blocks.
 | Field | Type | Required | Default | Description |
 | --- | --- | --- | --- | --- |
 | `html` | string | Yes | None | The HTML to convert. |
-| `converter` | string | No | `"slate"` | The converter to use. Only `"slate"` is accepted. |
+| `converter` | string | No | `"slate"` | The converter to use, `"slate"` or `"plate"`. |
+| `title` | string | No | `""` | The title of the content, for a `title` block with the `plate` converter. |
 | `blocks` | object | No | `null` | Enables, disables and configures block types. See {ref}`http-service-blocks-field`. |
 
 If `converter` has any other value, the service responds with status 400.
@@ -53,7 +55,8 @@ Convert Markdown to a list of blocks.
 | Field | Type | Required | Default | Description |
 | --- | --- | --- | --- | --- |
 | `markdown` | string | Yes | None | The Markdown to convert. |
-| `converter` | string | No | `"slate"` | The converter to use. Only `"slate"` is accepted. |
+| `converter` | string | No | `"slate"` | The converter to use, `"slate"` or `"plate"`. |
+| `title` | string | No | `""` | The title of the content, for a `title` block with the `plate` converter. |
 | `blocks` | object | No | `null` | Enables, disables and configures block types. See {ref}`http-service-blocks-field`. |
 
 If `converter` has any other value, the service responds with status 400.
@@ -69,8 +72,29 @@ Convert HTML or Markdown to the structure that Volto uses for a content item.
 | `default_blocks` | list of objects | No | `null` | Blocks to place before the converted blocks. |
 | `additional_blocks` | list of objects | No | `null` | Blocks to place after the converted blocks. |
 | `blocks` | object | No | `null` | Enables, disables and configures block types. See {ref}`http-service-blocks-field`. |
+| `converter` | string | No | `"slate"` | The converter to use, `"slate"` or `"plate"`. |
+| `title` | string | No | `""` | The title of the content, for a `title` block in `default_blocks` or `additional_blocks` with the `plate` converter. |
 
 If `format` has any other value, the service responds with status 422, the validation error status of FastAPI.
+If `converter` has any other value, the service responds with status 400.
+
+With the `plate` converter, the response has the `__somersault__` block as its only block.
+
+## `POST /slate2plate`
+
+Add the `__somersault__` block to a content item with Slate blocks.
+The request body is the content item.
+
+| Field | Type | Required | Default | Description |
+| --- | --- | --- | --- | --- |
+| `blocks` | object | Yes | None | The blocks of the content item. |
+| `blocks_layout` | object | Yes | None | The layout of the blocks. |
+| `title` | string | No | `""` | The title of the content item, for a `title` block. |
+
+Other keys are returned unchanged.
+The existing blocks stay in the response.
+A content item that already has the `__somersault__` block comes back unchanged.
+If `blocks` or `blocks_layout` is missing, the service responds with status 422.
 
 (http-service-blocks-field)=
 

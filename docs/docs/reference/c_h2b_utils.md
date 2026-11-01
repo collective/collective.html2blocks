@@ -43,6 +43,13 @@ myst:
     :members:
 ```
 
+## `collective.html2blocks.utils.plate`
+
+```{eval-rst}
+.. automodule:: collective.html2blocks.utils.plate
+    :members:
+```
+
 ## `collective.html2blocks.utils.slate`
 
 ```{eval-rst}

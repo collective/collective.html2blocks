@@ -18,7 +18,7 @@ Run the whole suite with `make test` from the repository root.
 
 Tests in `collective.html2blocks` are parametrized with YAML files that define the input and the expected results.
 The `traverse` fixture extracts values from nested dictionaries and lists with a path-like syntax.
-To apply a function to the traversed value, append a colon and the function name, for example `foo/bar:baz:len`.
+To apply a function to the traversed value, start the path with the function name and a colon, for example `len:foo/bar`.
 Functions such as `len`, `type` and `keys` are supported by the fixture.
 
 ## Testing the converter
@@ -68,6 +68,37 @@ params:
       - path: "len:blocks_layout/items"
         expected: 5
 ```
+
+### Plate output
+
+To test the `plate` converter, edit the fixture for the kind of input:
+
+{file}`tests/_data/test_html_to_plate.yml`
+:   HTML. The paths start at the `value` of the `__somersault__` block.
+
+{file}`tests/_data/test_markdown_to_plate.yml`
+:   Markdown, with the same paths.
+
+{file}`tests/_data/test_migrate_value.yml`
+:   Slate values that the converter doesn't produce itself.
+
+{file}`tests/_data/test_nodes_from_block.yml`
+:   A single Volto block.
+
+{file}`tests/_data/test_migrate_content.yml`
+:   A whole content item.
+
+```yaml
+params:
+  - name: Nested marks
+    src: <p><strong><em>both</em></strong></p>
+    tests:
+      - path: "0/children"
+        expected: [{text: both, bold: true, italic: true}]
+```
+
+You don't need a Plate case for every source.
+`test_fixture_sources_to_plate` also runs the sources of the Slate fixtures through the `plate` converter, and checks that the value has no Slate nodes left and that a second migration changes nothing.
 
 ## Test the web service endpoints
 

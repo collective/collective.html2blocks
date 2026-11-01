@@ -1,0 +1,149 @@
+---
+# Slate values the converter doesn't produce itself. The Aurora cases use the input
+# and the expected value of the tests of @plone/plate.
+setup:
+  argnames: ["name", "value", "path", "expected"]
+  test_args: ["path", "expected"]
+params:
+  - name: Del element
+    value: [{type: p, children: [{type: del, children: [{text: a}]}]}]
+    tests:
+      - path: "0/children"
+        expected: [{text: a, strikethrough: true}]
+
+  - name: Aurora mark around a span
+    value:
+      - type: p
+        children:
+          - {type: strong, children: [{type: span, children: [{text: n}]}]}
+    tests:
+      - path: "0/children"
+        expected: [{type: span, children: [{text: n, bold: true}]}]
+
+  - name: Mark without children keeps a text child
+    value: [{type: p, children: [{type: strong, children: []}]}]
+    tests:
+      - path: "0/children"
+        expected: [{text: ""}]
+
+  - name: Aurora links
+    value:
+      - type: p
+        children:
+          - {type: link, data: {url: "https://a.com", target: _blank}, children: [{text: a}]}
+          - {type: a, data: {url: "https://b.com"}, children: [{text: b}]}
+          - {type: link, children: [{text: c}]}
+    tests:
+      - path: "0/children"
+        expected:
+          - {type: a, url: "https://a.com", target: _blank, children: [{text: a}]}
+          - {type: a, url: "https://b.com", children: [{text: b}]}
+          - {type: a, children: [{text: c}]}
+
+  - name: Link keeps data it cannot read
+    value:
+      - type: p
+        children:
+          - {type: link, data: {link: {internal: {}}, other: 1}, children: [{text: a}]}
+    tests:
+      - path: "0/children/0/data"
+        expected: {link: {internal: {}}, other: 1}
+
+  - name: Aurora list nested in an element
+    value:
+      - type: div
+        children:
+          - type: ol
+            children:
+              - {type: li, children: [{text: one}]}
+              - {type: li, children: [{text: two}]}
+    tests:
+      - path: "0/children"
+        expected:
+          - {type: p, children: [{text: one}], indent: 1, listStyleType: decimal, listRestartPolite: 1}
+          - {type: p, children: [{text: two}], indent: 1, listStyleType: decimal, listStart: 2}
+
+  - name: List directly in a list
+    value:
+      - type: ul
+        children:
+          - {type: li, children: [{text: a}]}
+          - {type: ul, children: [{type: li, children: [{text: b}]}]}
+    tests:
+      - path: "1/indent"
+        expected: 2
+
+  - name: List item without children
+    value: [{type: ul, children: [{type: li, children: []}]}]
+    tests:
+      - path: "0/children"
+        expected: [{text: ""}]
+      - path: "0/listStyleType"
+        expected: disc
+
+  - name: Aurora blockquote mixes inline and block children
+    value:
+      - type: blockquote
+        id: q
+        children:
+          - {text: before}
+          - {type: p, children: [{text: block}]}
+          - {text: after}
+    tests:
+      - path: "0/id"
+        expected: q
+      - path: "0/children"
+        expected:
+          - {type: p, children: [{text: before}]}
+          - {type: p, children: [{text: block}]}
+          - {type: p, children: [{text: after}]}
+
+  - name: Aurora blockquote nested in a column
+    value:
+      - type: column
+        children: [{type: blockquote, children: [{text: nested}]}]
+    tests:
+      - path: "0/children/0/children"
+        expected: [{type: p, children: [{text: nested}]}]
+
+  - name: Aurora links and marks in one pass
+    value:
+      - type: blockquote
+        children:
+          - {text: "Read "}
+          - {type: link, data: {url: /}, children: [{type: strong, children: [{text: this}]}]}
+    tests:
+      - path: "0/children"
+        expected:
+          - type: p
+            children:
+              - {text: "Read "}
+              - {type: a, url: /, children: [{text: this, bold: true}]}
+
+  - name: Pre with marked text
+    value: [{type: pre, children: [{text: "a\n"}, {type: strong, children: [{text: b}]}]}]
+    tests:
+      - path: "0/children"
+        expected:
+          - {type: code_line, children: [{text: a}]}
+          - {type: code_line, children: [{text: b}]}
+
+  - name: Valid block width stays
+    value: [{type: p, blockWidth: full, children: [{text: a}]}]
+    tests:
+      - path: "0/blockWidth"
+        expected: full
+
+  - name: Invalid block width becomes the default
+    value: [{type: p, blockWidth: huge, children: [{text: a}]}]
+    tests:
+      - path: "0/blockWidth"
+        expected: default
+
+  - name: Nested nodes get no block width
+    value: [{type: blockquote, children: [{type: p, children: [{text: a}]}]}]
+    tests:
+      - path: "keys:0/children/0"
+        expected: [type, children]
+      - path: "0/blockWidth"
+        expected: default

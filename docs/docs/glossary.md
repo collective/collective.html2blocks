@@ -56,6 +56,12 @@ Slate
     [Slate.js](https://docs.slatejs.org/) is a highly customizable platform for creating rich-text editors, also known as {term}`WYSIWYG` editors.
     It enables you to create powerful, intuitive editors similar to those you've probably used in Medium, Dropbox Paper, or Google Docs.
 
+Plate
+    [Plate](https://platejs.org/) is a rich-text editor framework built on top of {term}`Slate`, with the same data model.
+
+Plone Aurora
+    [Plone Aurora](https://github.com/plone/aurora) is a frontend for Plone. It keeps a whole page in one {term}`Plate` editor.
+
 `volto-slate`
     `volto-slate` is an interactive default text editor for Volto, developed on top of {term}`Slate`, offering enhanced {term}`WYSIWYG` functionality and behavior.
 

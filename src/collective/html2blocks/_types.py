@@ -43,6 +43,11 @@ class SlateBlockItem(TypedDict, total=False):
     value: NotRequired["SlateBlockItem | str"]
 
 
+# A node of a Plate value. Plate adds its attributes (``url``, ``indent``,
+# ``bold``...) directly to the nodes, so they have no fixed set of keys.
+PlateNode = dict[str, Any]
+
+
 class BlocksLayout(TypedDict):
     """Blocks layout information."""
 
@@ -199,6 +204,7 @@ __all__ = [
     "BlockType",
     "BlocksSetting",
     "EmbedInfo",
+    "PlateNode",
     "Registry",
     "ReportRegistrations",
     "ResolvedBlocks",

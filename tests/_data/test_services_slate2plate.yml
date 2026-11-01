@@ -1,0 +1,34 @@
+---
+setup:
+  argnames: ["name", "content", "path", "expected"]
+  test_args: ["path", "expected"]
+params:
+  - name: Content item
+    content:
+      id: page
+      title: Welcome
+      blocks:
+        a: {"@type": "title"}
+        b: {"@type": "image", "url": "/i.jpg", "alt": "An image"}
+      blocks_layout: {items: [a, b]}
+    tests:
+      - path: "id"
+        expected: page
+      - path: "blocks/b"
+        expected: {"@type": "image", "url": "/i.jpg", "alt": "An image"}
+      - path: "blocks/__somersault__/value/0/type"
+        expected: title
+      - path: "blocks/__somersault__/value/1/type"
+        expected: ploneBlock
+      - path: "blocks/__somersault__/value/1/alt"
+        expected: An image
+
+  - name: Already migrated
+    content:
+      blocks:
+        a: {"@type": "title"}
+        __somersault__: {"@type": "__somersault__", value: []}
+      blocks_layout: {items: [a]}
+    tests:
+      - path: "blocks/__somersault__/value"
+        expected: []

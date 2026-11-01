@@ -1,0 +1,65 @@
+---
+setup:
+  argnames: ["name", "src", "default_blocks", "additional_blocks", "title", "path", "expected"]
+  test_args: ["path", "expected"]
+params:
+  - name: Simple Case
+    src: <p>Hi</p>
+    default_blocks: []
+    additional_blocks: []
+    title: ""
+    tests:
+      - path: "keys:blocks"
+        expected: [__somersault__]
+      - path: "blocks_layout/items"
+        expected: [__somersault__]
+      - path: "blocks/__somersault__/@type"
+        expected: __somersault__
+      - path: "len:blocks/__somersault__/value"
+        expected: 1
+
+  - name: Empty source
+    src: ""
+    default_blocks: []
+    additional_blocks: []
+    title: ""
+    tests:
+      - path: "blocks/__somersault__/value"
+        expected: []
+
+  - name: Title and additional blocks
+    src: <p>Hi</p>
+    default_blocks: [{"@type": "title"}]
+    additional_blocks: [{"@type": "listing", "querystring": {}}]
+    title: Welcome
+    tests:
+      - path: "len:blocks/__somersault__/value"
+        expected: 3
+      - path: "blocks/__somersault__/value/0"
+        expected: {type: title, children: [{text: Welcome}], blockWidth: default}
+      - path: "blocks/__somersault__/value/1/type"
+        expected: p
+      - path: "blocks/__somersault__/value/2/type"
+        expected: ploneBlock
+      - path: "blocks/__somersault__/value/2/@type"
+        expected: listing
+
+  - name: Example of issue 51
+    src: <p></p>
+    default_blocks:
+      - {"@type": "title"}
+      - {"@type": "image", "url": "/image-1.jpg", "alt": "Image-1.jpg"}
+    additional_blocks:
+      - {"@type": "slate", "value": [{type: p, children: [{text: ""}]}]}
+    title: Welcome to Plone
+    tests:
+      - path: "blocks/__somersault__/value"
+        expected:
+          - {type: title, children: [{text: Welcome to Plone}], blockWidth: default}
+          - type: ploneBlock
+            "@type": image
+            url: /image-1.jpg
+            alt: Image-1.jpg
+            blockWidth: default
+            children: [{text: ""}]
+          - {type: p, children: [{text: ""}], blockWidth: default}

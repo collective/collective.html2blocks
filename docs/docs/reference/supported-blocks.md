@@ -73,6 +73,12 @@ The elements of a disabled block type are converted as if it didn't exist:
 -   An `<iframe>` whose provider block is disabled becomes an `iframe` block. With `iframe` disabled as well, it's dropped.
 -   An `<img>` with `image` disabled, and a `<video>` with `video` disabled, are dropped.
 
+## Plone Aurora
+
+The table above describes the output of the default Slate converter.
+The `plate` converter puts these blocks in a single block for Plone Aurora.
+Read {doc}`/reference/plate`.
+
 ## List the blocks of an installation
 
 Add-ons can register more block types.

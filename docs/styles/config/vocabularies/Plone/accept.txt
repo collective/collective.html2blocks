@@ -47,5 +47,7 @@ uv
 validator
 [Vv]iewlet
 Volto
+Plate
+Aurora
 Vue
 Zope

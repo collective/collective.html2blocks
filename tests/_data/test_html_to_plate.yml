@@ -1,0 +1,203 @@
+---
+setup:
+  argnames: ["name", "src", "path", "expected"]
+  test_args: ["path", "expected"]
+params:
+  - name: Empty source
+    src: ""
+    tests:
+      - path: "len:"
+        expected: 0
+
+  - name: Heading and paragraph
+    src: <h1>Hi</h1><p>Hello <strong>world</strong></p>
+    tests:
+      - path: "len:"
+        expected: 2
+      - path: "0"
+        expected: {type: h1, children: [{text: Hi}], blockWidth: default}
+      - path: "1"
+        expected:
+          type: p
+          blockWidth: default
+          children: [{text: "Hello "}, {text: world, bold: true}]
+
+  - name: Marks
+    src: <p><strong>b</strong><em>i</em><s>s</s><del>d</del><u>u</u><sub>x</sub><sup>y</sup><code>c</code></p>
+    tests:
+      - path: "0/children"
+        expected:
+          - {text: b, bold: true}
+          - {text: i, italic: true}
+          - {text: s, strikethrough: true}
+          - {text: d, strikethrough: true}
+          - {text: u, underline: true}
+          - {text: x, subscript: true}
+          - {text: y, superscript: true}
+          - {text: c, code: true}
+
+  - name: Nested marks
+    src: <p><strong><em>both</em></strong></p>
+    tests:
+      - path: "0/children"
+        expected: [{text: both, bold: true, italic: true}]
+
+  - name: Link
+    src: <p><a href="/x" title="T" target="_blank">l</a></p>
+    tests:
+      - path: "0/children"
+        expected: [{type: a, url: /x, target: _blank, children: [{text: l}]}]
+
+  - name: Link without href
+    src: <a name="x">anchor</a>
+    tests:
+      - path: "0/children"
+        expected: [{type: a, children: [{text: anchor}]}]
+
+  - name: Unordered list
+    src: <ul><li>first</li><li>second</li></ul>
+    tests:
+      - path: "len:"
+        expected: 2
+      - path: "0"
+        expected:
+          {type: p, children: [{text: first}], indent: 1, listStyleType: disc, blockWidth: default}
+      - path: "1"
+        expected:
+          {type: p, children: [{text: second}], indent: 1, listStyleType: disc, listStart: 2, blockWidth: default}
+
+  - name: Ordered list
+    src: <ol><li>one</li><li>two</li><li>three</li></ol>
+    tests:
+      - path: "0"
+        expected:
+          {type: p, children: [{text: one}], indent: 1, listStyleType: decimal, listRestartPolite: 1, blockWidth: default}
+      - path: "1"
+        expected:
+          {type: p, children: [{text: two}], indent: 1, listStyleType: decimal, listStart: 2, blockWidth: default}
+      - path: "2/listStart"
+        expected: 3
+
+  - name: Nested lists
+    src: <ul><li>a<ul><li>b<ol><li>c</li></ol></li></ul></li><li>d</li></ul>
+    tests:
+      - path: "len:"
+        expected: 4
+      - path: "0"
+        expected:
+          {type: p, children: [{text: a}], indent: 1, listStyleType: disc, blockWidth: default}
+      - path: "1"
+        expected:
+          {type: p, children: [{text: b}], indent: 2, listStyleType: disc, blockWidth: default}
+      - path: "2"
+        expected:
+          {type: p, children: [{text: c}], indent: 3, listStyleType: decimal, listRestartPolite: 1, blockWidth: default}
+      - path: "3"
+        expected:
+          {type: p, children: [{text: d}], indent: 1, listStyleType: disc, listStart: 2, blockWidth: default}
+
+  - name: List item with two paragraphs
+    src: <ul><li><p>one</p><p>two</p></li></ul>
+    tests:
+      - path: "0"
+        expected:
+          {type: p, children: [{text: one}], indent: 1, listStyleType: disc, blockWidth: default}
+      - path: "1"
+        expected: {type: p, children: [{text: two}], indent: 1, blockWidth: default}
+
+  - name: List item with a heading
+    src: <ol><li><h2>head</h2></li></ol>
+    tests:
+      - path: "0"
+        expected:
+          {type: h2, children: [{text: head}], indent: 1, listStyleType: decimal, listRestartPolite: 1, blockWidth: default}
+
+  - name: Blockquote with a link
+    src: <blockquote>q <a href="/x">l</a></blockquote>
+    tests:
+      - path: "0"
+        expected:
+          type: blockquote
+          blockWidth: default
+          children:
+            - type: p
+              children: [{text: "q "}, {type: a, url: /x, children: [{text: l}]}]
+
+  - name: Blockquote with paragraphs
+    src: <blockquote><p>one</p><p>two</p></blockquote>
+    tests:
+      - path: "0/children"
+        expected:
+          - {type: p, children: [{text: one}]}
+          - {type: p, children: [{text: two}]}
+
+  - name: Pre without a language
+    src: "<pre>plain\nblock</pre>"
+    tests:
+      - path: "0"
+        expected:
+          type: code_block
+          blockWidth: default
+          children:
+            - {type: code_line, children: [{text: plain}]}
+            - {type: code_line, children: [{text: block}]}
+
+  - name: Pre with a language
+    src: "<pre><code class=\"language-py\">x = 1\ny = 2\n</code></pre>"
+    tests:
+      - path: "0/lang"
+        expected: python
+      - path: "len:0/children"
+        expected: 2
+      - path: "0/children/1/children/0/text"
+        expected: y = 2
+
+  - name: Table
+    src: <table><tr><th>h</th></tr><tr><td><strong>c</strong></td></tr></table>
+    tests:
+      - path: "0"
+        expected:
+          type: table
+          blockWidth: default
+          children:
+            - type: tr
+              children: [{type: th, children: [{type: p, children: [{text: h}]}]}]
+            - type: tr
+              children: [{type: td, children: [{type: p, children: [{text: c, bold: true}]}]}]
+
+  - name: Table without a header skips the hidden row
+    src: <table><tr><td>c</td></tr></table>
+    tests:
+      - path: "len:0/children"
+        expected: 1
+      - path: "0/children/0/children/0/type"
+        expected: td
+
+  - name: Image between text
+    src: <p>x<img src="/i.jpg" alt="a"/>y</p>
+    tests:
+      - path: "len:"
+        expected: 3
+      - path: "0/type"
+        expected: p
+      - path: "1"
+        expected:
+          "@type": image
+          type: ploneBlock
+          url: /i.jpg
+          alt: a
+          title: ""
+          align: center
+          size: l
+          blockWidth: default
+          children: [{text: ""}]
+      - path: "2/children/0/text"
+        expected: y
+
+  - name: Video stays a Plone block
+    src: <video src="https://example.org/v.mp4"></video>
+    tests:
+      - path: "0/type"
+        expected: ploneBlock
+      - path: "0/@type"
+        expected: video

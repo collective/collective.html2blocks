@@ -20,6 +20,7 @@ installation
 usage
 run-http-service
 cli
+convert-to-plate
 new-converter
 add-tests
 ```
