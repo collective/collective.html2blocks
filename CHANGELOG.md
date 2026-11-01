@@ -9,6 +9,13 @@
 
 <!-- towncrier release notes start -->
 
+## 1.0.0b2 (2026-11-01)
+
+
+### Feature
+
+- Added a ``plate`` converter that produces the ``__somersault__`` block of Plone Aurora from HTML and Markdown: ``converter="plate"`` in ``html_to_blocks()``, ``markdown_to_blocks()``, ``volto_blocks()`` and the HTTP service, and ``--converter plate`` in the ``convert`` command. Added ``slate_to_plate()``, the ``html2blocks slate2plate`` command and ``POST /slate2plate`` to migrate existing content. ``slate`` stays the default. @ericof [#51](https://github.com/collective/collective.html2blocks/issues/51)
+
 ## 1.0.0b1 (2026-10-28)
 
 
