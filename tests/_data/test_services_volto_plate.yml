@@ -9,7 +9,7 @@ params:
     title: Welcome
     tests:
       - path: "blocks_layout/items"
-        expected: [__somersault__]
+        expected: []
       - path: "blocks/__somersault__/value/0"
         expected: {type: title, children: [{text: Welcome}], blockWidth: default}
       - path: "blocks/__somersault__/value/1/children/1"

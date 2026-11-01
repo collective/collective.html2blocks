@@ -467,7 +467,7 @@ def info_from_blocks(blocks: list[t.VoltoBlock], title: str = "") -> t.VoltoBloc
     value = value_from_blocks(blocks, title)
     return {
         "blocks": {SOMERSAULT_KEY: somersault_block(value)},
-        "blocks_layout": {"items": [SOMERSAULT_KEY]},
+        "blocks_layout": {"items": []},
     }
 
 

@@ -35,7 +35,7 @@ def test_cli_convert_plate(test_dir):
     result = runner.invoke(app, args)
     assert result.exit_code == 0, result.output
     data = json.loads((test_dir / "page.json").read_text())
-    assert data["blocks_layout"] == {"items": ["__somersault__"]}
+    assert data["blocks_layout"] == {"items": []}
     assert _plate_value(data) == [
         {
             "type": "p",

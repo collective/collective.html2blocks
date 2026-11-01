@@ -47,9 +47,11 @@ The result has the `__somersault__` block as its only block.
             ],
         }
     },
-    "blocks_layout": {"items": ["__somersault__"]},
+    "blocks_layout": {"items": []},
 }
 ```
+
+Aurora doesn't read `blocks_layout`, so its `items` list stays empty.
 
 `html_to_blocks()` and `markdown_to_blocks()` return a list with that one block.
 

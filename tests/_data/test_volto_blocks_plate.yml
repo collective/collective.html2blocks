@@ -12,7 +12,7 @@ params:
       - path: "keys:blocks"
         expected: [__somersault__]
       - path: "blocks_layout/items"
-        expected: [__somersault__]
+        expected: []
       - path: "blocks/__somersault__/@type"
         expected: __somersault__
       - path: "len:blocks/__somersault__/value"
