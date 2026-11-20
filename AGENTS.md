@@ -83,3 +83,6 @@ The default `slate` output must not change by accident.
 
 Table rows and cells have random `key` values.
 Use the `strip_keys` fixture to compare converted tables.
+
+The `slate` output of `volto_blocks()` has random block ids, too.
+Build Slate content once, at module level, before comparing two results made from it.
