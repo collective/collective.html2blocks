@@ -9,7 +9,7 @@ runner = CliRunner()
 def test_cli_info_version():
     result = runner.invoke(app, ["info"])
     assert result.exit_code == 0
-    assert f"# collective.html2blocks - {__version__}" in result.stdout
+    assert f"# collective.html2blocks - {__version__}" in result.output
 
 
 def test_cli_info_converters(caplog):
