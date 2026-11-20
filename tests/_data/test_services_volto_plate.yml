@@ -1,24 +1,75 @@
 ---
 setup:
-  argnames: ["name", "src", "default_blocks", "title", "path", "expected"]
+  argnames: ["name", "src", "default_blocks", "title", "plate_format", "path", "expected"]
   test_args: ["path", "expected"]
 params:
   - name: Title and text
     src: <p>Hello <strong>world</strong></p>
     default_blocks: [{"@type": "title"}]
     title: Welcome
+    plate_format: null
     tests:
       - path: "blocks_layout/items"
         expected: []
-      - path: "blocks/__somersault__/value/0"
+      - path: "keys:blocks"
+        expected: [main]
+      - path: "blocks/main/@type"
+        expected: plate
+      - path: "blocks/main/value/0"
         expected: {type: title, children: [{text: Welcome}], blockWidth: default}
-      - path: "blocks/__somersault__/value/1/children/1"
+      - path: "blocks/main/value/1/children/1"
         expected: {text: world, bold: true}
+
+  - name: Title and text in main format
+    src: <p>Hello</p>
+    default_blocks: [{"@type": "title"}]
+    title: Welcome
+    plate_format: main
+    tests:
+      - path: ""
+        expected:
+          blocks:
+            main:
+              "@type": plate
+              value:
+                - {type: title, children: [{text: Welcome}], blockWidth: default}
+                - {type: p, children: [{text: Hello}], blockWidth: default}
+          blocks_layout: {items: []}
+
+  - name: Title and text in somersault format
+    src: <p>Hello</p>
+    default_blocks: [{"@type": "title"}]
+    title: Welcome
+    plate_format: somersault
+    tests:
+      - path: ""
+        expected:
+          blocks:
+            __somersault__:
+              "@type": __somersault__
+              value:
+                - {type: title, children: [{text: Welcome}], blockWidth: default}
+                - {type: p, children: [{text: Hello}], blockWidth: default}
+          blocks_layout: {items: []}
 
   - name: Keys of wrapped blocks survive the response model
     src: <img src="/i.jpg" alt="An image" title="A title">
     default_blocks: []
     title: ""
+    plate_format: null
+    tests:
+      - path: "blocks/main/value/0/@type"
+        expected: image
+      - path: "blocks/main/value/0/alt"
+        expected: An image
+      - path: "blocks/main/value/0/title"
+        expected: A title
+
+  - name: Keys of wrapped blocks survive the response model in somersault format
+    src: <img src="/i.jpg" alt="An image" title="A title">
+    default_blocks: []
+    title: ""
+    plate_format: somersault
     tests:
       - path: "blocks/__somersault__/value/0/@type"
         expected: image

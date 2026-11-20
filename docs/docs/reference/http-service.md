@@ -23,10 +23,10 @@ Every response includes the `X-Process-Time` header, which holds the processing 
 | `GET` | `/` | None | An object with the `title`, `description` and `version` keys. |
 | `GET` | `/ok` | None | `{"status": "up"}` |
 | `GET` | `/blocks` | None | A list with one object per supported block type. |
-| `POST` | `/html` | `html`, `converter`, `title` and `blocks` | A list of blocks. |
-| `POST` | `/markdown` | `markdown`, `converter`, `title` and `blocks` | A list of blocks. |
-| `POST` | `/volto` | `html`, `format`, `default_blocks`, `additional_blocks`, `blocks`, `converter` and `title` | An object with the `blocks` and `blocks_layout` keys. |
-| `POST` | `/slate2plate` | A content item with the `blocks` and `blocks_layout` keys | The content item with the `__somersault__` block. |
+| `POST` | `/html` | `html`, `converter`, `title`, `blocks` and `plate_format` | A list of blocks. |
+| `POST` | `/markdown` | `markdown`, `converter`, `title`, `blocks` and `plate_format` | A list of blocks. |
+| `POST` | `/volto` | `html`, `format`, `default_blocks`, `additional_blocks`, `blocks`, `converter`, `title` and `plate_format` | An object with the `blocks` and `blocks_layout` keys. |
+| `POST` | `/slate2plate` | A content item with the `blocks` and `blocks_layout` keys | The content item with the block of the Plate value. |
 
 ## `GET /blocks`
 
@@ -45,8 +45,9 @@ Convert HTML to a list of blocks.
 | `converter` | string | No | `"slate"` | The converter to use, `"slate"` or `"plate"`. |
 | `title` | string | No | `""` | The title of the content, for a `title` block with the `plate` converter. |
 | `blocks` | object | No | `null` | Enables, disables and configures block types. See {ref}`http-service-blocks-field`. |
+| `plate_format` | string | No | `"main"` | With the `plate` converter, `"main"` for a `plate` block, or `"somersault"` for a `__somersault__` block. See {ref}`http-service-format-setting`. |
 
-If `converter` has any other value, the service responds with status 400.
+If `converter` or `plate_format` has any other value, the service responds with status 400.
 
 ## `POST /markdown`
 
@@ -58,8 +59,9 @@ Convert Markdown to a list of blocks.
 | `converter` | string | No | `"slate"` | The converter to use, `"slate"` or `"plate"`. |
 | `title` | string | No | `""` | The title of the content, for a `title` block with the `plate` converter. |
 | `blocks` | object | No | `null` | Enables, disables and configures block types. See {ref}`http-service-blocks-field`. |
+| `plate_format` | string | No | `"main"` | With the `plate` converter, `"main"` or `"somersault"`. See {ref}`http-service-format-setting`. |
 
-If `converter` has any other value, the service responds with status 400.
+If `converter` or `plate_format` has any other value, the service responds with status 400.
 
 ## `POST /volto`
 
@@ -74,15 +76,16 @@ Convert HTML or Markdown to the structure that Volto uses for a content item.
 | `blocks` | object | No | `null` | Enables, disables and configures block types. See {ref}`http-service-blocks-field`. |
 | `converter` | string | No | `"slate"` | The converter to use, `"slate"` or `"plate"`. |
 | `title` | string | No | `""` | The title of the content, for a `title` block in `default_blocks` or `additional_blocks` with the `plate` converter. |
+| `plate_format` | string | No | `"main"` | With the `plate` converter, `"main"` or `"somersault"`. See {ref}`http-service-format-setting`. |
 
 If `format` has any other value, the service responds with status 422, the validation error status of FastAPI.
-If `converter` has any other value, the service responds with status 400.
+If `converter` or `plate_format` has any other value, the service responds with status 400.
 
-With the `plate` converter, the response has the `__somersault__` block as its only block.
+With the `plate` converter, the response has the `main` block as its only block, or the `__somersault__` block with `"plate_format": "somersault"`.
 
 ## `POST /slate2plate`
 
-Add the `__somersault__` block to a content item with Slate blocks.
+Add the Plate value of Plone Aurora to a content item with Slate blocks.
 The request body is the content item.
 
 | Field | Type | Required | Default | Description |
@@ -91,10 +94,30 @@ The request body is the content item.
 | `blocks_layout` | object | Yes | None | The layout of the blocks. |
 | `title` | string | No | `""` | The title of the content item, for a `title` block. |
 
+| Query parameter | Type | Required | Default | Description |
+| --- | --- | --- | --- | --- |
+| `plate_format` | string | No | `"main"` | `"main"` or `"somersault"`. See {ref}`http-service-format-setting`. |
+
+`plate_format` is a query parameter here, because the body is the content item: a `plate_format` key in the body is a key of the content item, and comes back unchanged.
+
 Other keys are returned unchanged.
 The existing blocks stay in the response.
-A content item that already has the `__somersault__` block comes back unchanged.
+A content item that already has a `main` or a `__somersault__` block comes back unchanged, whatever `plate_format` asks for.
 If `blocks` or `blocks_layout` is missing, the service responds with status 422.
+If `plate_format` has an unknown value, the service responds with status 400.
+
+(http-service-format-setting)=
+
+## The `plate_format` setting
+
+The Plate value goes in one block, and `plate_format` picks its key and its type.
+
+| Value | Block | For |
+| --- | --- | --- |
+| `"main"` (default) | `blocks.main`, with `"@type": "plate"` | Current Aurora sites. |
+| `"somersault"` (deprecated) | `blocks.__somersault__`, with `"@type": "__somersault__"` | Aurora sites that have not upgraded yet. |
+
+The `slate` converter ignores the setting, but an unknown value still makes the service respond with status 400.
 
 (http-service-blocks-field)=
 

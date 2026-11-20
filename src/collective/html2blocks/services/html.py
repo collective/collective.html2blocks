@@ -6,8 +6,11 @@ block layout information. Includes endpoints for both simple block conversion an
 full Volto layout.
 
 The endpoints use the ``slate`` converter unless ``converter`` is ``plate``, which
-produces the ``__somersault__`` block of Plone Aurora. ``POST /slate2plate`` adds that
-block to an existing content item.
+produces the Plate value of Plone Aurora. ``POST /slate2plate`` adds that value to an
+existing content item. ``plate_format`` picks where it goes: ``main`` (default) for
+``blocks["main"]``, or ``somersault`` for the ``__somersault__`` block of Aurora sites
+that have not upgraded yet. It is a body field of ``/html``, ``/markdown`` and
+``/volto``, and a query parameter of ``/slate2plate``, whose body is the content item.
 
 Example:
     .. code-block:: console
@@ -20,6 +23,7 @@ Example:
 
 from collective.html2blocks import _types as t
 from collective.html2blocks.converter import ConverterName
+from collective.html2blocks.converter import PlateFormat
 from collective.html2blocks.converter import html_to_blocks
 from collective.html2blocks.converter import markdown_to_blocks
 from collective.html2blocks.converter import slate_to_plate
@@ -55,12 +59,15 @@ class HtmlBody(BaseModel):
             ``plate``.
         title (str): The title of the content, for the ``plate`` converter.
         blocks (dict, optional): Enables, disables and configures block types.
+        plate_format (str): For the ``plate`` converter, ``main`` (default) or
+            ``somersault``.
     """
 
     html: str
     converter: str = "slate"
     title: str = ""
     blocks: BlocksField = None
+    plate_format: str = "main"
 
 
 @router.post("/html")
@@ -78,7 +85,7 @@ async def convert_html(body: HtmlBody) -> list[t.VoltoBlock]:
         list[VoltoBlock]: The converted blocks.
 
     Raises:
-        HTTPException: If an unsupported converter is specified.
+        HTTPException: If an unsupported converter or Plate format is specified.
 
     Example:
         .. code-block:: shell
@@ -88,7 +95,11 @@ async def convert_html(body: HtmlBody) -> list[t.VoltoBlock]:
     converter = cast(ConverterName, body.converter)
     try:
         return html_to_blocks(
-            body.html, blocks=body.blocks, converter=converter, title=body.title
+            body.html,
+            blocks=body.blocks,
+            converter=converter,
+            title=body.title,
+            plate_format=cast(PlateFormat, body.plate_format),
         )
     except ValueError as exc:
         raise _bad_request(exc) from None
@@ -103,12 +114,15 @@ class MarkdownBody(BaseModel):
         ``plate``.
     :ivar title: The title of the content, for the ``plate`` converter.
     :ivar blocks: Enables, disables and configures block types.
+    :ivar plate_format: For the ``plate`` converter, ``main`` (default) or
+        ``somersault``.
     """
 
     markdown: str
     converter: str = "slate"
     title: str = ""
     blocks: BlocksField = None
+    plate_format: str = "main"
 
 
 @router.post("/markdown")
@@ -121,7 +135,7 @@ async def convert_markdown(body: MarkdownBody) -> list[t.VoltoBlock]:
 
     :param body: Request body containing Markdown and converter type.
     :returns: The converted blocks.
-    :raises HTTPException: If an unsupported converter is specified.
+    :raises HTTPException: If an unsupported converter or Plate format is specified.
 
     Example:
         .. code-block:: shell
@@ -131,7 +145,11 @@ async def convert_markdown(body: MarkdownBody) -> list[t.VoltoBlock]:
     converter = cast(ConverterName, body.converter)
     try:
         return markdown_to_blocks(
-            body.markdown, blocks=body.blocks, converter=converter, title=body.title
+            body.markdown,
+            blocks=body.blocks,
+            converter=converter,
+            title=body.title,
+            plate_format=cast(PlateFormat, body.plate_format),
         )
     except ValueError as exc:
         raise _bad_request(exc) from None
@@ -152,6 +170,8 @@ class VoltoBody(BaseModel):
         ``plate``.
     :ivar title: The title of the content, for a ``title`` block with the ``plate``
         converter.
+    :ivar plate_format: For the ``plate`` converter, ``main`` (default) for
+        ``blocks["main"]``, or ``somersault`` for ``blocks["__somersault__"]``.
     """
 
     html: str
@@ -161,6 +181,7 @@ class VoltoBody(BaseModel):
     blocks: BlocksField = None
     converter: str = "slate"
     title: str = ""
+    plate_format: str = "main"
 
 
 @router.post("/volto")
@@ -195,6 +216,7 @@ def convert_to_volto(body: VoltoBody) -> t.VoltoBlocksInfo:
             blocks=body.blocks,
             converter=cast(ConverterName, body.converter),
             title=body.title,
+            plate_format=cast(PlateFormat, body.plate_format),
         )
     except ValueError as exc:
         raise _bad_request(exc) from None
@@ -219,15 +241,20 @@ class ContentBody(BaseModel):
 
 
 @router.post("/slate2plate")
-def convert_slate_to_plate(body: ContentBody) -> dict[str, Any]:
+def convert_slate_to_plate(
+    body: ContentBody, plate_format: str = "main"
+) -> dict[str, Any]:
     """
-    Add the ``__somersault__`` block to a content item with Slate blocks.
+    Add the Plate value of Plone Aurora to a content item with Slate blocks.
 
-    The existing blocks stay, and a content item that already has the block comes
-    back unchanged.
+    The existing blocks stay, and a content item that already has a ``main`` or a
+    ``__somersault__`` block comes back unchanged.
 
     :param body: The content item.
-    :returns: The content item with the ``__somersault__`` block.
+    :param plate_format: Query parameter, ``main`` (default) for
+        ``blocks["main"]``, or ``somersault`` for ``blocks["__somersault__"]``.
+    :returns: The content item with the block of the Plate value.
+    :raises HTTPException: If an unsupported Plate format is specified.
 
     Example:
         .. code-block:: shell
@@ -235,5 +262,11 @@ def convert_slate_to_plate(body: ContentBody) -> dict[str, Any]:
             curl -X POST /slate2plate -d '{"title": "Welcome",
                                            "blocks": {"a": {"@type": "title"}},
                                            "blocks_layout": {"items": ["a"]}}'
+            curl -X POST '/slate2plate?plate_format=somersault' -d '{...}'
     """
-    return slate_to_plate(body.model_dump())
+    try:
+        return slate_to_plate(
+            body.model_dump(), plate_format=cast(PlateFormat, plate_format)
+        )
+    except ValueError as exc:
+        raise _bad_request(exc) from None

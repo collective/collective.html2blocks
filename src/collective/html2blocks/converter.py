@@ -6,8 +6,10 @@ assemble them into Volto's block layout structure. It is used as the main
 conversion engine for the collective.html2blocks package.
 
 The default ``slate`` converter produces one Volto block per element. The
-``plate`` converter migrates that result to the single ``__somersault__`` block
-of Plone Aurora, and :func:`slate_to_plate` does the same for existing content.
+``plate`` converter migrates that result to the single Plate value of Plone Aurora,
+and :func:`slate_to_plate` does the same for existing content. The Plate value goes
+in the ``main`` region (``plate_format="main"``, the default), or in the
+``__somersault__`` block of older Aurora sites (``plate_format="somersault"``).
 
 Example usage::
 
@@ -27,6 +29,7 @@ from collective.html2blocks.utils import blocks as blocks_utils
 from collective.html2blocks.utils import markdown
 from collective.html2blocks.utils import markup
 from collective.html2blocks.utils import plate
+from collective.html2blocks.utils.plate import PlateFormat
 from typing import Any
 from typing import Literal
 
@@ -35,12 +38,19 @@ SourceFormat = Literal["html", "markdown"]
 ConverterName = Literal["slate", "plate"]
 
 CONVERTERS: tuple[ConverterName, ...] = ("slate", "plate")
+PLATE_FORMATS = plate.PLATE_FORMATS
 
 
-def _check_converter(converter: str) -> None:
-    """Raise ``ValueError`` for a converter that doesn't exist."""
+def _check_converter(converter: str, plate_format: str) -> None:
+    """
+    Raise ``ValueError`` for a converter or a Plate format that doesn't exist.
+
+    The Plate format is checked with every converter, so a typo fails even where
+    ``slate`` ignores it.
+    """
     if converter not in CONVERTERS:
         raise ValueError(f"Unsupported converter: {converter}")
+    plate.check_plate_format(plate_format)
 
 
 def _plate_setting(blocks: t.BlocksSetting | None) -> t.BlocksSetting:
@@ -62,6 +72,7 @@ def html_to_blocks(
     blocks: t.BlocksSetting | None = None,
     converter: ConverterName = "slate",
     title: str = "",
+    plate_format: PlateFormat = plate.DEFAULT_PLATE_FORMAT,
 ) -> list[t.VoltoBlock]:
     """
     Convert HTML source into a list of Volto blocks.
@@ -76,13 +87,16 @@ def html_to_blocks(
         disables it (see :func:`~collective.html2blocks.registry.resolve_blocks`).
         Block types left out keep their default state.
     :param converter: ``"slate"`` (default) for one block per element, or ``"plate"``
-        for a list with the ``__somersault__`` block of Plone Aurora.
+        for a list with the one block that holds the Plate value of Plone Aurora.
     :param title: The title of the content, used with ``"plate"`` for a ``title``
         block. :func:`html_to_blocks` itself produces no ``title`` block, but
         :func:`volto_blocks` accepts one in ``default_blocks``.
+    :param plate_format: Used with ``"plate"``: ``"main"`` (default) for a
+        ``plate`` block, or ``"somersault"`` for the ``__somersault__`` block of
+        Aurora sites that have not upgraded yet.
     :returns: List of Volto blocks extracted from the HTML.
-    :raises ValueError: For an unknown converter, or an unknown block type or option
-        in ``blocks``.
+    :raises ValueError: For an unknown converter or Plate format, or an unknown
+        block type or option in ``blocks``.
 
     Example::
 
@@ -91,7 +105,7 @@ def html_to_blocks(
         [{"@type": "slate", ...}, ...]
 
     """
-    _check_converter(converter)
+    _check_converter(converter, plate_format)
     if converter == "plate":
         blocks = _plate_setting(blocks)
     with registry.conversion(blocks):
@@ -104,7 +118,8 @@ def html_to_blocks(
             if block_converter and (el_blocks := block_converter(element)):
                 response.extend(el_blocks)
     if converter == "plate":
-        return [plate.somersault_block(plate.value_from_blocks(response, title))]
+        value = plate.value_from_blocks(response, title)
+        return [plate.plate_block(value, plate_format)]
     return response
 
 
@@ -114,6 +129,7 @@ def markdown_to_blocks(
     blocks: t.BlocksSetting | None = None,
     converter: ConverterName = "slate",
     title: str = "",
+    plate_format: PlateFormat = plate.DEFAULT_PLATE_FORMAT,
 ) -> list[t.VoltoBlock]:
     """
     Convert Markdown source into a list of Volto blocks.
@@ -127,9 +143,11 @@ def markdown_to_blocks(
     :param converter: ``"slate"`` (default) or ``"plate"``, see
         :func:`html_to_blocks`.
     :param title: The title of the content, see :func:`html_to_blocks`.
+    :param plate_format: ``"main"`` (default) or ``"somersault"``, see
+        :func:`html_to_blocks`.
     :returns: List of Volto blocks extracted from the Markdown.
-    :raises ValueError: For an unknown converter, or an unknown block type or option
-        in ``blocks``.
+    :raises ValueError: For an unknown converter or Plate format, or an unknown
+        block type or option in ``blocks``.
 
     Example::
 
@@ -142,6 +160,7 @@ def markdown_to_blocks(
         blocks=blocks,
         converter=converter,
         title=title,
+        plate_format=plate_format,
     )
 
 
@@ -154,6 +173,7 @@ def volto_blocks(
     blocks: t.BlocksSetting | None = None,
     converter: ConverterName = "slate",
     title: str = "",
+    plate_format: PlateFormat = plate.DEFAULT_PLATE_FORMAT,
 ) -> VoltoBlocksInfo:
     """
     Convert HTML or Markdown source into a Volto blocks info structure with layout.
@@ -171,13 +191,17 @@ def volto_blocks(
         :func:`html_to_blocks`.
     :param converter: ``"slate"`` (default) keeps one block per element. ``"plate"``
         puts ``default_blocks``, the converted blocks and ``additional_blocks`` in
-        the ``__somersault__`` block of Plone Aurora, its only block.
+        one Plate value of Plone Aurora, the only block.
     :param title: The title of the content, used with ``"plate"`` for a ``title``
         block in ``default_blocks`` or ``additional_blocks``.
+    :param plate_format: Used with ``"plate"``: ``"main"`` (default) stores the
+        Plate value as ``blocks["main"]``, a ``plate`` block. ``"somersault"``
+        stores it as ``blocks["__somersault__"]``, for Aurora sites that have not
+        upgraded yet.
     :returns: Dictionary with ``blocks`` and ``blocks_layout`` keys.
     :raises ValueError: If ``source_format`` is not ``"html"`` or ``"markdown"``,
-        for an unknown converter, or for an unknown block type or option in
-        ``blocks``.
+        for an unknown converter or Plate format, or for an unknown block type or
+        option in ``blocks``.
 
     Example::
 
@@ -188,7 +212,7 @@ def volto_blocks(
             "blocks_layout": {"items": ["block-id-1", ...]}
         }
     """
-    _check_converter(converter)
+    _check_converter(converter, plate_format)
     if converter == "plate":
         blocks = _plate_setting(blocks)
     match source_format:
@@ -204,23 +228,31 @@ def volto_blocks(
     if additional_blocks:
         blocks_.extend(additional_blocks)
     if converter == "plate":
-        return plate.info_from_blocks(blocks_, title)
+        return plate.info_from_blocks(blocks_, title, plate_format)
     return blocks_utils.info_from_blocks(blocks_)
 
 
 def slate_to_plate(
-    content: Mapping[str, Any], title: str | None = None
+    content: Mapping[str, Any],
+    title: str | None = None,
+    plate_format: PlateFormat = plate.DEFAULT_PLATE_FORMAT,
 ) -> dict[str, Any]:
     """
-    Add the ``__somersault__`` block of Plone Aurora to an existing content item.
+    Add the Plate value of Plone Aurora to an existing content item.
 
     The migration is additive and idempotent, see
-    :func:`~collective.html2blocks.utils.plate.migrate_content`.
+    :func:`~collective.html2blocks.utils.plate.migrate_content`. A content item
+    that already has a ``main`` or a ``__somersault__`` block comes back as it is,
+    whatever ``plate_format`` asks for.
 
     :param content: A content item with ``blocks`` and ``blocks_layout`` keys.
     :param title: The title for a ``title`` block. Defaults to the ``title`` key of
         the content item.
-    :returns: A copy of the content item with the ``__somersault__`` block.
+    :param plate_format: ``"main"`` (default) adds ``blocks["main"]``, a ``plate``
+        block. ``"somersault"`` adds ``blocks["__somersault__"]``, for Aurora
+        sites that have not upgraded yet.
+    :returns: A copy of the content item with the block of the Plate value.
+    :raises ValueError: For an unknown ``plate_format``.
 
     Example::
 
@@ -229,8 +261,8 @@ def slate_to_plate(
         ...     "blocks": {"a": {"@type": "title"}},
         ...     "blocks_layout": {"items": ["a"]},
         ... }
-        >>> slate_to_plate(content)["blocks"]["__somersault__"]["value"][0]["type"]
+        >>> slate_to_plate(content)["blocks"]["main"]["value"][0]["type"]
         'title'
 
     """
-    return plate.migrate_content(content, title)
+    return plate.migrate_content(content, title, plate_format)

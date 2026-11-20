@@ -74,7 +74,7 @@ params:
 To test the `plate` converter, edit the fixture for the kind of input:
 
 {file}`tests/_data/test_html_to_plate.yml`
-:   HTML. The paths start at the `value` of the `__somersault__` block.
+:   HTML. The paths start at the `value` of the `main` block.
 
 {file}`tests/_data/test_markdown_to_plate.yml`
 :   Markdown, with the same paths.
@@ -86,7 +86,13 @@ To test the `plate` converter, edit the fixture for the kind of input:
 :   A single Volto block.
 
 {file}`tests/_data/test_migrate_content.yml`
-:   A whole content item.
+:   A whole content item. Its `plate_format` is `null` for the default, `main` or `somersault`.
+
+{file}`tests/_data/test_volto_blocks_plate.yml`
+:   `volto_blocks()` with `default_blocks`, `additional_blocks` and a `plate_format`.
+
+The Plate value is the same in both formats.
+For the `somersault` format, add a case that pins the key and the type, and leave the node checks to the default.
 
 ```yaml
 params:
