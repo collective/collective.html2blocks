@@ -3,6 +3,7 @@ from typer.testing import CliRunner
 
 import json
 import pytest
+import re
 
 
 runner = CliRunner()
@@ -31,6 +32,14 @@ def _plate_value(data: dict, plate_format: str = "main") -> list:
 
 def _read(path) -> dict:
     return json.loads(path.read_text())
+
+
+ANSI = re.compile(r"\x1b\[[0-9;]*m")
+
+
+def _plain(output: str) -> str:
+    """Return the output without the ANSI colors of a terminal that forces them."""
+    return ANSI.sub("", output)
 
 
 def test_cli_convert_slate_is_the_default(test_dir):
@@ -144,7 +153,7 @@ def test_cli_convert_unknown_plate_format(test_dir, plate_format: str):
     args = ["convert", "--converter", "plate", "--plate-format", plate_format]
     result = runner.invoke(app, [*args, "page.html", "page.json"])
     assert result.exit_code == 2
-    assert "--plate-format" in result.output
+    assert "--plate-format" in _plain(result.output)
     assert not (test_dir / "page.json").exists()
 
 
@@ -213,7 +222,7 @@ def test_cli_slate2plate_unknown_plate_format(test_dir, plate_format: str):
     args = ["slate2plate", "--plate-format", plate_format, "page.json", "plate.json"]
     result = runner.invoke(app, args)
     assert result.exit_code == 2
-    assert "--plate-format" in result.output
+    assert "--plate-format" in _plain(result.output)
     assert not (test_dir / "plate.json").exists()
 
 

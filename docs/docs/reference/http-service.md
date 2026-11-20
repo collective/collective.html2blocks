@@ -45,7 +45,7 @@ Convert HTML to a list of blocks.
 | `converter` | string | No | `"slate"` | The converter to use, `"slate"` or `"plate"`. |
 | `title` | string | No | `""` | The title of the content, for a `title` block with the `plate` converter. |
 | `blocks` | object | No | `null` | Enables, disables and configures block types. See {ref}`http-service-blocks-field`. |
-| `plate_format` | string | No | `"main"` | With the `plate` converter, `"main"` for a `plate` block, or `"somersault"` for a `__somersault__` block. See {ref}`http-service-plate-format`. |
+| `plate_format` | string | No | `"main"` | With the `plate` converter, `"main"` for a `plate` block, or `"somersault"` for a `__somersault__` block. See {ref}`http-service-format-setting`. |
 
 If `converter` or `plate_format` has any other value, the service responds with status 400.
 
@@ -59,7 +59,7 @@ Convert Markdown to a list of blocks.
 | `converter` | string | No | `"slate"` | The converter to use, `"slate"` or `"plate"`. |
 | `title` | string | No | `""` | The title of the content, for a `title` block with the `plate` converter. |
 | `blocks` | object | No | `null` | Enables, disables and configures block types. See {ref}`http-service-blocks-field`. |
-| `plate_format` | string | No | `"main"` | With the `plate` converter, `"main"` or `"somersault"`. See {ref}`http-service-plate-format`. |
+| `plate_format` | string | No | `"main"` | With the `plate` converter, `"main"` or `"somersault"`. See {ref}`http-service-format-setting`. |
 
 If `converter` or `plate_format` has any other value, the service responds with status 400.
 
@@ -76,7 +76,7 @@ Convert HTML or Markdown to the structure that Volto uses for a content item.
 | `blocks` | object | No | `null` | Enables, disables and configures block types. See {ref}`http-service-blocks-field`. |
 | `converter` | string | No | `"slate"` | The converter to use, `"slate"` or `"plate"`. |
 | `title` | string | No | `""` | The title of the content, for a `title` block in `default_blocks` or `additional_blocks` with the `plate` converter. |
-| `plate_format` | string | No | `"main"` | With the `plate` converter, `"main"` or `"somersault"`. See {ref}`http-service-plate-format`. |
+| `plate_format` | string | No | `"main"` | With the `plate` converter, `"main"` or `"somersault"`. See {ref}`http-service-format-setting`. |
 
 If `format` has any other value, the service responds with status 422, the validation error status of FastAPI.
 If `converter` or `plate_format` has any other value, the service responds with status 400.
@@ -96,7 +96,7 @@ The request body is the content item.
 
 | Query parameter | Type | Required | Default | Description |
 | --- | --- | --- | --- | --- |
-| `plate_format` | string | No | `"main"` | `"main"` or `"somersault"`. See {ref}`http-service-plate-format`. |
+| `plate_format` | string | No | `"main"` | `"main"` or `"somersault"`. See {ref}`http-service-format-setting`. |
 
 `plate_format` is a query parameter here, because the body is the content item: a `plate_format` key in the body is a key of the content item, and comes back unchanged.
 
@@ -106,7 +106,7 @@ A content item that already has a `main` or a `__somersault__` block comes back 
 If `blocks` or `blocks_layout` is missing, the service responds with status 422.
 If `plate_format` has an unknown value, the service responds with status 400.
 
-(http-service-plate-format)=
+(http-service-format-setting)=
 
 ## The `plate_format` setting
 
