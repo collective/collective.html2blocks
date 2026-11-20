@@ -1,6 +1,6 @@
 ---
 setup:
-  argnames: ["name", "content", "path", "expected"]
+  argnames: ["name", "content", "plate_format", "path", "expected"]
   test_args: ["path", "expected"]
 params:
   - name: Content item
@@ -11,24 +11,102 @@ params:
         a: {"@type": "title"}
         b: {"@type": "image", "url": "/i.jpg", "alt": "An image"}
       blocks_layout: {items: [a, b]}
+    plate_format: null
     tests:
       - path: "id"
         expected: page
+      - path: "keys:"
+        expected: [blocks, blocks_layout, title, id]
+      - path: "keys:blocks"
+        expected: [a, b, main]
       - path: "blocks/b"
         expected: {"@type": "image", "url": "/i.jpg", "alt": "An image"}
+      - path: "blocks/main/@type"
+        expected: plate
+      - path: "blocks/main/value/0/type"
+        expected: title
+      - path: "blocks/main/value/1/type"
+        expected: ploneBlock
+      - path: "blocks/main/value/1/alt"
+        expected: An image
+
+  - name: Content item in main format
+    content:
+      title: Welcome
+      blocks: {a: {"@type": "title"}}
+      blocks_layout: {items: [a]}
+    plate_format: main
+    tests:
+      - path: "blocks/main"
+        expected:
+          "@type": plate
+          value: [{type: title, children: [{text: Welcome}], blockWidth: default}]
+
+  - name: Content item in somersault format
+    content:
+      id: page
+      title: Welcome
+      blocks:
+        a: {"@type": "title"}
+        b: {"@type": "image", "url": "/i.jpg", "alt": "An image"}
+      blocks_layout: {items: [a, b]}
+    plate_format: somersault
+    tests:
+      - path: "keys:"
+        expected: [blocks, blocks_layout, title, id]
+      - path: "keys:blocks"
+        expected: [a, b, __somersault__]
+      - path: "blocks/__somersault__/@type"
+        expected: __somersault__
       - path: "blocks/__somersault__/value/0/type"
         expected: title
-      - path: "blocks/__somersault__/value/1/type"
-        expected: ploneBlock
       - path: "blocks/__somersault__/value/1/alt"
         expected: An image
 
-  - name: Already migrated
+  - name: Already migrated to main
+    content:
+      blocks:
+        a: {"@type": "title"}
+        main: {"@type": "plate", value: []}
+      blocks_layout: {items: [a]}
+    plate_format: null
+    tests:
+      - path: "keys:blocks"
+        expected: [a, main]
+      - path: "blocks/main/value"
+        expected: []
+
+  - name: Already migrated to main, somersault requested
+    content:
+      blocks:
+        a: {"@type": "title"}
+        main: {"@type": "plate", value: []}
+      blocks_layout: {items: [a]}
+    plate_format: somersault
+    tests:
+      - path: "keys:blocks"
+        expected: [a, main]
+
+  - name: Already migrated to somersault
     content:
       blocks:
         a: {"@type": "title"}
         __somersault__: {"@type": "__somersault__", value: []}
       blocks_layout: {items: [a]}
+    plate_format: somersault
     tests:
+      - path: "keys:blocks"
+        expected: [a, __somersault__]
       - path: "blocks/__somersault__/value"
         expected: []
+
+  - name: Already migrated to somersault, main requested
+    content:
+      blocks:
+        a: {"@type": "title"}
+        __somersault__: {"@type": "__somersault__", value: []}
+      blocks_layout: {items: [a]}
+    plate_format: null
+    tests:
+      - path: "keys:blocks"
+        expected: [a, __somersault__]

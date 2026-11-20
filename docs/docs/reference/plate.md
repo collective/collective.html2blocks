@@ -4,14 +4,29 @@ myst:
     "description": "How collective.html2blocks converts Volto blocks and Slate nodes to the Plate value of Plone Aurora."
     "property=og:description": "The Slate to Plate conversion of collective.html2blocks."
     "property=og:title": "Plate output | collective.html2blocks"
-    "keywords": "Plone, Plone Aurora, collective.html2blocks, Plate, Slate, __somersault__, reference"
+    "keywords": "Plone, Plone Aurora, collective.html2blocks, Plate, Slate, main, __somersault__, reference"
 ---
 
 # Plate output
 
-The `plate` converter produces the `__somersault__` block of {term}`Plone Aurora`.
+The `plate` converter produces the `main` region of {term}`Plone Aurora`: a block with the key `main` in `blocks`.
 The block has an `@type` and a `value`, and the `value` holds every node of the page, in order.
 The conversion runs the Slate converter first, and then migrates its result, so the HTML is parsed the same way for both.
+
+## Formats
+
+The `plate_format` setting picks the key and the type of the block.
+The `value` is the same in both formats.
+
+| `plate_format` | Key in `blocks` | `@type` | For |
+| --- | --- | --- | --- |
+| `main` (default) | `main` | `plate` | Current Aurora sites. |
+| `somersault` (deprecated) | `__somersault__` | `__somersault__` | Aurora sites that have not upgraded yet. Current sites read it as `main`. |
+
+`slate_to_plate()` adds no block to a content item that already has a `main` or a `__somersault__` block, whatever the format.
+The `slate` converter ignores the setting, but still rejects an unknown format.
+
+`collective.html2blocks.utils.plate` provides the helpers behind the setting: `plate_block(value, plate_format)` wraps a value in the block, `body_key(plate_format)` returns its key, and `PLATE_FORMATS` lists the formats.
 
 The migrations are ports of the ones Aurora applies at runtime.
 The sections below also list what `collective.html2blocks` adds to them, because the Slate converter emits more than those migrations cover.

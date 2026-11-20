@@ -1,6 +1,6 @@
 ---
 setup:
-  argnames: ["name", "src", "default_blocks", "additional_blocks", "title", "path", "expected"]
+  argnames: ["name", "src", "default_blocks", "additional_blocks", "title", "plate_format", "path", "expected"]
   test_args: ["path", "expected"]
 params:
   - name: Simple Case
@@ -8,40 +8,120 @@ params:
     default_blocks: []
     additional_blocks: []
     title: ""
+    plate_format: null
+    tests:
+      - path: "keys:blocks"
+        expected: [main]
+      - path: "blocks_layout/items"
+        expected: []
+      - path: "blocks/main/@type"
+        expected: plate
+      - path: "len:blocks/main/value"
+        expected: 1
+
+  - name: Default format is the main region
+    src: <p>Hi</p>
+    default_blocks: []
+    additional_blocks: []
+    title: ""
+    plate_format: null
+    tests:
+      - path: ""
+        expected:
+          blocks:
+            main:
+              "@type": plate
+              value:
+                - {type: p, children: [{text: Hi}], blockWidth: default}
+          blocks_layout: {items: []}
+
+  - name: Main format
+    src: <p>Hi</p>
+    default_blocks: []
+    additional_blocks: []
+    title: ""
+    plate_format: main
+    tests:
+      - path: ""
+        expected:
+          blocks:
+            main:
+              "@type": plate
+              value:
+                - {type: p, children: [{text: Hi}], blockWidth: default}
+          blocks_layout: {items: []}
+
+  - name: Somersault format
+    src: <p>Hi</p>
+    default_blocks: []
+    additional_blocks: []
+    title: ""
+    plate_format: somersault
+    tests:
+      - path: ""
+        expected:
+          blocks:
+            __somersault__:
+              "@type": __somersault__
+              value:
+                - {type: p, children: [{text: Hi}], blockWidth: default}
+          blocks_layout: {items: []}
+
+  - name: Somersault format with title and additional blocks
+    src: <p>Hi</p>
+    default_blocks: [{"@type": "title"}]
+    additional_blocks: [{"@type": "listing", "querystring": {}}]
+    title: Welcome
+    plate_format: somersault
     tests:
       - path: "keys:blocks"
         expected: [__somersault__]
-      - path: "blocks_layout/items"
-        expected: []
-      - path: "blocks/__somersault__/@type"
-        expected: __somersault__
-      - path: "len:blocks/__somersault__/value"
-        expected: 1
+      - path: "blocks/__somersault__/value"
+        expected:
+          - {type: title, children: [{text: Welcome}], blockWidth: default}
+          - {type: p, children: [{text: Hi}], blockWidth: default}
+          - type: ploneBlock
+            "@type": listing
+            querystring: {}
+            blockWidth: default
+            children: [{text: ""}]
 
   - name: Empty source
     src: ""
     default_blocks: []
     additional_blocks: []
     title: ""
+    plate_format: null
     tests:
-      - path: "blocks/__somersault__/value"
+      - path: "blocks/main/value"
         expected: []
+
+  - name: Empty source in somersault format
+    src: ""
+    default_blocks: []
+    additional_blocks: []
+    title: ""
+    plate_format: somersault
+    tests:
+      - path: "blocks/__somersault__"
+        expected: {"@type": __somersault__, value: []}
 
   - name: Title and additional blocks
     src: <p>Hi</p>
     default_blocks: [{"@type": "title"}]
     additional_blocks: [{"@type": "listing", "querystring": {}}]
     title: Welcome
+    plate_format: null
     tests:
-      - path: "len:blocks/__somersault__/value"
+      - path: "len:blocks/main/value"
         expected: 3
-      - path: "blocks/__somersault__/value/0"
+      - path: "blocks/main/value/0"
         expected: {type: title, children: [{text: Welcome}], blockWidth: default}
-      - path: "blocks/__somersault__/value/1/type"
+      - path: "blocks/main/value/1/type"
         expected: p
-      - path: "blocks/__somersault__/value/2/type"
+      - path: "blocks/main/value/2/type"
         expected: ploneBlock
-      - path: "blocks/__somersault__/value/2/@type"
+      - path: "blocks/main/value/2/@type"
         expected: listing
 
   - name: Example of issue 51
@@ -52,8 +132,9 @@ params:
     additional_blocks:
       - {"@type": "slate", "value": [{type: p, children: [{text: ""}]}]}
     title: Welcome to Plone
+    plate_format: null
     tests:
-      - path: "blocks/__somersault__/value"
+      - path: "blocks/main/value"
         expected:
           - {type: title, children: [{text: Welcome to Plone}], blockWidth: default}
           - type: ploneBlock

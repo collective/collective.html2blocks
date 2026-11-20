@@ -1,11 +1,12 @@
 ---
 setup:
-  argnames: ["name", "src", "converter", "path", "expected"]
+  argnames: ["name", "src", "converter", "plate_format", "path", "expected"]
   test_args: ["path", "expected"]
 params:
   - name: Empty
     src: ""
     converter: slate
+    plate_format: null
     tests:
       - path: "len:"
         expected: 0
@@ -14,6 +15,7 @@ params:
     src: |
       <div><p>Hello World!</p></div>
     converter: slate
+    plate_format: null
     tests:
       - path: "len:"
         expected: 1
@@ -28,16 +30,53 @@ params:
       - path: "0/value/0/children/0/text"
         expected: "Hello World!"
 
-  - name: Plate
+  - name: Slate ignores the Plate format
     src: |
-      <p>Hello <strong>world</strong></p>
-    converter: plate
+      <p>Hello</p>
+    converter: slate
+    plate_format: somersault
     tests:
       - path: "len:"
         expected: 1
       - path: "0/@type"
-        expected: "__somersault__"
+        expected: "slate"
+
+  - name: Plate
+    src: |
+      <p>Hello <strong>world</strong></p>
+    converter: plate
+    plate_format: null
+    tests:
+      - path: "len:"
+        expected: 1
+      - path: "0/@type"
+        expected: "plate"
       - path: "0/value/0/type"
         expected: "p"
       - path: "0/value/0/children/1"
         expected: {text: world, bold: true}
+
+  - name: Plate in main format
+    src: |
+      <p>Hello</p>
+    converter: plate
+    plate_format: main
+    tests:
+      - path: ""
+        expected:
+          - "@type": plate
+            value: [{type: p, children: [{text: Hello}], blockWidth: default}]
+
+  - name: Plate in somersault format
+    src: |
+      <p>Hello <strong>world</strong></p>
+    converter: plate
+    plate_format: somersault
+    tests:
+      - path: ""
+        expected:
+          - "@type": __somersault__
+            value:
+              - type: p
+                children: [{text: "Hello "}, {text: world, bold: true}]
+                blockWidth: default

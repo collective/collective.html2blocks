@@ -27,7 +27,8 @@ Usage: `html2blocks convert [OPTIONS] SRC DST`
 | `SRC` | Path to the HTML or Markdown file to read. | Required |
 | `DST` | Path of the JSON file to write. Its parent folder must exist. | Required |
 | `--format` | Input format, `html` or `markdown`. | Detected from the suffix of `SRC` |
-| `--converter` | Output: `slate` for Volto blocks, or `plate` for the single `__somersault__` block of Plone Aurora. | `slate` |
+| `--converter` | Output: `slate` for Volto blocks, or `plate` for the single Plate value of Plone Aurora. | `slate` |
+| `--plate-format` | Where the Plate value goes: `main` for `blocks.main`, or `somersault` for the `__somersault__` block of Aurora sites that have not upgraded yet. Only for `--converter plate`. | `main` |
 | `--title` | Start the page with a `title` node with this text. Only for `--converter plate`. | No title |
 | `--enable BLOCK_TYPE` | Enable a block type, such as `codeBlock`. Repeat the option to enable more. | The default state of each block type |
 | `--disable BLOCK_TYPE` | Disable a block type, such as `slateTable`. Repeat the option to disable more. | The default state of each block type |
@@ -45,12 +46,13 @@ An unknown block type or option, a value of the wrong type, or a block type both
 
 The output is JSON, written with an indentation of two spaces.
 It has the `blocks` and `blocks_layout` keys.
-With `--converter plate`, the `__somersault__` block is its only block, as described in {doc}`/reference/plate`.
-Passing `--title` without `--converter plate` makes the command print a message and exit with status 2.
+With `--converter plate`, the `main` block is its only block, or the `__somersault__` block with `--plate-format somersault`, as described in {doc}`/reference/plate`.
+Passing `--title` or `--plate-format` without `--converter plate` makes the command print a message and exit with status 2.
+An unknown `--plate-format` value also exits with status 2.
 
 ## `slate2plate`
 
-Add the `__somersault__` block of Plone Aurora to a JSON file with a content item.
+Add the Plate value of Plone Aurora to a JSON file with a content item.
 
 Usage: `html2blocks slate2plate [OPTIONS] SRC DST`
 
@@ -59,9 +61,11 @@ Usage: `html2blocks slate2plate [OPTIONS] SRC DST`
 | `SRC` | Path to the JSON file with the `blocks` and `blocks_layout` keys. | Required |
 | `DST` | Path of the JSON file to write. Its parent folder must exist. | Required |
 | `--title` | Text of the `title` node. | The `title` key of the content item |
+| `--plate-format` | Where the Plate value goes: `main` for `blocks.main`, or `somersault` for the `__somersault__` block of Aurora sites that have not upgraded yet. | `main` |
 
 The existing blocks stay in the output.
-A content item that already has the `__somersault__` block is written unchanged.
+A content item that already has a `main` or a `__somersault__` block is written unchanged, whatever `--plate-format` asks for.
+An unknown `--plate-format` value makes the command exit with status 2.
 
 If `SRC` does not exist, or if the parent folder of `DST` does not exist, the command prints a message and exits with status 1.
 If `SRC` does not hold a JSON object, the command prints a message and exits with status 2.

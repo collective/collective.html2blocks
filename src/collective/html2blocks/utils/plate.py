@@ -1,8 +1,13 @@
 """
 Slate to Plate utilities for ``collective.html2blocks``.
 
-Plone Aurora keeps a whole page in one Plate value, stored in the ``__somersault__``
-block. This module ports the migrations Aurora applies at runtime, so the content can
+Plone Aurora keeps a whole page in one Plate value, stored in the ``main`` region:
+``blocks["main"] = {"@type": "plate", "value": [...]}``. Older Aurora sites store it
+in the ``__somersault__`` block instead, and newer ones still read that shape as
+``main``. The ``plate_format`` argument picks the shape: ``"main"`` (default) or
+``"somersault"`` for sites that have not upgraded yet.
+
+This module ports the migrations Aurora applies at runtime, so the content can
 be converted ahead of time, and adds what the Slate converter emits and those
 migrations do not cover: more marks, nested lists, ``pre`` elements and tables.
 
@@ -15,16 +20,30 @@ Example:
         from collective.html2blocks.utils import plate
         slate_blocks = [{"@type": "title"}, {"@type": "slate", "value": [...]}]
         value = plate.value_from_blocks(slate_blocks, title="Welcome")
-        block = plate.somersault_block(value)
+        block = plate.plate_block(value)
 """
 
 from collections.abc import Mapping
 from collective.html2blocks import _types as t
 from copy import deepcopy
 from typing import Any
+from typing import Literal
 
 
+PlateFormat = Literal["main", "somersault"]
+
+PLATE_FORMATS: tuple[PlateFormat, ...] = ("main", "somersault")
+DEFAULT_PLATE_FORMAT: PlateFormat = "main"
+MAIN_KEY = "main"
+PLATE_BODY_TYPE = "plate"
 SOMERSAULT_KEY = "__somersault__"
+# Key in ``blocks`` and ``@type`` of the block that holds the Plate value.
+BODY_BLOCKS: dict[PlateFormat, tuple[str, str]] = {
+    "main": (MAIN_KEY, PLATE_BODY_TYPE),
+    "somersault": (SOMERSAULT_KEY, SOMERSAULT_KEY),
+}
+# Keys of a content item that already has a Plate value, in any format.
+BODY_KEYS = frozenset(key for key, _ in BODY_BLOCKS.values())
 PLONE_BLOCK_TYPE = "ploneBlock"
 TITLE_BLOCK_TYPE = "title"
 TABLE_BLOCK_TYPE = "slateTable"
@@ -446,43 +465,98 @@ def value_from_blocks(blocks: list[t.VoltoBlock], title: str = "") -> list[t.Pla
     return migrate_value(nodes)
 
 
-def somersault_block(value: list[t.PlateNode]) -> t.VoltoBlock:
+def check_plate_format(plate_format: str) -> None:
+    """
+    Raise ``ValueError`` for a Plate format that doesn't exist.
+
+    :param plate_format: The format to check.
+    :raises ValueError: If ``plate_format`` is not one of :data:`PLATE_FORMATS`.
+    """
+    if plate_format not in PLATE_FORMATS:
+        raise ValueError(f"Unsupported Plate format: {plate_format}")
+
+
+def body_key(plate_format: PlateFormat = DEFAULT_PLATE_FORMAT) -> str:
+    """
+    Return the key in ``blocks`` of the block that holds the Plate value.
+
+    :param plate_format: ``"main"`` (default) or ``"somersault"``.
+    :returns: ``"main"`` or ``"__somersault__"``.
+    :raises ValueError: For an unknown ``plate_format``.
+    """
+    check_plate_format(plate_format)
+    return BODY_BLOCKS[plate_format][0]
+
+
+def plate_block(
+    value: list[t.PlateNode], plate_format: PlateFormat = DEFAULT_PLATE_FORMAT
+) -> t.VoltoBlock:
     """
     Wrap a Plate value in the block that holds a whole page in Aurora.
 
     :param value: The Plate value.
-    :returns: The ``__somersault__`` block.
+    :param plate_format: ``"main"`` (default) for a ``plate`` block, or
+        ``"somersault"`` for the ``__somersault__`` block of older Aurora sites.
+    :returns: The block.
+    :raises ValueError: For an unknown ``plate_format``.
+
+    Example:
+        .. code-block:: pycon
+
+            >>> plate_block([])
+            {'@type': 'plate', 'value': []}
+            >>> plate_block([], "somersault")
+            {'@type': '__somersault__', 'value': []}
     """
-    return {"@type": SOMERSAULT_KEY, "value": value}
+    check_plate_format(plate_format)
+    return {"@type": BODY_BLOCKS[plate_format][1], "value": value}
 
 
-def info_from_blocks(blocks: list[t.VoltoBlock], title: str = "") -> t.VoltoBlocksInfo:
+def info_from_blocks(
+    blocks: list[t.VoltoBlock],
+    title: str = "",
+    plate_format: PlateFormat = DEFAULT_PLATE_FORMAT,
+) -> t.VoltoBlocksInfo:
     """
     Construct the blocks info of a page from a list of Volto blocks.
 
     :param blocks: The Volto blocks, in order.
     :param title: The title of the content, for a ``title`` block.
-    :returns: Dictionary with the ``__somersault__`` block as its only block.
+    :param plate_format: ``"main"`` (default) or ``"somersault"``, see
+        :func:`plate_block`.
+    :returns: Dictionary with the block of the Plate value as its only block.
+    :raises ValueError: For an unknown ``plate_format``.
     """
+    key = body_key(plate_format)
     value = value_from_blocks(blocks, title)
     return {
-        "blocks": {SOMERSAULT_KEY: somersault_block(value)},
+        "blocks": {key: plate_block(value, plate_format)},
         "blocks_layout": {"items": []},
     }
 
 
-def migrate_content(content: Mapping[str, Any], title: str | None = None) -> dict:
+def migrate_content(
+    content: Mapping[str, Any],
+    title: str | None = None,
+    plate_format: PlateFormat = DEFAULT_PLATE_FORMAT,
+) -> dict:
     """
-    Add the ``__somersault__`` block to a content item with Slate blocks.
+    Add the block of the Plate value to a content item with Slate blocks.
 
     Like the migration of Aurora, this is additive and idempotent: the existing
-    blocks stay, and a content item that already has the block is returned as it
-    is, as is one without ``blocks`` or a ``blocks_layout`` list.
+    blocks stay, and a content item that already has a Plate value is returned as
+    it is, in either format, as is one without ``blocks`` or a ``blocks_layout``
+    list. A content item never ends up with both a ``main`` and a
+    ``__somersault__`` block.
 
     :param content: The content item, which is left unchanged.
     :param title: The title for a ``title`` block. Defaults to the ``title`` key
         of the content item.
+    :param plate_format: ``"main"`` (default) or ``"somersault"``, see
+        :func:`plate_block`.
     :returns: A copy of the content item.
+    :raises ValueError: For an unknown ``plate_format``, even when the content
+        item is returned as it is.
 
     Example:
         .. code-block:: pycon
@@ -492,18 +566,19 @@ def migrate_content(content: Mapping[str, Any], title: str | None = None) -> dic
             ...     "blocks": {"a": {"@type": "title"}},
             ...     "blocks_layout": {"items": ["a"]},
             ... }
-            >>> migrate_content(content)["blocks"]["__somersault__"]["value"]
+            >>> migrate_content(content)["blocks"]["main"]["value"]
             [{'type': 'title', 'children': [{'text': 'Welcome'}], 'blockWidth': 'default'}]
     """  # noqa: E501
+    key = body_key(plate_format)
     migrated = dict(content)
     blocks = content.get("blocks")
     items = (content.get("blocks_layout") or {}).get("items")
-    if not blocks or not isinstance(items, list) or SOMERSAULT_KEY in blocks:
+    if not blocks or not isinstance(items, list) or any(k in blocks for k in BODY_KEYS):
         return migrated
     if title is None:
         raw_title = content.get("title")
         title = raw_title if isinstance(raw_title, str) else ""
     ordered = [blocks[item] for item in items if item in blocks]
     value = value_from_blocks(ordered, title)
-    migrated["blocks"] = {**blocks, SOMERSAULT_KEY: somersault_block(value)}
+    migrated["blocks"] = {**blocks, key: plate_block(value, plate_format)}
     return migrated

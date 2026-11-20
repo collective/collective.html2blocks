@@ -1,12 +1,16 @@
 import pytest
 
 
-def test_services_html(traverse, client, name, src, converter, path, expected):
+def test_services_html(
+    traverse, client, name, src, converter, plate_format, path, expected
+):
     """Test the /html endpoint."""
     payload = {
         "html": src,
         "converter": converter,
     }
+    if plate_format is not None:
+        payload["plate_format"] = plate_format
     response = client.post("/html", json=payload)
     assert response.status_code == 200, f"Failed for {name}: {response.text}"
     data = response.json()

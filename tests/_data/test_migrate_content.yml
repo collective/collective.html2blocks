@@ -1,6 +1,6 @@
 ---
 setup:
-  argnames: ["name", "content", "title", "path", "expected"]
+  argnames: ["name", "content", "title", "plate_format", "path", "expected"]
   test_args: ["path", "expected"]
 params:
   - name: Aurora title and value blocks follow the layout
@@ -11,6 +11,43 @@ params:
         titleBlock: {"@type": "title"}
       blocks_layout: {items: [text, titleBlock]}
     title: null
+    plate_format: null
+    tests:
+      - path: "blocks/main"
+        expected:
+          "@type": plate
+          value:
+            - {type: p, children: [{text: First block}], blockWidth: default}
+            - {type: title, children: [{text: Page title}], blockWidth: default}
+      - path: "keys:blocks"
+        expected: [text, titleBlock, main]
+      - path: "blocks_layout/items"
+        expected: [text, titleBlock]
+
+  - name: Main format
+    content:
+      title: Page title
+      blocks: {a: {"@type": "title"}}
+      blocks_layout: {items: [a]}
+    title: null
+    plate_format: main
+    tests:
+      - path: "blocks/main"
+        expected:
+          "@type": plate
+          value: [{type: title, children: [{text: Page title}], blockWidth: default}]
+      - path: "keys:blocks"
+        expected: [a, main]
+
+  - name: Somersault format
+    content:
+      title: Page title
+      blocks:
+        text: {"@type": "slate", value: [{type: p, children: [{text: First block}]}]}
+        titleBlock: {"@type": "title"}
+      blocks_layout: {items: [text, titleBlock]}
+    title: null
+    plate_format: somersault
     tests:
       - path: "blocks/__somersault__"
         expected:
@@ -29,6 +66,18 @@ params:
       blocks: {a: {"@type": "title"}}
       blocks_layout: {items: [a]}
     title: Other
+    plate_format: null
+    tests:
+      - path: "blocks/main/value/0/children"
+        expected: [{text: Other}]
+
+  - name: Title argument wins in somersault format
+    content:
+      title: Page title
+      blocks: {a: {"@type": "title"}}
+      blocks_layout: {items: [a]}
+    title: Other
+    plate_format: somersault
     tests:
       - path: "blocks/__somersault__/value/0/children"
         expected: [{text: Other}]
@@ -39,8 +88,9 @@ params:
       blocks: {a: {"@type": "title"}}
       blocks_layout: {items: [a]}
     title: null
+    plate_format: null
     tests:
-      - path: "blocks/__somersault__/value/0/children"
+      - path: "blocks/main/value/0/children"
         expected: [{text: ""}]
 
   - name: Layout item without a block
@@ -48,22 +98,71 @@ params:
       blocks: {a: {"@type": "title"}}
       blocks_layout: {items: [missing, a]}
     title: null
+    plate_format: null
     tests:
-      - path: "len:blocks/__somersault__/value"
+      - path: "len:blocks/main/value"
         expected: 1
 
-  - name: Already migrated
+  - name: Already migrated to main
+    content:
+      blocks: {a: {"@type": "title"}, main: {"@type": "plate", value: []}}
+      blocks_layout: {items: [a]}
+    title: null
+    plate_format: null
+    tests:
+      - path: "blocks/main/value"
+        expected: []
+      - path: "keys:blocks"
+        expected: [a, main]
+
+  - name: Already migrated to main, somersault requested
+    content:
+      blocks: {a: {"@type": "title"}, main: {"@type": "plate", value: []}}
+      blocks_layout: {items: [a]}
+    title: null
+    plate_format: somersault
+    tests:
+      - path: "blocks/main/value"
+        expected: []
+      - path: "keys:blocks"
+        expected: [a, main]
+
+  - name: Already migrated to somersault
     content:
       blocks: {a: {"@type": "title"}, __somersault__: {"@type": "__somersault__", value: []}}
       blocks_layout: {items: [a]}
     title: null
+    plate_format: somersault
     tests:
       - path: "blocks/__somersault__/value"
         expected: []
+      - path: "keys:blocks"
+        expected: [a, __somersault__]
+
+  - name: Already migrated to somersault, main requested
+    content:
+      blocks: {a: {"@type": "title"}, __somersault__: {"@type": "__somersault__", value: []}}
+      blocks_layout: {items: [a]}
+    title: null
+    plate_format: null
+    tests:
+      - path: "blocks/__somersault__/value"
+        expected: []
+      - path: "keys:blocks"
+        expected: [a, __somersault__]
 
   - name: No blocks
     content: {title: No blocks}
     title: null
+    plate_format: null
+    tests:
+      - path: "keys:"
+        expected: [title]
+
+  - name: No blocks in somersault format
+    content: {title: No blocks}
+    title: null
+    plate_format: somersault
     tests:
       - path: "keys:"
         expected: [title]
@@ -71,6 +170,7 @@ params:
   - name: Empty blocks
     content: {blocks: {}, blocks_layout: {items: []}}
     title: null
+    plate_format: null
     tests:
       - path: "blocks"
         expected: {}
@@ -78,6 +178,7 @@ params:
   - name: No layout
     content: {blocks: {a: {"@type": "title"}}}
     title: null
+    plate_format: null
     tests:
       - path: "keys:blocks"
         expected: [a]
@@ -85,6 +186,7 @@ params:
   - name: Layout items that are not a list
     content: {blocks: {a: {"@type": "title"}}, blocks_layout: {items: a}}
     title: null
+    plate_format: null
     tests:
       - path: "keys:blocks"
         expected: [a]

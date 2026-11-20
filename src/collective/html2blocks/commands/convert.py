@@ -13,6 +13,8 @@ Example:
         uv run html2blocks convert input.html output.json
         uv run html2blocks convert input.md output.json
         uv run html2blocks convert --converter plate input.html output.json
+        uv run html2blocks convert --converter plate --plate-format somersault \\
+            input.html output.json
 """
 
 from enum import StrEnum
@@ -40,6 +42,13 @@ class ConverterChoice(StrEnum):
 
     slate = "slate"
     plate = "plate"
+
+
+class PlateFormatChoice(StrEnum):
+    """Shapes of the Plate value accepted by the ``--plate-format`` option."""
+
+    main = "main"
+    somersault = "somersault"
 
 
 def detect_format(path: Path) -> str:
@@ -162,9 +171,18 @@ def convert(
         typer.Option(
             "--converter",
             help="Output: slate for Volto blocks, or plate for the single "
-            "__somersault__ block of Plone Aurora.",
+            "Plate value of Plone Aurora.",
         ),
     ] = ConverterChoice.slate,
+    plate_format: Annotated[
+        PlateFormatChoice | None,
+        typer.Option(
+            "--plate-format",
+            help="Where the Plate value goes: main (default) for blocks.main, or "
+            "somersault for the __somersault__ block of Aurora sites that have "
+            "not upgraded yet. Only for --converter plate.",
+        ),
+    ] = None,
     title: Annotated[
         str | None,
         typer.Option(
@@ -216,6 +234,7 @@ def convert(
     :param dst: Path to write the JSON output.
     :param input_format: Input format, overriding the suffix detection.
     :param output_converter: ``slate`` (default), or ``plate`` for Plone Aurora.
+    :param plate_format: With ``plate``, ``main`` (default) or ``somersault``.
     :param title: Text of a title block at the start of the page, with ``plate``.
     :param enable: Block types to enable.
     :param disable: Block types to disable.
@@ -232,6 +251,8 @@ def convert(
             uv run html2blocks convert --disable slateTable input.html out.json
             uv run html2blocks convert --converter plate --title Welcome \\
                 input.html out.json
+            uv run html2blocks convert --converter plate \\
+                --plate-format somersault input.html out.json
 
         .. code-block:: console
 
@@ -246,6 +267,9 @@ def convert(
     is_plate = output_converter is ConverterChoice.plate
     if title is not None and not is_plate:
         typer.echo("--title needs --converter plate")
+        raise typer.Exit(2)
+    if plate_format is not None and not is_plate:
+        typer.echo("--plate-format needs --converter plate")
         raise typer.Exit(2)
     try:
         blocks = blocks_setting(
@@ -267,6 +291,7 @@ def convert(
         blocks=blocks,
         converter="plate" if is_plate else "slate",
         title=title or "",
+        plate_format=plate_format.value if plate_format else "main",
     )
     with open(dst, "w") as fout:
         json.dump(result, fout, indent=2)
