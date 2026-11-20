@@ -1,2 +1,2 @@
-__version__ = "1.0.0b3.dev0"
+__version__ = "1.0.0b3"
 PACKAGE_NAME = "collective.html2blocks"

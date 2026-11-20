@@ -9,6 +9,23 @@
 
 <!-- towncrier release notes start -->
 
+## 1.0.0b3 (2026-11-20)
+
+
+### Breaking changes:
+
+- The ``plate`` converter now writes the page body to the ``main`` region of Plone Aurora, ``blocks["main"] = {"@type": "plate", "value": [...]}``, instead of the ``__somersault__`` block. This applies to ``html_to_blocks()``, ``markdown_to_blocks()``, ``volto_blocks()``, ``slate_to_plate()``, the ``convert`` and ``slate2plate`` commands and the HTTP service. ``slate_to_plate()`` leaves a content item that already has a ``main`` or a ``__somersault__`` block unchanged. ``utils.plate.somersault_block()`` was renamed to ``plate_block()``. @ericof [#53](https://github.com/collective/collective.html2blocks/issues/53)
+
+
+### Feature
+
+- Added the ``plate_format`` setting to write Plate content for Plone Aurora sites that have not upgraded yet: ``plate_format="somersault"`` in ``html_to_blocks()``, ``markdown_to_blocks()``, ``volto_blocks()`` and ``slate_to_plate()``, ``--plate-format somersault`` in the ``convert`` and ``slate2plate`` commands, a ``plate_format`` field on ``POST /html``, ``POST /markdown`` and ``POST /volto``, and a ``plate_format`` query parameter on ``POST /slate2plate``. ``main`` is the default, and the ``somersault`` format is deprecated. @ericof [#53](https://github.com/collective/collective.html2blocks/issues/53)
+
+
+### Internal
+
+- Upgraded the locked dependencies of the package and the documentation, including fixes for the security advisories reported against ``anyio``, ``certifi``, ``cryptography``, ``starlette``, ``soupsieve``, ``urllib3`` and ``python-multipart``. @ericof 
+
 ## 1.0.0b2 (2026-11-01)
 
 

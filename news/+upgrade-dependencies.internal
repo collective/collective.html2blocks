@@ -1,1 +1,0 @@
-Upgraded the locked dependencies of the package and the documentation, including fixes for the security advisories reported against ``anyio``, ``certifi``, ``cryptography``, ``starlette``, ``soupsieve``, ``urllib3`` and ``python-multipart``. @ericof
